@@ -36,13 +36,8 @@ int main(int argc, char const* argv[])
 	while (i < hello.length()) {
 		send(sock, hello.c_str() + i, 1, 0);
 		i++;
-		usleep(1000000);
+		usleep(100000);
 	}
-    // printf("Hello message sent\n");
-    // valread = read(sock, buffer, 1024);
-    // printf("%s\n", buffer);
-
-    // closing the connected socket
     close(client_fd);
     return 0;
 }
