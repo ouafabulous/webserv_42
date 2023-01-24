@@ -9,7 +9,7 @@ int main(int argc, char const* argv[])
 {
     int sock = 0, valread, client_fd;
     struct sockaddr_in serv_addr;
-	std::string 	hello = "Hello from client";
+	std::string 	hello = "hello from client";
     char buffer[1024] = { 0 };
     if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
         printf("\n Socket creation error \n");
@@ -35,8 +35,7 @@ int main(int argc, char const* argv[])
 	int i = 0;
 	while (i < hello.length()) {
 		send(sock, hello.c_str() + i, 1, 0);
-		i++;
-		usleep(100000);
+		//usleep(100000);
 	}
     close(client_fd);
     return 0;

@@ -24,24 +24,27 @@ int	setnonblocking(int fd) {
 
 int main(int argc, char **av)
 {
-	int server_fd, valread;
-	int current_fd;
-	std::map<int, std::string> my_conns;
-	struct sockaddr_in address;
-	int addrlen = sizeof(address);
-	epoll_event tmp_epoll_event;
-	char buffer[BUFFER_SIZE];
-	epoll_event events[BACKLOG];
-	int epoll_wait_return;
-	int	tmp_recv;
+	int							server_fd, valread;
+	int							current_fd;
+	std::map<int, std::string>	my_conns;
+	struct sockaddr_in			address;
+	int							addrlen = sizeof(address);
+	epoll_event					tmp_epoll_event;
+	epoll_event					events[BACKLOG];
+	char						buffer[BUFFER_SIZE];
+	int							epoll_wait_return;
+	int							tmp_recv;
+	std::string					hello = "HTTP/1.1 200 OK\nContent-Type:text/plain\nContent-Length: 12\n\nHello World!";
+	int							reuse = 1;
+
+	// call to http://localhost:8081/index.html
 
 	if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0)
 	{
 		perror("socket failed");
 		exit(EXIT_FAILURE);
 	}
-	int reuse = 1;
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&reuse, sizeof(reuse)))
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&reuse, sizeof(reuse)))
 		perror("ERROR SO_REUSEADDR:");
 	if(setnonblocking(server_fd) == -1)
 		exit(-1);
@@ -64,12 +67,18 @@ int main(int argc, char **av)
 	int epfd = epoll_create(10);
 	tmp_epoll_event.data.fd = server_fd;
 	tmp_epoll_event.events = EPOLLIN;
-	if (epoll_ctl(epfd, EPOLL_CTL_ADD, server_fd, &tmp_epoll_event) == -1)
-		exit(250);
+
+	if (epoll_ctl(epfd, EPOLL_CTL_ADD, server_fd, &tmp_epoll_event) == -1) {
+		perror("epoll_ctl");
+		exit(EXIT_FAILURE);
+	}
 	while (1)
 	{
 		epoll_wait_return = epoll_wait(epfd, events, BACKLOG, 1);
-
+		if (epoll_wait_return == -1) {
+			perror("epoll_wait");
+			exit(EXIT_FAILURE);
+		}
 		for (int i = 0; i < epoll_wait_return; i++)
 		{
 			if (events[i].data.fd == server_fd)
@@ -78,6 +87,7 @@ int main(int argc, char **av)
 				{
 					if(setnonblocking(tmp_epoll_event.data.fd) == -1)
 						exit(-1);
+					tmp_epoll_event.events = EPOLLIN | EPOLLET;
 					std::cout << tmp_epoll_event.data.fd << " is now connected" << std::endl;
 					if (epoll_ctl(epfd, EPOLL_CTL_ADD, tmp_epoll_event.data.fd, &tmp_epoll_event))
 						exit(250);
@@ -91,6 +101,8 @@ int main(int argc, char **av)
 					my_conns[events[i].data.fd].append(buffer);
 					std::cout << my_conns[events[i].data.fd] << std::endl;
 				}
+				else if (tmp_recv == 0)
+					write(events[i].data.fd, hello.c_str(), hello.length());
 			}
 		}
 	}
