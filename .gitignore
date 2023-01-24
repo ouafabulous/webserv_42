@@ -1,1 +1,3 @@
 */.vscode
+socket_tests/client
+socket_tests/server

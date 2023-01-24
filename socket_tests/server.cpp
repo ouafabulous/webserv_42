@@ -11,7 +11,9 @@
 #define BUFFER_SIZE 4096
 #define BACKLOG 3
 #define PORT 8081
+#include <vector>
 
+typedef	int	fd;
 
 int	setnonblocking(int fd) {
 	if (fd < 0)
@@ -22,10 +24,15 @@ int	setnonblocking(int fd) {
 	return (fcntl(fd, F_SETFL,flags | O_NONBLOCK));
 }
 
-int main(int argc, char **av)
+inline bool ends_with(std::string const & value, std::string const & ending)
 {
-	int							server_fd, valread;
-	int							current_fd;
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+int main(void)
+{
+	int							server_fd;
 	std::map<int, std::string>	my_conns;
 	struct sockaddr_in			address;
 	int							addrlen = sizeof(address);
@@ -33,8 +40,10 @@ int main(int argc, char **av)
 	epoll_event					events[BACKLOG];
 	char						buffer[BUFFER_SIZE];
 	int							epoll_wait_return;
-	int							tmp_recv;
+	int							recv_size;
+	fd							current_fd;
 	std::string					hello = "HTTP/1.1 200 OK\nContent-Type:text/plain\nContent-Length: 12\n\nHello World!";
+	std::vector<fd>				to_read;
 
 	// call to http://localhost:8081/index.html
 
@@ -47,8 +56,6 @@ int main(int argc, char **av)
 	int	reuse = 1;
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&reuse, sizeof(reuse)))
 		perror("ERROR SO_REUSEADDR:");
-	if(setnonblocking(server_fd) == -1)
-		exit(-1);
 
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
@@ -59,6 +66,8 @@ int main(int argc, char **av)
 		perror("bind failed");
 		exit(EXIT_FAILURE);
 	}
+	if(setnonblocking(server_fd) == -1)
+		exit(-1);
 	if (listen(server_fd, 3) < 0)
 	{
 		perror("listen");
@@ -67,12 +76,12 @@ int main(int argc, char **av)
 
 	int epfd = epoll_create(10);
 	tmp_epoll_event.data.fd = server_fd;
-	tmp_epoll_event.events = EPOLLIN;
-
+	tmp_epoll_event.events = EPOLLIN | EPOLLET;
 	if (epoll_ctl(epfd, EPOLL_CTL_ADD, server_fd, &tmp_epoll_event) == -1) {
 		perror("epoll_ctl");
 		exit(EXIT_FAILURE);
 	}
+
 	while (1)
 	{
 		epoll_wait_return = epoll_wait(epfd, events, BACKLOG, 1);
@@ -82,27 +91,45 @@ int main(int argc, char **av)
 		}
 		for (int i = 0; i < epoll_wait_return; i++)
 		{
-			if (events[i].data.fd == server_fd)
+			current_fd = events[i].data.fd;
+			if (current_fd == server_fd)
 			{
 				if ((tmp_epoll_event.data.fd = accept(server_fd, (struct sockaddr *)&address, (socklen_t *)&addrlen)) > 0)
 				{
-					if(setnonblocking(tmp_epoll_event.data.fd) == -1)
+					if (setnonblocking(tmp_epoll_event.data.fd) == -1)
 						exit(-1);
-					tmp_epoll_event.events = EPOLLIN | EPOLLET;
+					tmp_epoll_event.events = EPOLLIN;
 					std::cout << tmp_epoll_event.data.fd << " is now connected" << std::endl;
-					if (epoll_ctl(epfd, EPOLL_CTL_ADD, tmp_epoll_event.data.fd, &tmp_epoll_event))
+					if (epoll_ctl(epfd, EPOLL_CTL_ADD, tmp_epoll_event.data.fd, &tmp_epoll_event) == -1)
 						exit(250);
 				}
 			}
 			else
 			{
-				if ((tmp_recv = recv(events[i].data.fd, buffer, BUFFER_SIZE, MSG_DONTWAIT)) > 0) {
-					// std::cout << tmp_recv << std::endl;
-					buffer[tmp_recv] = 0;
-					my_conns[events[i].data.fd].append(buffer);
-					std::cout << my_conns[events[i].data.fd] << std::endl;
+				if (events[i].events & EPOLLIN) {
+					std::cout << "** EPOLLIN **" << std::endl;
+					if ((recv_size = recv(current_fd, buffer, BUFFER_SIZE, MSG_DONTWAIT)) > 0) {
+						buffer[recv_size -1] = 0;
+						my_conns[current_fd].append(buffer);
+					}
+					if (ends_with(my_conns[current_fd], "\n\r")) {
+						std::cout << my_conns[current_fd] << std::endl;
+						std::cout << "request ok" << std::endl;
+						tmp_epoll_event.data.fd = current_fd;
+						tmp_epoll_event.events = EPOLLOUT | EPOLLET;
+						epoll_ctl(epfd, EPOLL_CTL_MOD, current_fd, &tmp_epoll_event);
+					}
 				}
-				write(events[i].data.fd, hello.c_str(), hello.length());
+				if (events[i].events & EPOLLOUT) {
+					std::cout << "** EPOLLOUT **" << std::endl;
+					if (send(current_fd, hello.c_str(), hello.length(), MSG_DONTWAIT) > 0)
+						std::cout << "response ok\n=== === ===" << std::endl;
+					if (epoll_ctl(epfd, EPOLL_CTL_DEL, current_fd, NULL) == -1)
+						perror("epoll_ctl");
+					if (close(current_fd) == -1)
+						perror("close");
+					my_conns.erase(current_fd);
+				}
 			}
 		}
 	}
