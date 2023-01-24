@@ -35,6 +35,7 @@ int main(int argc, char const* argv[])
 	int i = 0;
 	while (i < hello.length()) {
 		send(sock, hello.c_str() + i, 1, 0);
+        i++;
 		//usleep(100000);
 	}
     close(client_fd);

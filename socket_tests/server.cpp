@@ -6,12 +6,12 @@
 #include <unistd.h>
 #include <iostream>
 #include <sys/epoll.h>
+#include <map>
 #include <fcntl.h>
 #define BUFFER_SIZE 4096
 #define BACKLOG 3
 #define PORT 8081
 
-#include <map>
 
 int	setnonblocking(int fd) {
 	if (fd < 0)
@@ -35,7 +35,6 @@ int main(int argc, char **av)
 	int							epoll_wait_return;
 	int							tmp_recv;
 	std::string					hello = "HTTP/1.1 200 OK\nContent-Type:text/plain\nContent-Length: 12\n\nHello World!";
-	int							reuse = 1;
 
 	// call to http://localhost:8081/index.html
 
@@ -44,6 +43,8 @@ int main(int argc, char **av)
 		perror("socket failed");
 		exit(EXIT_FAILURE);
 	}
+
+	int	reuse = 1;
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, (void *)&reuse, sizeof(reuse)))
 		perror("ERROR SO_REUSEADDR:");
 	if(setnonblocking(server_fd) == -1)
@@ -101,8 +102,7 @@ int main(int argc, char **av)
 					my_conns[events[i].data.fd].append(buffer);
 					std::cout << my_conns[events[i].data.fd] << std::endl;
 				}
-				else if (tmp_recv == 0)
-					write(events[i].data.fd, hello.c_str(), hello.length());
+				write(events[i].data.fd, hello.c_str(), hello.length());
 			}
 		}
 	}
