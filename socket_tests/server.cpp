@@ -13,6 +13,16 @@
 #define PORT 8081
 #include <vector>
 
+// class Basic_route;
+
+// typedef std::map<std::pair<in_addr_t, in_port_t>, std::map<std::string, Basic_route>> router_map;
+
+// for(router_map::const_iterator it = router.begin(), it != router.end(), it++) {
+// 	socks.push_back()
+// }
+
+// router[{127.0.0.1, 20}]["google.com"]
+
 typedef	int	fd;
 
 int	setnonblocking(int fd) {
@@ -68,6 +78,7 @@ int main(void)
 	}
 	if(setnonblocking(server_fd) == -1)
 		exit(-1);
+// Pour les socket de
 	if (listen(server_fd, 3) < 0)
 	{
 		perror("listen");
