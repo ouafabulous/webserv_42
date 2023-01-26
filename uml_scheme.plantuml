@@ -26,41 +26,98 @@ note right of Socket::read
 always returns false
 endnote
 
-Connection --|> Socket
 
-class Connection {
+class Connexion {
 -t_http_message\t\t\trequest
 -t_http_message\t\t\tresponse
 -std::string \t\t\t\tbuffer
--Basic_route&\t\t\t\troute
+-Route*\t\t\t\troute
+' -catch Error:Error413
+' -catch Error:Error403
+-Ressource*\t\t\t\tressource
+-virtual bool \t\t\t\tread_header()
+-virtual bool \t\t\t\tread_body()
 +virtual bool \t\t\t\tread()
 +virtual void \t\t\t\twrite()
 +virtual void \t\t\t\terror()
 +void \t\t\t\t\tget_header()
 -void \t\t\t\t\tparse_header()
-+void \t\t\t\t\tset_route(Basic_route route)
 }
-note right of Connection::read
+note right of Connexion::read_header
 returns true when the header is parsed
+and no exception is thrown
 endnote
 
-
-Socket --* Server
 class Server {
 Server(Router router, std::vector<in_port_t> listen_socket)
 -std::vector<Socket>\tsocks
 -socket\t\t\t\tepollfd
 -Router \t\t\t\trouter
 +void\t\t\t\t\troutine()
--Basic_route\t\t\tget_route_for_conn(Connection conn)
+-Route\t\t\tget_route_for_conn(Connexion conn)
 }
 
 class Router{
-// typedef std::map<std::pair<in_addr_t, in_port_t>, std::map<std::string, Basic_route>> router_map
+// typedef std::map<std::pair<in_addr_t, in_port_t>, std::map<std::string, Route>> router_map
+Router(Config_file &config)
 router_map \tmy_map
+void \tset_route(Connexion &conn)
+}
+
+class Route{
+ // typedef char \t\t\t\t\tt_methods
+-t_methods \t\\t\t\t\t\tmethods_allowed
+-size_t \t\t\t\t\t\t\tmax_body_length
+-std::vector<std::string>   \t\t\tserver_names
+-std::map<uint,std::string> \t\t\terrors
+-std::string \t\t\t\t\t\tredirect
+-std::string \t\t\t\t\t\tstatic_file
+-bool \t\t\t\t\t\t\tdirectory_listing
+
++void \t\t\t\t\t\t\thandle(Connexion &conn)
+-void \t\t\t\t\t\t\tcreate_ressource(Connexion &conn)
+}
+
+Abstract class Ressource{
+// typedef int		fd
+Ressource(std::string *conn_buffer)
+std::string		*conn_buffer
+virtual bool			read()
+}
+
+class	CGI{
+	' catch Error::Error503
+}
+
+class 	File{
 
 }
 
+class	Directory{
+
+}
+
+class Error{
+class Error413: Public std::exception
+class Error403: Public std::exception
+class Error503: Public std::exception
+}
+note right of Error::Error413
+max body length either doesn't respect
+the length allowed in the config or the
+route
+endnote
+note right of Error::Error403
+Method not allowed
+endnote
+
+Ressource --* Connexion
+CGI--|> Ressource
+File--|> Ressource
+Directory--|> Ressource
+Connexion --|> Socket
+Socket --* Server
+Route --* Connexion
 t_request_line --* t_http_message
-t_http_message --* Connection
+t_http_message --* Connexion	
 @enduml
