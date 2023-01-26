@@ -3,10 +3,10 @@
 
 ## II- Theoritical basics explained as if you're 5:
 
-#### Non-blocking socket<br>
+### Non-blocking socket<br>
 A socket that doesn't block all the fluidity of a program while waiting listening or sending information.
 
-#### epoll
+### epoll
 
 
 ### Routes in config file:
