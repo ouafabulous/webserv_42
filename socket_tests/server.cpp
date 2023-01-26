@@ -23,6 +23,13 @@
 
 // router[{127.0.0.1, 20}]["google.com"]
 
+class Error_404 : public std::exception {
+	public:
+		virtual const char* what() const throw() {
+			return ("HTTP/1.1 404 OK\nContent-Type:text/html\nContent-Length: 49\n\n<html><body><h1>File not found</h1></body></html>");
+		}
+};
+
 typedef	int	fd;
 
 int	setnonblocking(int fd) {
@@ -133,8 +140,19 @@ int main(void)
 				}
 				if (events[i].events & EPOLLOUT) {
 					std::cout << "** EPOLLOUT **" << std::endl;
-					if (send(current_fd, hello.c_str(), hello.length(), MSG_DONTWAIT) > 0)
-						std::cout << "response ok\n=== === ===" << std::endl;
+					try
+					{
+						throw Error_404();
+						if (send(current_fd, hello.c_str(), hello.length(), MSG_DONTWAIT) > 0)
+							std::cout << "response ok\n=== === ===" << std::endl;
+					}
+					catch(std::exception& e)
+					{
+						std::string error = e.what();
+						if (send(current_fd, error.c_str(), error.length(), MSG_DONTWAIT) > 0)
+							std::cout << "response ok\n=== === ===" << std::endl;
+						std::cerr << e.what() << '\n';
+					}
 					if (epoll_ctl(epfd, EPOLL_CTL_DEL, current_fd, NULL) == -1)
 						perror("epoll_ctl");
 					if (close(current_fd) == -1)
