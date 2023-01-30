@@ -13,12 +13,16 @@ std::map<std::string, std::string> \theader_fields
 std::vector<char> \t\t\t\tbody
 }
 
+struct t_network_address {
+in_address_t	address
+in_port_t		port
+}
+
 abstract class Socket {
 // Pour les listen_socket
 -t_sock \t\t\t\t\t\t\tsocket
--in_address_t\t\t\t\t\t\taddress
--in_port_t\t\t\t\t\t\tport
-Socket(in_port_t port,in_address_t address)
+-t_network_address				netAddr
+Socket(t_network_address netAddr)
 +virtual bool \t\t\t\t\t\tread()
 }
 note right of Socket::read
@@ -28,17 +32,14 @@ endnote
 class ListenSocket {
 // Pour les listen_socket
 -t_sock \t\t\t\t\t\t\tsocket
--in_address_t\t\t\t\t\t\taddress
--in_port_t\t\t\t\t\t\tport
-Socket()
-Socket(in_port_t port,in_address_t address)
+-t_network_address				netAddr
+ListenSocket(t_network_address netAddr)
 +virtual bool \t\t\t\t\t\tread()
 }
 
 class Connexion {
--virtual t_sock \t\t\t\t\t\t\tsocket
--virtual in_address_t\t\t\t\t\t\taddress
--virtual in_port_t\t\t\t\t\t\tport
+-t_sock \t\t\t\t\tsocket
+-t_network_address		netAddr
 -t_http_message\t\t\trequest
 -t_http_message\t\t\tresponse
 -std::string \t\t\t\tbuffer
@@ -46,6 +47,7 @@ class Connexion {
 ' -catch Error:Error413
 ' -catch Error:Error403
 -Ressource*\t\t\t\tressource
+Connexion(t_network_address netAddr, t_sock socket)
 -virtual bool \t\t\t\tread_header()
 -virtual bool \t\t\t\tread_body()
 +virtual bool \t\t\t\tread()
@@ -67,17 +69,19 @@ Server(std::string conFile)
 -static socket\t\t\t\t\tepollFdRessources
 -Router \t\t\t\t\t\trouter
 +void\t\t\t\t\t\t\troutine()
-+static void\t\t\t\t\taddSock(Connexion conn)
++static void\t\t\t\t\taddSock(Socket sock)
 -static void\t\t\t\t\taddRessource(Ressource ressource)
-+static \t\t\t\t\t\trmSock(Connexion &conn)
++static \t\t\t\t\t\trmSock(Socket &sock)
 }
 
 class Router{
-// typedef std::map<std::pair<in_addr_t, in_port_t>, std::map<std::string, Route>> router_map
+// typedef std::map<t_network_address, std::map<std::string, Route>> router_map
 Router(Config_file &config)
-router_map \tmy_map
-void \tsetRoute(Connexion &conn)
-bool \tcheckHeader(t_http_message &msg)
+-router_map 								my_map
++void 									setRoute(Connexion &conn)
+-bool 									checkHeader(t_http_message &msg)
++std::vector<std::pair<in_addr_t, in_port_t>	getAddr()
+
 }
 note right of Router::set_route
 Ne set route que si prerequisites are good
@@ -140,5 +144,5 @@ Connexion --|> Socket
 Socket --* Server
 Route --* Connexion
 t_request_line --* t_http_message
-t_http_message --* Connexion	
+t_http_message --* Connexion
 @enduml
