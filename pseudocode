@@ -5,24 +5,33 @@ main:
             listenSock=listenSocket(networkAddr)
             addSock(listenSock):
                 socks.push_back(listenSock)
-                tmp_epoll_event.data.ptr = listenSock;
+                tmp_epoll_currentSock = listenSock;
 	            tmp_epoll_event.events = EPOLLIN | EPOLLET;
-                epoll_ctl(epollFdSock, EPOLL_CTL_ADD, listenSock, &tmp_epoll_event)
+                epoll_ctl(epollFdSock, EPOLL_CTL_ADD, currentSock, &tmp_epoll_event)
     
     server.routine():
         while(1):
             for event in epoll_wait(epollFdSock, events, BACKLOG, 1):
+                currentSock = event.data.ptr
                 if event.events & EPOLIN:
                     // LISTEN SOCKET ->
-                    event.data.ptr->read():
+                    currentSock->read():
                         addSock(Connexion(netAddr, accept(...)))
                     // CONNEXION ->
-                    event.data.ptr->read():
+                    currentSock->read():
                         if read_header():
-                            //returne 1 quand il finit de lire le fichier
+                            # returne 1 quand il finit de lire le fichier
                             if parse_header():
-                                //returne 1 quand le header est parse et tout est bon
-                                setRoute():
-                                    
-                if 
+                                # returne 1 quand le header est parse et tout est bon
+                                if router.setRoute(currentSock):
+                                    # returne 1 si bodi length et method conformes avec route
+                                    len = recv(currentSock->buffer,...)
+                                    if len < len(buffer):
+                                        # modifer les events auquels cette connexion est abonne => que EPOLLOUT
+                                        epoll_ctl(epollFdSock, EPOLL_CTL_MOD, currentSock, &tmp_epoll_event)
+                if event.events & EPOLOUT:
+                    len = currentSock->write(currentSock->buffer,...):
+                        if (len(currentSock->buffer)<len):
+                            epoll_ctl(epollFdSock, EPOLL_CTL_DEL,currentSock, NULL)
+                            socks.erase(currentSock)
 
