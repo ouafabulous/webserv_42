@@ -102,6 +102,7 @@ Abstract class Ressource{
 Ressource(std::string *conn_buffer)
 std::string		\t\t\t\*conn_buffer
 virtual bool			read()
+virtual void\t\t\t
 }
 
 class	CGI{

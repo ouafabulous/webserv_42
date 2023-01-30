@@ -1,0 +1,28 @@
+main:
+    server = Server(std::string confFile): router(confFile)
+        epollFdSock = epoll_create(DEFINE)
+        for networkAddr in router.getAddr():
+            listenSock=listenSocket(networkAddr)
+            addSock(listenSock):
+                socks.push_back(listenSock)
+                tmp_epoll_event.data.ptr = listenSock;
+	            tmp_epoll_event.events = EPOLLIN | EPOLLET;
+                epoll_ctl(epollFdSock, EPOLL_CTL_ADD, listenSock, &tmp_epoll_event)
+    
+    server.routine():
+        while(1):
+            for event in epoll_wait(epollFdSock, events, BACKLOG, 1):
+                if event.events & EPOLIN:
+                    // LISTEN SOCKET ->
+                    event.data.ptr->read():
+                        addSock(Connexion(netAddr, accept(...)))
+                    // CONNEXION ->
+                    event.data.ptr->read():
+                        if read_header():
+                            //returne 1 quand il finit de lire le fichier
+                            if parse_header():
+                                //returne 1 quand le header est parse et tout est bon
+                                setRoute():
+                                    
+                if 
+
