@@ -42,13 +42,15 @@ class Connexion {
 -t_network_address		netAddr
 -t_http_message\t\t\trequest
 -t_http_message\t\t\tresponse
--std::string \t\t\t\tbuffer
+-std::string \t\t\t\traw_message
+-bool	\t\t\t\theader_end
+-const Router&	\t\trouter
 -Route*\t\t\t\t\troute
 ' -catch Error:Error413
 ' -catch Error:Error403
 -Ressource*\t\t\t\tressource
-Connexion(t_network_address netAddr, t_sock socket)
--virtual bool \t\t\t\tread_header()
+Connexion(t_network_address netAddr, t_sock socket, Router& router)
+-virtual void \t\t\t\tread_header()
 -virtual bool \t\t\t\tread_body()
 +virtual bool \t\t\t\tread()
 +virtual void \t\t\t\twrite()
@@ -56,7 +58,7 @@ Connexion(t_network_address netAddr, t_sock socket)
 +void \t\t\t\t\tget_header()
 -void \t\t\t\t\tparse_header()
 }
-note right of Connexion::read_header
+note right of Connexion::header_end
 returns true when the header is parsed
 and no exception is thrown
 endnote
@@ -98,15 +100,15 @@ class Route{
 -bool \t\t\t\t\t\t\tdirectory_listing
 
 +void \t\t\t\t\t\t\thandle(Connexion &conn)
--void \t\t\t\t\t\t\tcreate_ressource(Connexion &conn)
+-Ressource* \t\t\t\t\t\tcreate_ressource(Connexion &conn)
 }
 
 Abstract class Ressource{
 // typedef int		fd
-Ressource(std::string *conn_buffer)
-std::string		\t\t\t\*conn_buffer
-virtual bool			read()
-virtual void\t\t\t
+Ressource(Connexion *conn)
+-Connexion*		\t\t\tconn
+virtual bool				read()
+virtual bool				write()
 }
 
 class	CGI{
