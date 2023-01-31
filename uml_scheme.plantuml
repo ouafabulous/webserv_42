@@ -80,7 +80,7 @@ Router(Config_file &config)
 -router_map 								my_map
 +void 									setRoute(Connexion &conn)
 -bool 									checkHeader(t_http_message &msg)
-+std::vector<std::pair<in_addr_t, in_port_t>	getAddr()
++std::vector<t_network_address>			getAddr()
 
 }
 note right of Router::set_route

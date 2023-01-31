@@ -1,34 +1,34 @@
+#DEFINE BACKLOGS 4096
+
 main:
     server = Server(std::string confFile): router(confFile)
-        epollFdSock = epoll_create(DEFINE)
+        epollFdSock = epoll_create(BACKLOGS)
         for networkAddr in router.getAddr():
-            listenSock=listenSocket(networkAddr)
-            addSock(listenSock):
-                socks.push_back(listenSock)
-                tmp_epoll_currentSock = listenSock;
-	            tmp_epoll_event.events = EPOLLIN | EPOLLET;
-                epoll_ctl(epollFdSock, EPOLL_CTL_ADD, currentSock, &tmp_epoll_event)
-    
+            addSock(listenSock = ListenSocket(networkAddr)):
+                tmp_epoll_event.data.ptr = &socks.push_back(listenSock);
+	            tmp_epoll_event.events = EPOLLIN;
+                epoll_ctl(epollFdSock, EPOLL_CTL_ADD, tmp_epoll_event.data.ptr, &tmp_epoll_event)
+
     server.routine():
         while(1):
             for event in epoll_wait(epollFdSock, events, BACKLOG, 1):
                 currentSock = event.data.ptr
                 if event.events & EPOLIN:
-                    // LISTEN SOCKET ->
-                    currentSock->read():
-                        addSock(Connexion(netAddr, accept(...)))
-                    // CONNEXION ->
-                    currentSock->read():
+                    currentSock->read(): // LISTEN SOCKET
+                        Server.addSock(Connexion(netAddr, accept(...)))
+                    currentSock->read():// CONNEXION
+                        len = recv(currentSock->buffer,...)
                         if read_header():
-                            # returne 1 quand il finit de lire le fichier
-                            if parse_header():
-                                # returne 1 quand le header est parse et tout est bon
-                                if router.setRoute(currentSock):
-                                    # returne 1 si bodi length et method conformes avec route
-                                    len = recv(currentSock->buffer,...)
-                                    if len < len(buffer):
-                                        # modifer les events auquels cette connexion est abonne => que EPOLLOUT
-                                        epoll_ctl(epollFdSock, EPOLL_CTL_MOD, currentSock, &tmp_epoll_event)
+                            # return 1 quand il finit de lire le fichier
+                            try:
+                                # return 1 quand le header est parse et tout est bon
+                                parse_header()
+                                router.setRoute(currentSock):
+                                # return 1 si body length et method conformes avec route
+                                if len < len(buffer):
+                                    # modifer les events auquels cette connexion est abonne => EPOLLOUT uniquement
+                                    epoll_ctl(epollFdSock, EPOLL_CTL_MOD, currentSock, &tmp_epoll_event)
+                            catch:
                 if event.events & EPOLOUT:
                     len = currentSock->write(currentSock->buffer,...):
                         if (len(currentSock->buffer)<len):
