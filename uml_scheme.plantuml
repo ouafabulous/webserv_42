@@ -94,7 +94,7 @@ class Route{
 -t_methods \t\\t\t\t\t\tmethods_allowed
 -size_t \t\t\t\t\t\t\tmax_body_length
 -std::vector<std::string>   \t\t\tserver_names
--std::map<uint,std::string> \t\t\terrors
+-std::map<uint,std::string> \t\terrors
 -std::string \t\t\t\t\t\tredirect
 -std::string \t\t\t\t\t\tstatic_file
 -bool \t\t\t\t\t\t\tdirectory_listing
@@ -106,9 +106,9 @@ class Route{
 Abstract class Ressource{
 // typedef int		fd
 Ressource(Connexion *conn)
--Connexion*		\t\t\tconn
-virtual bool				read()
-virtual bool				write()
+-Connexion*		\tconn
+virtual bool			read()
+virtual bool			write()
 }
 
 class	CGI{
