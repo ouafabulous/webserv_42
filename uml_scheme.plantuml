@@ -66,10 +66,10 @@ endnote
 class Server {
 Server(std::string conFile)
 -static std::vector<Socket>\t\tsocks
--static socket\t\t\t\t\tepollFdSock
+-static socket\t\t\t\t\t\tepollFdSock
 -static std::vector<Ressource> \tressources
--static socket\t\t\t\t\tepollFdRessources
--Router \t\t\t\t\t\trouter
+-static socket\t\t\t\t\t\tepollFdRessources
+-Router \t\t\t\t\t\t\trouter
 +void\t\t\t\t\t\t\troutine()
 +static void\t\t\t\t\taddSock(Socket sock)
 -static void\t\t\t\t\taddRessource(Ressource ressource)
@@ -106,9 +106,9 @@ class Route{
 Abstract class Ressource{
 // typedef int		fd
 Ressource(Connexion *conn)
--Connexion*		\tconn
-virtual bool			read()
-virtual bool			write()
+-Connexion* \t\tconn
++virtual bool \t\tread()
++virtual bool \t\twrite()
 }
 
 class	CGI{
