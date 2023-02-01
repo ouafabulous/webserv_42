@@ -18,43 +18,41 @@ in_address_t	address
 in_port_t		port
 }
 
-abstract class Socket {
-// Pour les listen_socket
--t_sock \t\t\t\t\t\t\tsocket
--t_network_address				netAddr
-Socket(t_network_address netAddr)
-+virtual bool \t\t\t\t\t\tread()
+abstract class IO {
+// Pour les IOs
+IO()
++virtual bool \t\t\t\tread() = 0
++virtual void \t\t\t\twrite() = 0
 }
-note right of Socket::read
+note right of IO::read
 always returns false
 endnote
 
 class ListenSocket {
 // Pour les listen_socket
--t_sock \t\t\t\t\t\t\tsocket
--t_network_address				netAddr
+-t_sock \t\t\t\t\tsocket
+-t_network_address		netAddr
 ListenSocket(t_network_address netAddr)
-+virtual bool \t\t\t\t\t\tread()
++virtual bool \t\t\t\tread()
++virtual void \t\t\t\twrite()
 }
 
 class Connexion {
 -t_sock \t\t\t\t\tsocket
 -t_network_address		netAddr
 -t_http_message\t\t\trequest
--t_http_message\t\t\tresponse
 -std::string \t\t\t\traw_message
--bool	\t\t\t\theader_end
+-bool \t\t\t\t\theader_end
 -const Router&	\t\trouter
 -Route*\t\t\t\t\troute
 ' -catch Error:Error413
 ' -catch Error:Error403
 -Ressource*\t\t\t\tressource
 Connexion(t_network_address netAddr, t_sock socket, Router& router)
--virtual void \t\t\t\tread_header()
--virtual bool \t\t\t\tread_body()
 +virtual bool \t\t\t\tread()
 +virtual void \t\t\t\twrite()
-+virtual void \t\t\t\terror()
+-void \t\t\t\t\tread_header()
+-bool \t\t\t\t\tread_body()
 +void \t\t\t\t\tget_header()
 -void \t\t\t\t\tparse_header()
 }
@@ -65,15 +63,14 @@ endnote
 
 class Server {
 Server(std::string conFile)
--static std::vector<Socket>\t\tsocks
+-static std::vector<IO>\t\t\t\tsocks
 -static socket\t\t\t\t\t\tepollFdSock
--static std::vector<Ressource> \tressources
--static socket\t\t\t\t\t\tepollFdRessources
+-static std::vector<Ressource> \t\tressources
 -Router \t\t\t\t\t\t\trouter
-+void\t\t\t\t\t\t\troutine()
-+static void\t\t\t\t\taddSock(Socket sock)
--static void\t\t\t\t\taddRessource(Ressource ressource)
-+static \t\t\t\t\t\trmSock(Socket &sock)
++void\t\t\t\t\t\t\t\troutine()
++static void\t\t\t\t\t\taddSock(IO sock)
+-static void\t\t\t\t\t\taddRessource(Ressource ressource)
++static \t\t\t\t\t\t\trmSock(IO &sock)
 }
 
 class Router{
@@ -104,15 +101,18 @@ class Route{
 }
 
 Abstract class Ressource{
-// typedef int		fd
-Ressource(Connexion *conn)
+Ressource(Connexion *conn): fd_read(-1), fd_write(-1)
+-int \t\t\t\tfd_read
+-int \t\t\t\tfd_write
 -Connexion* \t\tconn
+-std::string \t\traw_message
 +virtual bool \t\tread()
 +virtual bool \t\twrite()
 }
 
 class	CGI{
 	' catch Error::Error503
+
 }
 
 class 	File{
@@ -137,14 +137,18 @@ note right of Error::Error403
 Method not allowed
 endnote
 
-ListenSocket --|> Socket
-Ressource --* Connexion
+ListenSocket --|> IO
+Ressource --|> IO
+Ressource *--* Connexion
 CGI--|> Ressource
 File--|> Ressource
 Directory--|> Ressource
-Connexion --|> Socket
-Socket --* Server
+Connexion --|> IO
+IO --* Server
 Route --* Connexion
 t_request_line --* t_http_message
 t_http_message --* Connexion
+Router --* Server
+'t_network_address --* Connexion
+'t_network_address --* ListenSocket
 @enduml

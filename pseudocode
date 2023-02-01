@@ -8,7 +8,7 @@ main:
             fn addSock(listenSock = ListenSocket(networkAddr)):
                 tmp_epoll_events.data.ptr = &socks.push_back(listenSock);
 	            tmp_epoll_event.events = EPOLLIN;
-                epoll_ctl(epollFdSock, EPOLL_CTL_ADD, currentSock, &tmp_epoll_event)
+                epoll_ctl(epollFdSock, EPOLL_CTL_ADD, listenSock.getSocket(), &tmp_epoll_event)
 
     fn server.routine():
         while(1):
