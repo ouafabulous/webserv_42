@@ -21,20 +21,19 @@ in_port_t		port
 abstract class IO {
 // Pour les IOs
 IO()
-+virtual bool \t\t\t\tread() = 0
++virtual void \t\t\t\tread() = 0
 +virtual void \t\t\t\twrite() = 0
++virtual void \t\t\t\tclosed() = 0
 }
-note right of IO::read
-always returns false
-endnote
 
 class ListenSocket {
 // Pour les listen_socket
 -t_sock \t\t\t\t\tsocket
 -t_network_address		netAddr
 ListenSocket(t_network_address netAddr)
-+virtual bool \t\t\t\tread()
++virtual void \t\t\t\tread()
 +virtual void \t\t\t\twrite()
++virtual void \t\t\t\tclosed()
 }
 
 class Connexion {
@@ -49,8 +48,9 @@ class Connexion {
 ' -catch Error:Error403
 -Ressource*\t\t\t\tressource
 Connexion(t_network_address netAddr, t_sock socket, Router& router)
-+virtual bool \t\t\t\tread()
++virtual void \t\t\t\tread()
 +virtual void \t\t\t\twrite()
++void \t\t\t\t\tclosed()
 -void \t\t\t\t\tread_header()
 -bool \t\t\t\t\tread_body()
 +void \t\t\t\t\tget_header()
@@ -64,9 +64,9 @@ endnote
 class Server {
 Server(std::string conFile)
 -static std::vector<IO>\t\t\t\tsocks
--static socket\t\t\t\t\t\tepollFdSock
+-static socket\t\t\t\t\t\t\tepollFdSock
 -static std::vector<Ressource> \t\tressources
--Router \t\t\t\t\t\t\trouter
+-Router \t\t\t\t\t\t\t\trouter
 +void\t\t\t\t\t\t\t\troutine()
 +static void\t\t\t\t\t\taddSock(IO sock)
 -static void\t\t\t\t\t\taddRessource(Ressource ressource)
@@ -74,6 +74,7 @@ Server(std::string conFile)
 }
 
 class Router{
+// need to define a lot of functions for the parsing of the .conf file.
 // typedef std::map<t_network_address, std::map<std::string, Route>> router_map
 Router(Config_file &config)
 -router_map 								my_map
@@ -105,39 +106,81 @@ Ressource(Connexion *conn): fd_read(-1), fd_write(-1)
 -int \t\t\t\tfd_read
 -int \t\t\t\tfd_write
 -Connexion* \t\tconn
--std::string \t\tresponse
-+virtual bool \t\tread()
-+virtual bool \t\twrite()
+-std::vector<char> response
++bool \t\t\tEOF
++virtual void \t\tread() = 0
++virtual void \t\twrite() = 0
++virtual void \t\tclosed() = 0
 }
 
 class	CGI{
 -int \t\t\t\tfd_read
 -int \t\t\t\tfd_write
 -Connexion* \t\tconn
--std::string \t\tresponse
-+virtual bool \t\tread()
-+virtual bool \t\twrite()
-}
-
-class 	File{
-
+-std::vector<char> response
+ CGI(Connexion *conn, std::string cgi_path)
++bool \t\t\tEOF
++virtual void \t\tread()
++virtual void \t\twrite()
++virtual void \t\tclosed()
 }
 
 class 	GetFile{
-
+-int \t\t\t\tfd_read 
+-int \t\t\t\tfd_write = -1
+-Connexion* \t\tconn
+-std::vector<char> response
+ File(Connexion *conn, std::string file_path)
++bool \t\t\tEOF
++virtual void \t\tread()
++virtual void \t\twrite()
++virtual void \t\tclosed()
 }
 class 	PostFile{
-
+-int \t\t\t\tfd_read = -1
+-int \t\t\t\tfd_write
+-Connexion* \t\tconn
+-std::vector<char> response
+ File(Connexion *conn, std::string file_path)
++bool \t\t\tEOF
++virtual void \t\tread()
++virtual void \t\twrite()
++virtual void \t\tclosed()
 }
 class 	DeleteFile{
-
+-int \t\t\t\tfd_read = -1
+-int \t\t\t\tfd_write = -1
+-Connexion* \t\tconn
+-std::vector<char> response
+ File(Connexion *conn, std::string file_path)
++bool \t\t\tEOF
++virtual void \t\tread()
++virtual void \t\twrite()
++virtual void \t\tclosed()
 }
-GetFile --|> File
-PostFile --|> File
-DeleteFile --|> File
 
 class	Directory{
+-int \t\t\t\tfd_read = -1
+-int \t\t\t\tfd_write = -1
+-Connexion* \t\tconn
+-std::vector<char> response
+ Directory(Connexion *conn, std::string dir_path)
++bool \t\t\tEOF
++virtual void \t\tread()
++virtual void \t\twrite()
++virtual void \t\tclosed()
+}
 
+class	Redirect{
+-int \t\t\t\tfd_read = -1
+-int \t\t\t\tfd_write = -1
+-Connexion* \t\tconn
+-std::vector<char> response
+ Directory(Connexion *conn, std::string redir_path)
++bool \t\t\tEOF
++virtual void \t\tread()
++virtual void \t\twrite()
++virtual void \t\tclosed()
 }
 
 class Error{
@@ -158,8 +201,11 @@ ListenSocket --|> IO
 Ressource --|> IO
 Ressource *--* Connexion
 CGI--|> Ressource
-File--|> Ressource
+GetFile--|> Ressource
+PostFile--|> Ressource
+DeleteFile--|> Ressource
 Directory--|> Ressource
+Redirect --|> Ressource
 Connexion --|> IO
 IO --* Server
 Route --* Connexion
