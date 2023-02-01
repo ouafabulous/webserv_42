@@ -24,6 +24,7 @@ main:
                                 return fn read_header():
                                     raw_message.append(buffer)
                                     if raw_message.contains("\n\r\n\r"):
+                                        // parsing raw_message into request.request_line & header_fields(...)
                                         parse_header()
                                         fn router.getRoute(currentSock):
                                             # si tout est bon

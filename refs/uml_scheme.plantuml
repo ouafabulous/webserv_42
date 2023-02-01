@@ -119,6 +119,19 @@ class 	File{
 
 }
 
+class 	GetFile{
+
+}
+class 	PostFile{
+
+}
+class 	DeleteFile{
+
+}
+GetFile --|> File
+PostFile --|> File
+DeleteFile --|> File
+
 class	Directory{
 
 }
