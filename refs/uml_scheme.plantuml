@@ -41,7 +41,7 @@ class Connexion {
 -t_sock \t\t\t\t\tsocket
 -t_network_address		netAddr
 -t_http_message\t\t\trequest
--std::string \t\t\t\traw_message
+-std::string \t\t\t\trequest_header
 -bool \t\t\t\t\theader_end
 -const Router&	\t\trouter
 -Route*\t\t\t\t\troute
@@ -105,14 +105,18 @@ Ressource(Connexion *conn): fd_read(-1), fd_write(-1)
 -int \t\t\t\tfd_read
 -int \t\t\t\tfd_write
 -Connexion* \t\tconn
--std::string \t\traw_message
+-std::string \t\tresponse
 +virtual bool \t\tread()
 +virtual bool \t\twrite()
 }
 
 class	CGI{
-	' catch Error::Error503
-
+-int \t\t\t\tfd_read
+-int \t\t\t\tfd_write
+-Connexion* \t\tconn
+-std::string \t\tresponse
++virtual bool \t\tread()
++virtual bool \t\twrite()
 }
 
 class 	File{

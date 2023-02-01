@@ -22,9 +22,9 @@ main:
                         try:
                             if not header_end: // Le buffer contient du header
                                 return fn read_header():
-                                    raw_message.append(buffer)
-                                    if raw_message.contains("\n\r\n\r"):
-                                        // parsing raw_message into request.request_line & header_fields(...)
+                                    request_header.append(buffer)
+                                    if request_header.contains("\n\r\n\r"):
+                                        // parsing request_header into request.request_line & header_fields(...)
                                         parse_header()
                                         fn router.getRoute(currentSock):
                                             # si tout est bon
