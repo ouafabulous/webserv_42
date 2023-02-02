@@ -4,20 +4,54 @@
 #include <netinet/in.h>
 
 struct t_request_line {
-  std::string method;
-  std::string path;
-  std::string http_version;
+  std::string 							method;
+  std::string 							path;
+  std::string 							http_version;
 };
 
 struct t_http_message {
-  t_request_line request_line;
-  std::map<std::string, std::string> header_fields;
-  std::vector<char> body;
+  t_request_line						request_line;
+  std::map<std::string, std::string>	header_fields;
+  std::vector<char> 					body;
 };
 
 struct t_network_address {
   in_addr_t address;
   in_port_t port;
+};
+
+class Server {
+public:
+  typedef int t_fd;
+  Server(std::string confFile);
+  static std::map<t_fd, IO*> socks;
+  static int epollfd;
+  Router router;
+  void routine();
+};
+
+class Router {
+public:
+  typedef std::map<t_network_address, std::map<std::string, Route>> router_map;
+  router_map my_map;
+  Router(std::string &config);
+  void setRoute(Connexion &conn);
+  bool checkHeader(t_http_message &msg);
+  std::vector<t_network_address> getAddr();
+};
+
+class Route {
+public:
+  typedef char t_methods;
+  t_methods methods_allowed;
+  size_t max_body_length;
+  std::vector<std::string> server_names;
+  std::map<uint,std::string> errors;
+  std::string redirect;
+  std::string static_file;
+  bool directory_listing;
+  void handle(Connexion &conn);
+  Ressource* create_ressource(Connexion &conn);
 };
 
 class IO {
@@ -60,40 +94,6 @@ public:
   void get_header();
   void parse_header();
   virtual int fd_delete();
-};
-
-class Server {
-public:
-  typedef int t_fd;
-  Server(std::string confFile);
-  static std::map<t_fd, IO*> socks;
-  static int epollfd;
-  Router router;
-  void routine();
-};
-
-class Router {
-public:
-  typedef std::map<t_network_address, std::map<std::string, Route>> router_map;
-  router_map my_map;
-  Router(std::string &config);
-  void setRoute(Connexion &conn);
-  bool checkHeader(t_http_message &msg);
-  std::vector<t_network_address> getAddr();
-};
-
-class Route {
-public:
-  typedef char t_methods;
-  t_methods methods_allowed;
-  size_t max_body_length;
-  std::vector<std::string> server_names;
-  std::map<uint,std::string> errors;
-  std::string redirect;
-  std::string static_file;
-  bool directory_listing;
-  void handle(Connexion &conn);
-  Ressource* create_ressource(Connexion &conn);
 };
 
 class Ressource {

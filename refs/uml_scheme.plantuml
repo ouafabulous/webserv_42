@@ -1,5 +1,4 @@
 @startuml
-'note "typedef int t_sock" as N1
 
 struct t_request_line {
 std::string method
@@ -24,21 +23,24 @@ IO()
 +virtual void \t\t\t\tread() = 0
 +virtual void \t\t\t\twrite() = 0
 +virtual void \t\t\t\tclosed() = 0
++virtual t_fd \t\t\t\tfd_delete() = 0
 }
 
 class ListenSocket {
 // Pour les listen_socket
--t_sock \t\t\t\t\tsocket
+-t_fd \t\t\t\t\tsocket
 -t_network_address		netAddr
 ListenSocket(t_network_address netAddr)
 +virtual void \t\t\t\tread()
 +virtual void \t\t\t\twrite()
 +virtual void \t\t\t\tclosed()
++virtual t_fd \t\t\t\tfd_delete()
 }
 
 class Connexion {
--t_sock \t\t\t\t\tsocket
+-t_fd \t\t\t\t\tsocket
 -t_network_address		netAddr
+-ListenSocket*			listen_socket
 -t_http_message\t\t\trequest
 -std::string \t\t\t\trequest_header
 -bool \t\t\t\t\theader_end
@@ -47,7 +49,7 @@ class Connexion {
 ' -catch Error:Error413
 ' -catch Error:Error403
 -Ressource*\t\t\t\tressource
-Connexion(t_network_address netAddr, t_sock socket, Router& router)
+Connexion(t_network_address netAddr, t_fd socket, Router& router)
 +virtual void \t\t\t\tread()
 +virtual void \t\t\t\twrite()
 +void \t\t\t\t\tclosed()
@@ -55,6 +57,7 @@ Connexion(t_network_address netAddr, t_sock socket, Router& router)
 -bool \t\t\t\t\tread_body()
 +void \t\t\t\t\tget_header()
 -void \t\t\t\t\tparse_header()
++virtual t_fd \t\t\t\tfd_delete()
 }
 note right of Connexion::header_end
 returns true when the header is parsed
@@ -62,15 +65,12 @@ and no exception is thrown
 endnote
 
 class Server {
+ // typedef int t_fd
 Server(std::string conFile)
--static std::vector<IO>\t\t\t\tsocks
--static socket\t\t\t\t\t\t\tepollFdSock
--static std::vector<Ressource> \t\tressources
--Router \t\t\t\t\t\t\t\trouter
+-static std::map<t_fd, IO*>\t\t\tsocks
++static t_fd\t\t\t\t\t\tepollfd
+-Router \t\t\t\t\t\t\trouter
 +void\t\t\t\t\t\t\t\troutine()
-+static void\t\t\t\t\t\taddSock(IO sock)
--static void\t\t\t\t\t\taddRessource(Ressource ressource)
-+static \t\t\t\t\t\t\trmSock(IO &sock)
 }
 
 class Router{
@@ -111,6 +111,7 @@ Ressource(Connexion *conn): fd_read(-1), fd_write(-1)
 +virtual void \t\tread() = 0
 +virtual void \t\twrite() = 0
 +virtual void \t\tclosed() = 0
++t_fd \t\t\t\tfd_delete()
 }
 
 class	CGI{
@@ -126,7 +127,7 @@ class	CGI{
 }
 
 class 	GetFile{
--int \t\t\t\tfd_read 
+-int \t\t\t\tfd_read
 -int \t\t\t\tfd_write = -1
 -Connexion* \t\tconn
 -std::vector<char> response
@@ -197,21 +198,23 @@ note right of Error::Error403
 Method not allowed
 endnote
 
-ListenSocket --|> IO
-Ressource --|> IO
-Ressource *--* Connexion
-CGI--|> Ressource
-GetFile--|> Ressource
-PostFile--|> Ressource
-DeleteFile--|> Ressource
-Directory--|> Ressource
-Redirect --|> Ressource
-Connexion --|> IO
-IO --* Server
-Route --* Connexion
+ListenSocket <|-- IO
+Ressource <|-- IO
+Ressource *..* Connexion
+CGI<|-- Ressource
+GetFile<|-- Ressource
+PostFile<|-- Ressource
+DeleteFile<|-- Ressource
+Directory<|-- Ressource
+Redirect <|-- Ressource
+Connexion <|-- IO
+ListenSocket ..* Server
+Route ..* Connexion
 t_request_line --* t_http_message
 t_http_message --* Connexion
 Router --* Server
+Connexion ..* Server
+Route *-- Router
 't_network_address --* Connexion
 't_network_address --* ListenSocket
 @enduml
