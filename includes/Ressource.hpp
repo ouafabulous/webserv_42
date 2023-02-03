@@ -12,14 +12,14 @@ public:
 	virtual void		read() = 0;
 	virtual void		write() = 0;
 	virtual void		closed() = 0;
-	virtual t_fd		fd_delete();
+	virtual t_fd		fdDelete();
 
 protected:
-	int					fd_read;
-	int					fd_write;
+	const t_fd			fd_read;
+	const t_fd			fd_write;
 	Connexion			*conn;
 	std::vector<char>	response;
-	bool				rEOF;
+	bool				is_EOF;
 };
 
 class GetStaticFile : public Ressource
@@ -27,7 +27,6 @@ class GetStaticFile : public Ressource
 public:
 	GetStaticFile(Connexion *conn);
 	~GetStaticFile();
-	void handle(Connexion &conn);
 	virtual void		read() = 0;
 	virtual void		write() = 0;
 	virtual void		closed() = 0;
@@ -38,7 +37,6 @@ class PostStaticFile : public Ressource
 public:
 	PostStaticFile(Connexion *conn);
 	~PostStaticFile();
-	void handle(Connexion &conn);
 	virtual void		read() = 0;
 	virtual void		write() = 0;
 	virtual void		closed() = 0;
@@ -49,7 +47,6 @@ class DeleteStaticFile : public Ressource
 public:
 	DeleteStaticFile(Connexion *conn);
 	~DeleteStaticFile();
-	void handle(Connexion &conn);
 	virtual void		read() = 0;
 	virtual void		write() = 0;
 	virtual void		closed() = 0;
@@ -70,7 +67,6 @@ class RedirectRessource : public Ressource
 public:
 	RedirectRessource(Connexion *conn, std::string url);
 	~RedirectRessource();
-	void handle(Connexion &conn);
 	virtual void		read() = 0;
 	virtual void		write() = 0;
 	virtual void		closed() = 0;

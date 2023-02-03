@@ -14,7 +14,7 @@ public:
 	virtual void			read();
 	virtual void			write();
 	virtual void			closed();
-	virtual t_fd			fd_delete();
+	virtual t_fd			fdDelete();
 
 private:
 	const t_fd				socket;
@@ -29,13 +29,13 @@ public:
 	virtual void			read();
 	virtual void			write();
 	virtual void			closed();
-	virtual t_fd			fd_delete();
-	// t_http_message		get_header();	
+	virtual t_fd			fdDelete();
+	// t_http_message		get_header();
 
 private:
-	void					read_header();	// called by read() until header is fully received
-	void					parse_header();	// called by read_header() when header is fully received
-	bool					read_body();	// called by read() if not read_header()
+	void					readHeader();	// called by read() until header is fully received
+	void					parseHeader();	// called by read_header() when header is fully received
+	bool					readBody();	// called by read() if not read_header()
 
 	const t_fd				socket;
 	const t_network_address	netAddr;

@@ -78,7 +78,7 @@ class Router{
 // typedef std::map<t_network_address, std::map<std::string, Route>> router_map
 Router(Config_file &config)
 -router_map 								my_map
-+void 									setRoute(Connexion &conn)
++Route*									getRoute(Connexion &conn)
 -bool 									checkHeader(t_http_message &msg)
 +std::vector<t_network_address>			getAddr()
 
