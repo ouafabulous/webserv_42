@@ -1,6 +1,6 @@
 #pragma once
 #ifndef SERVER_HPP
-# define SERVER_HPP
+#define SERVER_HPP
 
 #include "Type.hpp"
 #include "Server.hpp"
@@ -8,23 +8,28 @@
 
 class Server
 {
-	public:
-		Server(std::string confFile);
-		static std::map<t_fd, IO*> socks;
-		static int epollfd;
-		Router router;
-		void routine();
-};
+public:
+	Server(std::string confFile);
+	~Server();
 
+	const static int			epollfd;
+	void						routine();
+
+private:
+	const Router				router;
+	static std::map<t_fd, IO *>	socks;
+};
 
 class IO
 {
-	public:
-		IO();
-		virtual void read() = 0;
-		virtual void write() = 0;
-		virtual void closed() = 0;
-		virtual int fd_delete() = 0;
+public:
+	IO();
+	~IO();
+
+	virtual void	read() = 0;			// called when EPOLLIN received
+	virtual void	write() = 0;		// called when EPOLLOUT received
+	virtual void	closed() = 0;		// called when EPOLLHUP received
+	virtual t_fd	fd_delete() = 0;	// get the fd of the Connexion or ListenSocket to delete
 };
 
 #endif
