@@ -4,6 +4,8 @@
 
 #include "Socket.hpp"
 
+// Abstract Ressource Class
+
 class Ressource
 {
 public:
@@ -21,6 +23,9 @@ protected:
 	std::vector<char>	response;
 	bool				is_EOF;
 };
+
+
+// File && Directory Classes
 
 class GetStaticFile : public Ressource
 {
@@ -52,6 +57,19 @@ public:
 	virtual void		closed() = 0;
 };
 
+class GetDirectory : public Ressource
+{
+public:
+	GetDirectory(Connexion *conn);
+	~GetDirectory();
+	virtual void		read() = 0;
+	virtual void		write() = 0;
+	virtual void		closed() = 0;
+};
+
+
+// CGI Class
+
 class CGI : public Ressource
 {
 public:
@@ -61,6 +79,9 @@ public:
 	virtual void		write() = 0;
 	virtual void		closed() = 0;
 };
+
+
+// Redirect Class
 
 class RedirectRessource : public Ressource
 {

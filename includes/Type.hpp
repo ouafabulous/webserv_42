@@ -33,7 +33,7 @@ struct t_network_address
 
 // ROUTER && ROUTE
 
-typedef enum : char {
+typedef enum {
 	GET = 0b001,
 	POST = 0b010,
 	DELETE = 0b100
@@ -49,5 +49,20 @@ typedef struct s_attributes {
 	std::map<std::string, std::string>	cgi_path;			// path to CGI locations
 	bool								directory_listing;	// autoindex on/off
 }	t_attributes;
+
+typedef enum s_l_tok_type
+{
+	TOK_WORD,
+	TOK_SEP,
+	TOK_RL,
+	TOK_SC,
+	TOK_BR,
+} t_t_tok_type;
+
+typedef enum s_b_tok_type
+{
+	TOK_BLOCK,
+	TOK_DIRECTIVE,
+} t_b_tok_type;
 
 #endif
