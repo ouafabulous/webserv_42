@@ -1,4 +1,4 @@
-#include "includes/Type.hpp"
+#include "Type.hpp"
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -17,6 +17,7 @@ int main(int ac, char *av[])
 		std::string big_buffer = buffer.str();
 
 		Lexer	Lex(big_buffer);
+		Lex.fillTokens();
 		Lex.printTokens();
 	}
 }

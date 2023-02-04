@@ -1,4 +1,6 @@
-*/.vscode
+**/.vscode
 socket_tests/client
 socket_tests/server
 tests/
+.tmp
+webserv

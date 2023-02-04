@@ -4,7 +4,7 @@
 
 #include <vector>
 #include <string>
-#include "includes/Type.hpp"
+#include <Type.hpp>
 
 class Lexer
 {
@@ -25,7 +25,8 @@ public:
 
 	void					fillTokens();
 	void					printTokens();
-	std::string				convertToText(t_s_tok tok);
 };
+
+std::ostream&	operator<<(std::ostream &out, const t_token &c);
 
 #endif
