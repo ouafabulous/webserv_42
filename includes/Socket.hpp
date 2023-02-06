@@ -3,6 +3,7 @@
 #define SOCKET_HPP
 
 #include "Server.hpp"
+#include "Utils.hpp"
 #include "Ressource.hpp"
 
 class ListenSocket : public IO
@@ -17,7 +18,7 @@ public:
 	virtual t_fd			fdDelete();
 
 private:
-	const t_fd				socket;
+	const t_fd				l_socket;
 	const t_network_address	netAddr;
 };
 
@@ -37,7 +38,7 @@ private:
 	void					parseHeader();	// called by read_header() when header is fully received
 	bool					readBody();	// called by read() if not read_header()
 
-	const t_fd				socket;
+	const t_fd				c_socket;
 	const t_network_address	netAddr;
 	const ListenSocket		*listen_socket;
 	const Router			&router;
