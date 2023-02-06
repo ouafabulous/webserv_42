@@ -20,6 +20,7 @@ class Parser {
         uint                                    getNextTokIndex(std::string const &tokens);
 
     private:
+        std::vector<t_token>	          _tokens;
         Block                             *_blocks;
         std::vector<std::string>    directiveNames;
 };

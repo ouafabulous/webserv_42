@@ -2,7 +2,7 @@
 #include <iostream>
 #include <algorithm>
 
-Parser::Parser(std::vector<t_token> const &tokens)
+Parser::Parser(std::vector<t_token> const &tokens) : _tokens(tokens)
 {
     std::string dn[7] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup"};
     for (uint i = 0; i != 7; i++) {
@@ -18,7 +18,7 @@ bool notSpace(t_token token)
     return (token.first != TOK_SP && token.first != TOK_RL);
 }
 
-int NextNonSpTok(std::vector<t_token> const &tokens)
+int funNextNonSpTok(std::vector<t_token> const &tokens)
 {
     std::vector<t_token>::const_iterator tokNotSp = find_if(tokens.begin(), tokens.end(), notSpace);
     // Throw error if there is none
@@ -54,30 +54,33 @@ bool isDirective(t_token token, std::vector<std::string> const & directiveNames)
 }
 
 // void Parser::parse(std::pair<uint, uint> limits, t_block_type type, std::vector<t_token> const &tokens)
-void Parser::parse(std::pair<uint, uint> limits, std::vector<t_token> const &tokens)
+void Parser::parse(std::pair<uint, uint> limits, std::vector<t_token>  tokens)
 {
 {
     std::vector<std::string>    subTokens(tokens.begin() + limits.first, tokens.begin() + limits.second);
-    while (subTokens.length())
+    while (subTokens.size())
     {
-        uint nextNonSpTok = NextNonSpTok(tokens);
-        uint nextNextNonSpTok = NextNonSpTok(tokens.substr(nextNonSpTok + 1));
-        if (tokens[NextNonSpTok] == "server" && tokens[nextNextNonSpTok].first == TOK_BR)
+        uint nextNonSpTok = funNextNonSpTok(tokens);
+        std::vector<t_token>    subToken1(tokens.begin() +nextNonSpTok + 1, tokens.end());
+        uint nextNextNonSpTok = funNextNonSpTok(subToken1);
+        if (tokens[nextNonSpTok].second == "server" && tokens[nextNextNonSpTok].first == TOK_BR_OP)
         {
-            Block   *currentBlock = new Block;
-            if (!*_blocks)
+            Block   *currentBlock = new Block(BL_SERVER);
+            if (!_blocks)
             {
                 _blocks = currentBlock;
             }
             else
             {
-                _blocks->next = currentBlock;
+                _blocks->addSibling(currentBlock);
             }
-            for (uint i = 0; i != closingIndexBracket(tokens[nextNextNonSpTok + 1]))
+            std::vector<t_token>    subToken2(tokens.begin() +nextNextNonSpTok + 1, tokens.end());
+            for (uint i = 0; i != closingIndexBracket(subToken2); i++)
             {
-                if (isDirective(tokens[i])){
-                    currentBlock->
-                }
+                if (isDirective(tokens[i], directiveNames)){
+                    std::vector<t_token>    subToken3(tokens.begin() + i + 1, tokens.end());
+                    currentBlock->addDirective(std::make_pair(token[i].second, tokens[funNextNonSpTok(subToken3)].second));
+                    }
             }
         }
     }
