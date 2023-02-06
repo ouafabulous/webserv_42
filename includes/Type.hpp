@@ -25,11 +25,7 @@ struct t_http_message
 	std::vector<char>								body;
 };
 
-struct t_network_address
-{
-	in_addr_t address;
-	in_port_t port;
-};
+typedef std::pair<in_addr_t, in_port_t>				t_network_address;
 
 // ROUTER && ROUTE
 

@@ -2,17 +2,20 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include <Config.hpp>
 #include "Type.hpp"
 #include "Server.hpp"
 #include "Router.hpp"
 
+#include <sys/epoll.h>
+
 class Server
 {
 public:
-	Server(std::string confFile);
+	Server(const std::string confFile);
 	~Server();
 
-	const static int			epollfd;
+	static t_fd					epollfd;
 	void						routine();
 
 private:

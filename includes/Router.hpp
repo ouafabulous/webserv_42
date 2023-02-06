@@ -21,7 +21,7 @@ private:
 class Router
 {
 public:
-	Router(std::string &config);
+	Router(const std::string &config);
 	~Router();
 
 	std::vector<t_network_address>	getAddr() const;								// get all the address and port to open ListenSockets
@@ -29,7 +29,7 @@ public:
 
 private:
 	typedef std::map<t_network_address,
-		std::map<std::string, Route>>	router_map;
+		std::map<std::string, Route*> >	router_map;									// <192.168.1.10, <"www.42.fr", *Route>>
 	router_map							my_map;
 };
 
