@@ -1,5 +1,4 @@
-#include "Server.hpp"
-#include <iostream>
+#include <Server.hpp>
 
 #define TRUE 1
 
@@ -54,3 +53,5 @@ void	Server::routine() {
 	}
 }
 
+t_fd							Server::epollfd = -1;
+std::map<t_fd, IO*>				Server::socks;

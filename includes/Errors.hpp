@@ -5,20 +5,20 @@
 #include <exception>
 #include <iostream>
 
-class Error: public std::exception
-{
-public:
-	Error(const u_char error, std::string custom_message);
-	~Error();
+// class Error: public std::exception
+// {
+// public:
+// 	Error(const u_char error, std::string custom_message);
+// 	~Error();
 
-	virtual char const *what() const;
+// 	virtual char const *what() const;
 
-protected:
-	u_char				error;
-	const std::string	custom_message;
-	std::string			buildHeader();
-	std::string			buildBody();
-};
+// protected:
+// 	u_char				error;
+// 	const std::string	custom_message;
+// 	std::string			buildHeader();
+// 	std::string			buildBody();
+// };
 
 #endif
 

@@ -2,9 +2,16 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
-#include <Server.hpp>
-#include <Ressource.hpp>
+#include <IO.hpp>
+// #include <Ressource.hpp>
 #include <Router.hpp>
+#include <Errors.hpp>
+#include <Utils.hpp>
+#include <Config.hpp>
+#include <Server.hpp>
+#include <sys/epoll.h>
+
+class Server;
 
 class ListenSocket : public IO
 {
