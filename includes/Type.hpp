@@ -9,6 +9,8 @@
 
 // IO
 
+typedef unsigned int uint;
+
 typedef int t_fd;
 
 struct t_request_line
@@ -55,7 +57,8 @@ typedef enum s_s_tok
 	TOK_SP,
 	TOK_RL,
 	TOK_SC,
-	TOK_BR,
+	TOK_BR_OP,
+	TOK_BR_CL,
 	TOK_S_MAX,
 } t_s_tok;
 
@@ -72,7 +75,8 @@ typedef enum e_chr_class
 	CHR_WORD,				// WORLD
 	CHR_RL,					// ?
 	CHR_SC,					// SEMICOLONS
-	CHR_BR,					// BRACKETS
+	CHR_BR_OP,
+	CHR_BR_CL,					// BRACKETS
 	CHR_MAX,
 } t_chr_class;
 

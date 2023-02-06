@@ -6,22 +6,22 @@
 #include <string>
 #include "Type.hpp"
 
+#include "Block.hpp"
 
-
-class Block{
-    public:
-        Block(t_block_type type) : _type(type), sibling(NULL), child(NULL) {};
-    private:
-        t_block_type            _type;
-        std::vector<directive>  directives;
-        Block                   *sibling;
-        Block                   *child;
-};
+class Block;
 
 class Parser {
+    public:
+        Parser(std::vector<t_token>	const & tokens);
+        ~Parser(){};
+        std::pair<unsigned int, unsigned int>   getBlockLimits() const;
+        // void                                    parse(Block *current_block, std::pair<uint, uint> limits, t_block_type type, std::vector<t_token>	const & tokens);
+        void                                    parse(std::pair<uint, uint> limits, std::vector<t_token>	const & tokens);
+        uint                                    getNextTokIndex(std::string const &tokens);
+
     private:
-        std::vector<std::vector >                    blocks;
-        static const std::vector<std::string>       directiveNames;
+        Block                             *_blocks;
+        std::vector<std::string>    directiveNames;
 };
 
 #endif

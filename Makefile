@@ -5,7 +5,7 @@ TMPDIR = .tmp
 
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
-ROUTER = $(addprefix Router/, Lexer.cpp)
+ROUTER = $(addprefix Router/, Lexer.cpp, Parser.cpp)
 SRCS = $(addprefix srcs/, main.cpp $(ROUTER))
 OBJS = $(addprefix $(TMPDIR)/, $(SRCS:.cpp=.o))
 

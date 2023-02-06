@@ -42,14 +42,13 @@ Lexer::Lexer(const std::string confile): _confile(confile)
 	for (int c = '\0'; c <= ' '; ++c)
 		get_chr_class[c] = CHR_SP;
 	get_chr_class[';'] = CHR_SC;
-	get_chr_class['}'] = CHR_BR;
+	get_chr_class['}'] = CHR_BR_CL;
 	for (int c = '!'; c <= ':'; ++c)
 		get_chr_class[c] = CHR_WORD;
 	for (int c = '<'; c <= 'z'; ++c)
 		get_chr_class[c] = CHR_WORD;
-	get_chr_class['{'] = CHR_BR;
+	get_chr_class['{'] = CHR_BR_OP;
 	get_chr_class['|'] = CHR_WORD;
-	get_chr_class['}'] = CHR_BR;
 	get_chr_class['~'] = CHR_WORD;
 
 	// GET_TOK_TYPE INIT
@@ -57,8 +56,8 @@ Lexer::Lexer(const std::string confile): _confile(confile)
 	get_tok_type[CHR_WORD] = TOK_WORD;
 	get_tok_type[CHR_RL] = TOK_RL;
 	get_tok_type[CHR_SC] = TOK_SC;
-	get_tok_type[CHR_BR] = TOK_BR;
-
+	get_tok_type[CHR_BR_OP] = TOK_BR_OP;
+	get_tok_type[CHR_BR_CL] = TOK_BR_CL;
 
 	// TOK_RULES INIT
 	for (size_t x = 0; x < TOK_S_MAX; x++) {
@@ -71,7 +70,8 @@ Lexer::Lexer(const std::string confile): _confile(confile)
 	tok_rules[TOK_SP][CHR_SP] = 1;
 	tok_rules[TOK_RL][CHR_RL] = 1;
 	tok_rules[TOK_SC][CHR_SC] = 1;
-	tok_rules[TOK_BR][CHR_BR] = 1;
+	tok_rules[TOK_BR_OP][CHR_BR_OP] = 1;
+	tok_rules[TOK_BR_CL][CHR_BR_CL] = 1;
 }
 Lexer::~Lexer()
 {
@@ -106,7 +106,7 @@ void				Lexer::printTokens() {
 
 std::ostream&	operator<<(std::ostream &out, const t_token &c)
 {
-	const static std::string	text[5] = {"TOK_WORD", "TOK_SP\t", "TOK_RL\t", "TOK_SC\t", "TOK_BR\t"};
+	const static std::string	text[6] = {"TOK_WORD", "TOK_SP\t", "TOK_RL\t", "TOK_SC\t", "TOK_BR_OP\t", "TOK_BR_CL\t"};
 
     out << text[c.first] << ":\t\"" << escape_string(c.second) << "\"";
     return out;
