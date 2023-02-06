@@ -3,6 +3,7 @@
 #define SOCKET_HPP
 
 #include "Server.hpp"
+#include "Utils.hpp"
 #include "Ressource.hpp"
 
 class ListenSocket : public IO
@@ -17,7 +18,7 @@ public:
 	virtual t_fd			fdDelete();
 
 private:
-	const t_fd				socket;
+	const t_fd				l_socket;
 	const t_network_address	netAddr;
 };
 
