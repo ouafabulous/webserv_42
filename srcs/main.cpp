@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 #include <iostream>
-#include "Lexer.hpp"
+#include <Server.hpp>
 
 
 
@@ -16,8 +16,9 @@ int main(int ac, char *av[])
 		buffer << file.rdbuf();
 		std::string big_buffer = buffer.str();
 
-		Lexer	Lex(big_buffer);
-		Lex.fillTokens();
-		Lex.printTokens();
+		// Lexer	Lex(big_buffer);
+		// Lex.fillTokens();
+		// Lex.printTokens();
+		Server my_server(big_buffer);
 	}
 }
