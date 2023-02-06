@@ -99,8 +99,6 @@ std::vector<t_token> Lexer::getTokens() const
 	return (_tokens);
 }
 
-
-
 void				Lexer::printTokens() {
 	for (std::vector<t_token>::const_iterator it = _tokens.begin(); it != _tokens.end(); it++)
 		std::cout << *it << std::endl;

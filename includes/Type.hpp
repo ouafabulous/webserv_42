@@ -76,6 +76,16 @@ typedef enum e_chr_class
 	CHR_MAX,
 } t_chr_class;
 
-typedef std::pair<t_s_tok, std::string>	t_token;
+typedef std::pair<t_s_tok, std::string>		t_token;
+
+typedef	std::pair<std::string, std::string> directive;
+
+typedef	enum	e_block_type
+{
+	BL_SERVER,
+	BL_LOCATION,
+	BL_MAX,
+}	t_block_type;
+
 
 #endif
