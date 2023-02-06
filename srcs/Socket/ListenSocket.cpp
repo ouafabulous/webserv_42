@@ -1,6 +1,7 @@
 #include "../includes/Socket.hpp"
 
-ListenSocket::ListenSocket(const t_network_address netAddr) : l_socket(socket(AF_INET, SOCK_STREAM, 0))
+ListenSocket::ListenSocket(const t_network_address netAddr) : l_socket(socket(AF_INET, SOCK_STREAM, 0)),
+															  netAddr(netAddr)
 {
 	struct sockaddr_in address;
 	epoll_event tmp_epoll_event;
@@ -31,7 +32,7 @@ ListenSocket::ListenSocket(const t_network_address netAddr) : l_socket(socket(AF
 		if (epoll_ctl(Server::epollfd, EPOLL_CTL_ADD, l_socket, &tmp_epoll_event) == -1)
 			throw std::runtime_error("epoll_ctl failed.");
 	}
-	catch (const std::runtime_error& e)
+	catch (const std::runtime_error &e)
 	{
 		perror(e.what());
 		exit(EXIT_FAILURE);
@@ -39,7 +40,7 @@ ListenSocket::ListenSocket(const t_network_address netAddr) : l_socket(socket(AF
 }
 
 ListenSocket::~ListenSocket() {}
-void	ListenSocket::read() {}
-void	ListenSocket::write() {}
-void	ListenSocket::closed() {}
-t_fd	ListenSocket::fdDelete() {}
+void ListenSocket::read() {}
+void ListenSocket::write() {}
+void ListenSocket::closed() {}
+t_fd ListenSocket::fdDelete() {}

@@ -38,7 +38,7 @@ private:
 	void					parseHeader();	// called by read_header() when header is fully received
 	bool					readBody();	// called by read() if not read_header()
 
-	const t_fd				socket;
+	const t_fd				c_socket;
 	const t_network_address	netAddr;
 	const ListenSocket		*listen_socket;
 	const Router			&router;
