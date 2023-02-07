@@ -9,12 +9,11 @@
 class Ressource
 {
 public:
-	Ressource(Connexion *conn);
-	virtual ~Ressource() = 0;
+	virtual ~Ressource() {};
 	virtual void		read() = 0;
 	virtual void		write() = 0;
 	virtual void		closed() = 0;
-	virtual t_fd		fdDelete();
+	virtual t_fd		fdDelete() = 0;
 
 protected:
 	const t_fd			fd_read;
@@ -30,7 +29,7 @@ protected:
 class GetStaticFile : public Ressource
 {
 public:
-	GetStaticFile(Connexion *conn);
+	GetStaticFile(Connexion *conn, std::string file_path);
 	~GetStaticFile();
 	virtual void		read() = 0;
 	virtual void		write() = 0;
@@ -40,7 +39,7 @@ public:
 class PostStaticFile : public Ressource
 {
 public:
-	PostStaticFile(Connexion *conn);
+	PostStaticFile(Connexion *conn, std::string file_path);
 	~PostStaticFile();
 	virtual void		read() = 0;
 	virtual void		write() = 0;
@@ -50,7 +49,7 @@ public:
 class DeleteStaticFile : public Ressource
 {
 public:
-	DeleteStaticFile(Connexion *conn);
+	DeleteStaticFile(Connexion *conn, std::string file_path);
 	~DeleteStaticFile();
 	virtual void		read() = 0;
 	virtual void		write() = 0;
@@ -60,7 +59,7 @@ public:
 class GetDirectory : public Ressource
 {
 public:
-	GetDirectory(Connexion *conn);
+	GetDirectory(Connexion *conn, std::string dir_path);
 	~GetDirectory();
 	virtual void		read() = 0;
 	virtual void		write() = 0;
@@ -73,7 +72,7 @@ public:
 class CGI : public Ressource
 {
 public:
-	CGI(Connexion *conn);
+	CGI(Connexion *conn, std::string cgi_path);
 	~CGI();
 	virtual void		read() = 0;
 	virtual void		write() = 0;
