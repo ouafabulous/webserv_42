@@ -94,7 +94,7 @@ void Lexer::fillTokens()
 	}
 }
 
-std::vector<t_token> Lexer::getTokens() const
+std::vector<t_token> const & Lexer::getTokens() const
 {
 	return (_tokens);
 }

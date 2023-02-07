@@ -16,7 +16,7 @@ class Parser {
         ~Parser(){};
         std::pair<unsigned int, unsigned int>   getBlockLimits() const;
         // void                                    parse(Block *current_block, std::pair<uint, uint> limits, t_block_type type, std::vector<t_token>	const & tokens);
-        void                                    parse(std::pair<uint, uint> limits, std::vector<t_token>	const & tokens);
+        void                                    parse(uint startIndex, std::vector<t_token>	const & tokens);
         uint                                    getNextTokIndex(std::string const &tokens);
 
     private:

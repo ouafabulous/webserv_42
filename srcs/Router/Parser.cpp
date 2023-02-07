@@ -8,9 +8,8 @@ Parser::Parser(std::vector<t_token> const &tokens) : _tokens(tokens)
     for (uint i = 0; i != 7; i++) {
         directiveNames.push_back(dn[i]);
     }
-    std::pair<uint, uint> limits = std::make_pair(0, 1);
-    t_block_type type = BL_SERVER;
-    parse(limits, tokens);
+    // t_block_type type = BL_SERVER;
+    parse(0, tokens);
 }
 
 bool notSpace(t_token token)
@@ -44,8 +43,9 @@ uint closingIndexBracket(std::vector<t_token> &tokens)
                 return (i);
             }
         }
-        // Throw an error
     }
+        // Throw an error if you don't find
+    return(0);
 }
 
 bool isDirective(t_token token, std::vector<std::string> const & directiveNames)
@@ -54,11 +54,11 @@ bool isDirective(t_token token, std::vector<std::string> const & directiveNames)
 }
 
 // void Parser::parse(std::pair<uint, uint> limits, t_block_type type, std::vector<t_token> const &tokens)
-void Parser::parse(std::pair<uint, uint> limits, std::vector<t_token>  tokens)
+void Parser::parse(uint startIndex, std::vector<t_token>  const & tokens)
 {
-{
-    std::vector<std::string>    subTokens(tokens.begin() + limits.first, tokens.begin() + limits.second);
-    while (subTokens.size())
+    uint    st3 = 0;
+    std::vector<t_token> subTokens(tokens.begin() + startIndex, tokens.end());
+    if (subTokens.size())
     {
         uint nextNonSpTok = funNextNonSpTok(tokens);
         std::vector<t_token>    subToken1(tokens.begin() +nextNonSpTok + 1, tokens.end());
@@ -79,9 +79,11 @@ void Parser::parse(std::pair<uint, uint> limits, std::vector<t_token>  tokens)
             {
                 if (isDirective(tokens[i], directiveNames)){
                     std::vector<t_token>    subToken3(tokens.begin() + i + 1, tokens.end());
-                    currentBlock->addDirective(std::make_pair(token[i].second, tokens[funNextNonSpTok(subToken3)].second));
+                    st3 = funNextNonSpTok(subToken3);
+                    currentBlock->addDirective(std::make_pair(tokens[i].second, tokens[st3].second));
                     }
             }
-        }
+       }
+       parse(st3 + 1, tokens);
     }
 }

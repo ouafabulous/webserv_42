@@ -21,7 +21,7 @@ public:
 	// void	operator=(const Lexer&);
 	~Lexer();
 
-	std::vector<t_token>	getTokens() const;
+	std::vector<t_token> const & getTokens() const;
 
 	void					fillTokens();
 	void					printTokens();
