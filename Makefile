@@ -15,7 +15,7 @@ RM = rm -rf
 all: $(PROGRAM)
 
 $(PROGRAM): $(OBJS) | Makefile
-	$(CXX) $(CXXFLAGS) $^ -o $@
+	$(CXX) $(CXXFLAGS) $^ -o $@ -g
 
 $(OBJS): $(TMPDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)

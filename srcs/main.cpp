@@ -4,6 +4,7 @@
 #include <string>
 #include <iostream>
 #include "Lexer.hpp"
+#include "Parser.hpp"
 
 
 
@@ -18,7 +19,8 @@ int main(int ac, char *av[])
 
 		Lexer	Lex(big_buffer);
 		Lex.fillTokens();
-		Lex.printTokens();
-
+		// Lex.printTokens();
+		Parser	Parse(Lex.getTokens());
+		// Parse.printBlocks();
 	}
 }
