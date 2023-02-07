@@ -5,6 +5,7 @@
 #define EPOLL_BACKLOG	4096
 #define CONN_TO_LISTEN	64
 #define BUFFER_SIZE		4096
+#define CH_PERM			0644
 
 // ERRORS
 #define INIT_ERROR_HEADER	"[INIT ERROR]:\t"

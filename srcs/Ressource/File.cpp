@@ -11,9 +11,9 @@ void	GetStaticFile::read() {}
 void	GetStaticFile::write() {}
 void	GetStaticFile::closed() {}
 
-PostStaticFile::PostStaticFile(Connexion *conn) :	conn(conn),
-													fd_read(-1),
-													fd_write(recv(conn.socket, conn.request, BUFFER_SIZE, 0))
+PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	conn(conn),
+																			fd_read(-1),
+																			fd_write(open(file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, CH_PERM))
 {
 }
 
@@ -28,7 +28,7 @@ DeleteStaticFile::DeleteStaticFile(Connexion *conn) :	conn(conn),
 {
 }
 
-DeleteStaticFile::~DeleteStaticFile() {}
+DeleteStaticFile::~DeleteStaticFile(Connexion *conn, std::string file_path) {}
 void	DeleteStaticFile::read() {}
 void	DeleteStaticFile::write() {}
 void	DeleteStaticFile::closed() {}
