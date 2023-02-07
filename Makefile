@@ -7,7 +7,8 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 ROUTER = $(addprefix Router/, Lexer.cpp Router.cpp Route.cpp)
 SOCKET = $(addprefix Socket/, ListenSocket.cpp Connexion.cpp)
-SRCS = $(addprefix srcs/, main.cpp Server.cpp Utils.cpp $(ROUTER) $(SOCKET))
+UTILS = $(addprefix Utils/, Utils.cpp Logger.cpp)
+SRCS = $(addprefix srcs/, main.cpp Server.cpp $(ROUTER) $(SOCKET) $(UTILS))
 OBJS = $(addprefix $(TMPDIR)/, $(SRCS:.cpp=.o))
 
 CXX = c++

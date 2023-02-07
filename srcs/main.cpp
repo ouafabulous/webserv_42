@@ -9,6 +9,7 @@ int main(int ac, char *av[])
 {
 	(void)ac;
 	(void)av;
+	Logger::setLevel(DEBUG);
 	// if (ac == 2)
 	// {
 	// 	std::ifstream file(av[1]);
@@ -19,11 +20,13 @@ int main(int ac, char *av[])
 		// Lexer	Lex(big_buffer);
 		// Lex.fillTokens();
 		// Lex.printTokens();
+	// Logger::debug("test" << "truc");
+
 	Server my_server("");
 	try {
 		my_server.routine();
 	}
 	catch(const std::exception& e) {
-		std::cerr << "[FATAL ERROR]:\t" << e.what() << '\n';
+		Logger::error << e.what();
 	}
 }

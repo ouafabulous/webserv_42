@@ -40,7 +40,7 @@ void ListenSocket::read()
 	new_conn = new Connexion(netAddr, client_fd, router);
 	Server::socks[client_fd] = new_conn;
 	epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN);
-	std::cout << "new client is now connected" << std::endl;
+	Logger::info << "new client is now connected" << std::endl;
 }
 void ListenSocket::write() {}
 void ListenSocket::closed() { throw std::runtime_error("Listen socket closed"); }

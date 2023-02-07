@@ -4,6 +4,7 @@
 
 #include <Type.hpp>
 #include <IO.hpp>
+#include <Logger.hpp>
 
 #include <iostream>
 #include <sys/socket.h>
