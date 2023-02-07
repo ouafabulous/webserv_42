@@ -21,8 +21,8 @@ void	GetStaticFile::read()
 	char	buffer[BUFFER_SIZE];
 	size_t	ret;
 
-	ret = recv(fd_read, buffer, BUFFER_SIZE);
-	response.append(buffer, ret);
+	ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT);
+	response.append(buffer, ret); // again, can't append to a vector
 	if (ret == 0)
 		is_EOF = true; // need more error handling
 }
@@ -52,8 +52,8 @@ PostStaticFile::~PostStaticFile()
 
 void	PostStaticFile::write()
 {
-	if (send(fd_write, conn->t_http_message.body[0],
-		conn->t_http_message.body.size(), MSG_DONTWAIT) == -1) //con->t_http_message.body.data()?
+	if (send(fd_write, conn->request.body[0],
+		conn->request.body.size(), MSG_DONTWAIT) == -1) //con->t_http_message.body.data()?
 		throw std::runtime_error("PostStaticFile::write() failed");
 }
 void	PostStaticFile::closed()

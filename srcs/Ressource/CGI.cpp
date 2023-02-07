@@ -29,8 +29,10 @@ CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn), is_EOF(false)
 		close(pipe_out[0]);
 		close(pipe_in[1]);
 
-		setenv("REQUEST_METHOD", conn->t_http_message.t_request_line.method.c_str(), 1);
-		setenv("QUERY_STRING", conn->t_http_message.body.c_str(), 1); // no idea if c_str() will work with a vector
+		setenv("REQUEST_METHOD", conn->request.request_line.method.c_str(), 1);
+		setenv("QUERY_STRING", conn->request.body.c_str(), 1);
+		// c_str() doesn't work on a vector, have to convert vector to string
+		//std::string body(conn->request.body.begin(), conn->request.body.end());
 
 		execve(cgi_path.c_str(), NULL, NULL); // not good, need to pass env instead of NULL
 	}
@@ -46,7 +48,7 @@ CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn), is_EOF(false)
 CGI::~CGI()
 {
 	epoll_util(EPOLL_CTL_DEL, fd_read, EPOLLIN);
-	epoll_util(EPOLL_CTL_DEL, fd_write, EPOLLOUT)
+	epoll_util(EPOLL_CTL_DEL, fd_write, EPOLLOUT);
 	close(fd_read);
 	close(fd_write);
 }
@@ -56,7 +58,7 @@ void	CGI::read()
 	char	buffer[BUFFER_SIZE];
 	size_t	ret;
 
-	ret = recv(fd_read, buffer, BUFFER_SIZE)
+	ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT);
 	reponse.append(buffer, ret);
 	if (ret == 0)
 		is_EOF = true;
@@ -64,8 +66,8 @@ void	CGI::read()
 
 void	CGI::write()
 {
-	if (send(fd_write, conn->t_http_message.body[0],
-		conn->t_http_message.body.size(), MSG_DONTWAIT) == -1)
+	if (send(fd_write, conn->request.body[0],
+		conn->request.body.size(), MSG_DONTWAIT) == -1)
 		throw std::runtime_error("CGI::write() failed.");
 }
 
