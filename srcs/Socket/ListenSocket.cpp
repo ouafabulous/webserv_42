@@ -25,7 +25,7 @@ ListenSocket::ListenSocket(const t_network_address netAddr, const Router &router
 }
 
 ListenSocket::~ListenSocket() {
-	epoll_util(EPOLL_CTL_DEL, l_socket, this, EPOLLIN);
+	epoll_util(EPOLL_CTL_DEL, l_socket, this, EPOLLIN | EPOLLET);
 	close(l_socket);
 }
 
@@ -39,7 +39,7 @@ void ListenSocket::read()
 	set_nonblocking(client_fd);
 	new_conn = new Connexion(netAddr, client_fd, router);
 	Server::socks[client_fd] = new_conn;
-	epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN | EPOLLOUT);
+	epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN);
 	std::cout << "new client is now connected" << std::endl;
 }
 void ListenSocket::write() {}
