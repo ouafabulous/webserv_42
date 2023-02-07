@@ -11,19 +11,20 @@
 
 #include <sys/epoll.h>
 #include <unistd.h>
+#include <set>
 
 class ListenSocket;
 
 class Server
 {
 public:
-	typedef std::map<t_fd, IO*>				socket_map;
+	typedef std::set<IO*>	socket_set;
 
 	Server(const std::string confFile);
 	~Server();
 
 	static t_fd					epollfd;
-	static socket_map			socks;
+	static socket_set			socks;
 	void						routine();
 
 private:

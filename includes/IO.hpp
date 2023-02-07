@@ -4,14 +4,32 @@
 
 #include <Type.hpp>
 
+class IO;
+
+typedef enum {
+	CONTINUE,
+	FAIL,
+	SUCCESS
+}	t_io_result;
+
+struct IOEvent {
+	t_io_result	result;
+	IO			*io_elem;
+	std::string	message;
+
+	IOEvent(t_io_result result = CONTINUE, IO *io_elem = NULL, const std::string &message = "");
+	IOEvent(const IOEvent& ref);
+	~IOEvent();
+	IOEvent&	operator=(const IOEvent& rhs);
+};
+
 class IO
 {
 public:
 	virtual ~IO() {};
-	virtual void	read() = 0;		// called when EPOLLIN received
-	virtual void	write() = 0;	// called when EPOLLOUT received
-	virtual void	closed() = 0;	// called when EPOLLHUP received
-	virtual t_fd	fdDelete() = 0;	// get the fd of the Connexion or ListenSocket to delete
+	virtual IOEvent	read() = 0;		// called when EPOLLIN received
+	virtual IOEvent	write() = 0;	// called when EPOLLOUT received
+	virtual IOEvent	closed() = 0;	// called when EPOLLHUP received
 };
 
 #endif

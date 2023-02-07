@@ -16,8 +16,8 @@ void handle_sigint(int signal) {
 	(void)signal;
 	std::cout << "\n";
 	Logger::info << "Shutdown server" << std::endl;
-	for (Server::socket_map::const_iterator it = Server::socks.begin(); it != Server::socks.end(); it++)
-		delete	it->second;
+	for (Server::socket_set::const_iterator it = Server::socks.begin(); it != Server::socks.end(); it++)
+		delete	*it;
 	if (Server::epollfd != -1)
 		close(Server::epollfd);
 	exit(0);
@@ -30,7 +30,7 @@ int main(int ac, char *av[])
 
 	signal(SIGPIPE, handle_sigpipe);
 	signal(SIGINT, handle_sigint);
-	Logger::setLevel(DEBUG);
+	Logger::setLevel(INFO);
 	// if (ac == 2)
 	// {
 	// 	std::ifstream file(av[1]);
