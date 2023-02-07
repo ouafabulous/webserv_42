@@ -9,6 +9,7 @@
 class Ressource
 {
 public:
+	Ressource(Connexion *conn);
 	virtual ~Ressource() {};
 	virtual void		read() = 0;
 	virtual void		write() = 0;
