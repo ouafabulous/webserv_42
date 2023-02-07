@@ -1,11 +1,11 @@
 #include <Ressource.hpp>
 
-CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn)
+CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn), response(), is_EOF(false)
 {
 	int		pipefd[2];
-
+	
 	if (pipe(pipefd) == -1)
-		perror("pipe");
+		throw std::runtime_error("pipe");
 
 	pid_t	pid = fork();
 
@@ -13,7 +13,7 @@ CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn)
 	{
 		close(pipefd[0]);
 		close(pipefd[1]);
-		perror("fork");
+		throw std::runtime_error("fork");
 	}
 	else if (pid == 0)
 	{

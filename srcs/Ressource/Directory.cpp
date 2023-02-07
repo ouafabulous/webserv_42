@@ -3,6 +3,8 @@
 GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) :	conn(conn),
 																	fd_read(-1),
 																	fd_write(-1)
+																	response(),
+																	is_EOF(false)
 {
 }
 

@@ -2,7 +2,9 @@
 
 GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	conn(conn),
 																		fd_write(-1),
-																		fd_read(open(file_path.c_str(), O_RDONLY))
+																		fd_read(open(file_path.c_str(), O_RDONLY)),
+																		response(),
+																		is_EOF(false)
 {
 }
 
@@ -14,6 +16,8 @@ void	GetStaticFile::closed() {}
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	conn(conn),
 																			fd_read(-1),
 																			fd_write(open(file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC, CH_PERM))
+																			response(),
+																			is_EOF(false)
 {
 }
 
@@ -25,6 +29,8 @@ void	PostStaticFile::closed() {}
 DeleteStaticFile::DeleteStaticFile(Connexion *conn) :	conn(conn),
 														fd_read(-1),
 														fd_write(-1)
+														response(),
+														is_EOF(false)
 {
 }
 
