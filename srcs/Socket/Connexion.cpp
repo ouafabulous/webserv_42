@@ -25,7 +25,7 @@ void	Connexion::read() {
 	}
 	if (ends_with(request_header, "\n\r")) {
 		// std::cout << request_header << std::endl;
-		std::cout << "request ok" << std::endl;
+		Logger::info << "request ok" << std::endl;
 		epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT);
 	}
 }

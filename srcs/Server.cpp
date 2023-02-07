@@ -16,10 +16,10 @@ Server::Server(const std::string config_file)
 		try {
 			current_listen_socket = new ListenSocket(*it, router);
 			socks[current_listen_socket->fdDelete()] = current_listen_socket;
-			std::cout << INIT_SUCCESS_HEADER << "listening on " << *it << '\n';
+			Logger::info << INIT_SUCCESS_HEADER << "listening on " << *it << '\n';
 		}
 		catch(const std::runtime_error& e) {
-			std::cerr << INIT_ERROR_HEADER << e.what() << " on " << *it << '\n';
+			Logger::warning << INIT_ERROR_HEADER << e.what() << " on " << *it << '\n';
 		}
 	}
 }
@@ -54,7 +54,7 @@ void	Server::routine() {
 					static_cast<IO*>(events[i].data.ptr)->write();
 			}
 			catch(const std::exception& e) {
-				std::cerr << ROUTINE_ERROR_HEADER << e.what() << '\n';
+				Logger::warning << ROUTINE_ERROR_HEADER << e.what() << '\n';
 				to_delete = static_cast<IO*>(events[i].data.ptr)->fdDelete();
 				delete socks[to_delete];
 				socks.erase(to_delete);
