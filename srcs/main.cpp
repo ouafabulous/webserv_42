@@ -21,6 +21,6 @@ int main(int ac, char *av[])
 		Lex.fillTokens();
 		// Lex.printTokens();
 		Parser	Parse(Lex.getTokens());
-		// Parse.printBlocks();
+		Parse.printBlocks();
 	}
 }

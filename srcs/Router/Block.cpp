@@ -10,6 +10,7 @@ void	Block::addSibling(Block *sibling){
 }
 
 void	Block::printBlock() {
+	std::cout << _name << std::endl;
 	for (std::vector<directive>::iterator  it = _directives.begin(); it != _directives.end(); it++){
 		std::cout << it->first << " " << it->second << std::endl;
 	}

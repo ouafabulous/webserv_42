@@ -6,7 +6,7 @@
 
 class Block{
     public:
-        Block(t_block_type type) : _type(type), _name(), _sibling(NULL), _child(NULL) {};
+        Block(t_block_type type, std::string name) : _type(type), _name(name), _sibling(NULL), _child(NULL) {};
         ~Block(){};
 
         void    addSibling(Block *sibling);
