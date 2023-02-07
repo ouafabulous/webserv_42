@@ -19,21 +19,29 @@ Connexion::~Connexion() {
 void	Connexion::read() {
 	char	buffer[BUFFER_SIZE];
 	ssize_t	recv_size = -1;
+
+	Logger::debug << "read from conn" << std::endl;
 	if ((recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT)) > 0) {
 		buffer[recv_size -1] = 0;
 		request_header.append(buffer);
 	}
+	else
+		throw IOEvent(FAIL, c_socket, "Connexion socket closed");
 	if (ends_with(request_header, "\n\r")) {
-		// std::cout << request_header << std::endl;
-		Logger::info << "request ok" << std::endl;
 		epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT);
 	}
 }
 void	Connexion::write() {
+	int	flags = fcntl(c_socket, F_GETFL, O_NONBLOCK);
+	if (flags == -1)
+		throw IOEvent(FAIL, c_socket, "connexion socket closed");
 	std::string text = "HTTP/1.1 200 OK\nContent-Type:text/plain\nContent-Length: 12\n\nHello World!";
-	send(c_socket, text.c_str(), text.length(), MSG_DONTWAIT);
+	Logger::debug << "write to conn" << std::endl;
+	if (send(c_socket, text.c_str(), text.length(), MSG_DONTWAIT) < 1)
+		throw IOEvent(FAIL, c_socket, "unable to write to the client socket");
+	throw IOEvent(SUCCESS, c_socket, "successfuly send response");
 }
-void	Connexion::closed() { throw std::runtime_error("Connexion ended"); }
+void	Connexion::closed() { throw IOEvent(FAIL, c_socket, "client closed the connexion"); }
 t_fd	Connexion::fdDelete() { return (c_socket); }
 
 void	Connexion::readHeader() {}

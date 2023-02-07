@@ -35,7 +35,7 @@ void ListenSocket::read()
 
 	t_fd client_fd = accept(l_socket, (struct sockaddr *)&address, (socklen_t *)&addr_len);
 	if (client_fd == -1)
-		throw std::runtime_error("couldn't accept new user");
+		throw IOEvent(FAIL, l_socket, "couldn't accept new user");
 	set_nonblocking(client_fd);
 	new_conn = new Connexion(netAddr, client_fd, router);
 	Server::socks[client_fd] = new_conn;
@@ -43,5 +43,5 @@ void ListenSocket::read()
 	Logger::info << "new client is now connected" << std::endl;
 }
 void ListenSocket::write() {}
-void ListenSocket::closed() { throw std::runtime_error("Listen socket closed"); }
+void ListenSocket::closed() { throw IOEvent(FAIL, l_socket, "listen socket closed"); }
 t_fd ListenSocket::fdDelete() { return (l_socket); }

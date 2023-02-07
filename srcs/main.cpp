@@ -5,10 +5,31 @@
 #include <iostream>
 #include <Server.hpp>
 
+#include <signal.h>
+#include <stdlib.h>
+
+void handle_sigpipe(int signal) {
+	(void)signal;
+	Logger::error << "Caught SIGPIPE signal, ignoring it." << std::endl;
+}
+void handle_sigint(int signal) {
+	(void)signal;
+	std::cout << "\n";
+	Logger::info << "Shutdown server" << std::endl;
+	for (Server::socket_map::const_iterator it = Server::socks.begin(); it != Server::socks.end(); it++)
+		delete	it->second;
+	if (Server::epollfd != -1)
+		close(Server::epollfd);
+	exit(0);
+}
+
 int main(int ac, char *av[])
 {
 	(void)ac;
 	(void)av;
+
+	signal(SIGPIPE, handle_sigpipe);
+	signal(SIGINT, handle_sigint);
 	Logger::setLevel(DEBUG);
 	// if (ac == 2)
 	// {
@@ -20,7 +41,6 @@ int main(int ac, char *av[])
 		// Lexer	Lex(big_buffer);
 		// Lex.fillTokens();
 		// Lex.printTokens();
-	// Logger::debug("test" << "truc");
 
 	Server my_server("");
 	try {

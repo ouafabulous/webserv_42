@@ -34,13 +34,12 @@ Server::~Server() {
 void	Server::routine() {
 	int				epoll_wait_return;
 	epoll_event		events[EPOLL_BACKLOG];
-	t_fd			to_delete;
 
 	if (socks.empty())
 		throw std::runtime_error("there is no virtual server listening");
 	while (TRUE)
 	{
-		epoll_wait_return = epoll_wait(epollfd, events, EPOLL_BACKLOG, 0);
+		epoll_wait_return = epoll_wait(epollfd, events, EPOLL_BACKLOG, -1);
 		if (epoll_wait_return == -1)
 			throw std::runtime_error("Epoll wait return -1");
 		for (int i = 0; i < epoll_wait_return; i++)
@@ -53,11 +52,13 @@ void	Server::routine() {
 				else if (events[i].events & EPOLLOUT)
 					static_cast<IO*>(events[i].data.ptr)->write();
 			}
-			catch(const std::exception& e) {
-				Logger::warning << ROUTINE_ERROR_HEADER << e.what() << '\n';
-				to_delete = static_cast<IO*>(events[i].data.ptr)->fdDelete();
-				delete socks[to_delete];
-				socks.erase(to_delete);
+			catch(const IOEvent& e) {
+				if (e.isSuccess())
+					Logger::info << e.what() << std::endl;
+				else
+					Logger::warning << e.what() << std::endl;
+				delete socks[e.toDelete()];
+				socks.erase(e.toDelete());
 			}
 		}
 	}

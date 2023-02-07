@@ -17,7 +17,7 @@ class ListenSocket : public IO
 {
 public:
 	ListenSocket(const t_network_address netAddr, const Router& router);
-	~ListenSocket();
+	virtual ~ListenSocket();
 
 	virtual void			read();
 	virtual void			write();
@@ -36,7 +36,7 @@ class Connexion : public IO
 {
 public:
 	Connexion(const t_network_address netAddr, const t_fd socket, const Router &router);
-	~Connexion();
+	virtual ~Connexion();
 	virtual void			read();
 	virtual void			write();
 	virtual void			closed();
