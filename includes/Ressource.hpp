@@ -6,7 +6,7 @@
 
 // Abstract Ressource Class
 
-class Ressource
+class Ressource : public IO
 {
 public:
 	Ressource(Connexion *conn);

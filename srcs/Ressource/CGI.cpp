@@ -1,6 +1,6 @@
 #include <Ressource.hpp>
 
-Ressource::Ressource(Connexion *conn) : conn(conn), is_EOF(false), fd_read(-1), fd_write(-1) {}
+//Ressource::Ressource(Connexion *conn) : conn(conn), is_EOF(false), fd_read(-1), fd_write(-1) {}
 
 CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn), is_EOF(false)
 {
