@@ -29,19 +29,19 @@ ListenSocket::~ListenSocket() {
 	close(l_socket);
 }
 
-void ListenSocket::read()
+IOEvent ListenSocket::read()
 {
 	Connexion *new_conn;
 
 	t_fd client_fd = accept(l_socket, (struct sockaddr *)&address, (socklen_t *)&addr_len);
 	if (client_fd == -1)
-		throw std::runtime_error("couldn't accept new user");
+		return(IOEvent(FAIL, this, "couldn't accept new user"));
 	set_nonblocking(client_fd);
 	new_conn = new Connexion(netAddr, client_fd, router);
-	Server::socks[client_fd] = new_conn;
+	Server::socks.insert(new_conn);
 	epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN);
 	Logger::info << "new client is now connected" << std::endl;
+	return IOEvent();
 }
-void ListenSocket::write() {}
-void ListenSocket::closed() { throw std::runtime_error("Listen socket closed"); }
-t_fd ListenSocket::fdDelete() { return (l_socket); }
+IOEvent ListenSocket::write() { return IOEvent(); }
+IOEvent ListenSocket::closed() { return IOEvent(FAIL, this, "listen socket closed"); }
