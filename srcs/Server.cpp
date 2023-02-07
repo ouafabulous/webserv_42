@@ -13,8 +13,14 @@ Server::Server(const std::string config_file)
 	ListenSocket	*current_listen_socket;
 	for (listen_list::const_iterator it = lsocket_to_build.begin(); it != lsocket_to_build.end(); it++)
 	{
-		current_listen_socket = new ListenSocket(*it);
-		socks[current_listen_socket->fdDelete()] = current_listen_socket;
+		try {
+			current_listen_socket = new ListenSocket(*it, router);
+			socks[current_listen_socket->fdDelete()] = current_listen_socket;
+			std::cout << INIT_SUCCESS_HEADER << "listening on " << *it << '\n';
+		}
+		catch(const std::runtime_error& e) {
+			std::cerr << INIT_ERROR_HEADER << e.what() << " on " << *it << '\n';
+		}
 	}
 }
 
@@ -29,6 +35,9 @@ void	Server::routine() {
 	int				epoll_wait_return;
 	epoll_event		events[EPOLL_BACKLOG];
 	t_fd			to_delete;
+
+	if (socks.empty())
+		return;
 	while (TRUE)
 	{
 		epoll_wait_return = epoll_wait(epollfd, events, EPOLL_BACKLOG, -1);
@@ -36,15 +45,16 @@ void	Server::routine() {
 			throw std::runtime_error("Epoll wait return -1");
 		for (int i = 0; i < epoll_wait_return; i++)
 		{
-			if (events[i].events & EPOLLHUP || events[i].events & EPOLLRDHUP)
-				static_cast<IO*>(events[i].data.ptr)->closed();
 			try {
+				if (events[i].events & EPOLLHUP || events[i].events & EPOLLRDHUP)
+					static_cast<IO*>(events[i].data.ptr)->closed();
 				if (events[i].events & EPOLLIN)
 					static_cast<IO*>(events[i].data.ptr)->read();
-				if (events[i].events & EPOLLIN)
+				if (events[i].events & EPOLLOUT)
 					static_cast<IO*>(events[i].data.ptr)->write();
 			}
 			catch(const std::exception& e) {
+				std::cerr << ROUTINE_ERROR_HEADER << e.what() << '\n';
 				to_delete = static_cast<IO*>(events[i].data.ptr)->fdDelete();
 				delete socks[to_delete];
 				socks.erase(to_delete);

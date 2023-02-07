@@ -9,8 +9,8 @@ Router::Router(const std::string &confile)
 	t_attributes	base;
 	my_map[t_network_address(INADDR_ANY, htons(80))]["google.com"] = new Route(base);
 	Route	*random_route = new Route(base);
-	my_map[t_network_address(INADDR_ANY, htons(81))]["facebook.com"] = random_route;
-	my_map[t_network_address(INADDR_ANY, htons(81))]["www.facebook.com"] = random_route;
+	my_map[t_network_address(INADDR_ANY, htons(8080))]["facebook.com"] = random_route;
+	my_map[t_network_address(INADDR_ANY, htons(8088))]["www.facebook.com"] = random_route;
 
 }
 // Router::Router(const Router& from)

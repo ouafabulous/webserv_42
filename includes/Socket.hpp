@@ -16,7 +16,7 @@ class Server;
 class ListenSocket : public IO
 {
 public:
-	ListenSocket(const t_network_address netAddr);
+	ListenSocket(const t_network_address netAddr, const Router& router);
 	~ListenSocket();
 
 	virtual void			read();
@@ -27,6 +27,9 @@ public:
 private:
 	const t_fd				l_socket;
 	const t_network_address	netAddr;
+	struct sockaddr_in		address;
+	int						addr_len;
+	const Router			&router;
 };
 
 class Connexion : public IO

@@ -17,18 +17,19 @@ class ListenSocket;
 class Server
 {
 public:
+	typedef std::map<t_fd, IO*>				socket_map;
+
 	Server(const std::string confFile);
 	~Server();
 
 	static t_fd					epollfd;
+	static socket_map			socks;
 	void						routine();
 
 private:
 	typedef std::vector<t_network_address>	listen_list;
-	typedef std::map<t_fd, IO*>				socket_map;
 
 	const Router				router;
-	static socket_map			socks;
 };
 
 
