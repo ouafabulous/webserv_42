@@ -9,7 +9,7 @@ Parser::Parser(std::vector<t_token> const &tokens) : _tokens(tokens), _blocks(NU
         directiveNames.push_back(dn[i]);
     }
     // t_block_type type = BL_SERVER;
-    parse(_blocks, tokens, 0);
+    parse(tokens, 0);
 }
 
 bool notSpace(t_token token)
@@ -70,12 +70,12 @@ bool    tokensAreNotWords(std::vector<t_token> const & tokens) {
 }
 
 // void Parser::parse(std::pair<uint, uint> limits, t_block_type type, std::vector<t_token> const &tokens)
-void Parser::parse(Block *block, std::vector<t_token>  const & tokens, uint j)
+void Parser::parse(std::vector<t_token>  const & tokens, uint j)
 {
     // std::cout << "-----------------TOKENS------------------" << std::endl;
     // printVector(tokens);
     if (j > 1 || tokens.size() == 0){
-        exit(1);
+        return ;
     }
     uint    st3 = 0;
     std::vector<t_token>    stt3;
@@ -96,13 +96,13 @@ void Parser::parse(Block *block, std::vector<t_token>  const & tokens, uint j)
             std::cout << "I entered here" << std::endl;
             std::ostringstream oss;
             oss << j;
-            if (!block)
+            if (!_blocks)
             {
-                block = new Block(BL_SERVER, "server_" + oss.str());
+                _blocks = new Block(BL_SERVER, "server_" + oss.str());
             }
             else
             {
-                block->addSibling(new Block(BL_SERVER, "server_" + oss.str()));
+                _blocks->addSibling(new Block(BL_SERVER, "server_" + oss.str()));
             }
             std::vector<t_token>    subToken2(subToken1.begin() +nextNextNonSpTok + 1, subToken1.end());
             // std::cout << "-----------------SUBTOKEN2------------------" << std::endl;
@@ -113,7 +113,7 @@ void Parser::parse(Block *block, std::vector<t_token>  const & tokens, uint j)
                 if (isDirective(subToken2[i], directiveNames)){
                     std::vector<t_token>    subToken3(subToken2.begin() + i + 1, subToken2.end());
                     st3 = funNextNonSpTok(subToken3);
-                    block->addDirective(std::make_pair(subToken2[i].second, subToken3[st3].second));
+                    _blocks->addDirective(std::make_pair(subToken2[i].second, subToken3[st3].second));
                     stt3 = subToken3;
                     i += st3 + 1 + 1;
                     // std::cout << "-----------------VECTORTOPRINT------------------" << std::endl;
@@ -129,7 +129,7 @@ void Parser::parse(Block *block, std::vector<t_token>  const & tokens, uint j)
             // std::cout << "What I am supposed to recerse on" << std::endl;
             // printVector(subToken4);
 
-            parse(block, subToken4, j + 1);
+            parse(subToken4, j + 1);
        }
     //    std::cout << st3 + 1 << std::endl;
     //    parse(st3 + 1, stt3);
