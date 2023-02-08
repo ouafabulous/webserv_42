@@ -18,14 +18,17 @@ ListenSocket::ListenSocket(const t_network_address netAddr, const Router &router
 
 	if (bind(l_socket, (struct sockaddr *)&address, addr_len) < 0)
 		throw std::runtime_error("bind failed");
-	set_nonblocking(l_socket);
+	if (set_nonblocking(l_socket))
+		throw std::runtime_error("set_nonblocking function failed");
 	if (listen(l_socket, CONN_TO_LISTEN))
 		throw std::runtime_error("listen failed");
-	epoll_util(EPOLL_CTL_ADD, l_socket, this, EPOLLIN | EPOLLET);
+	if (epoll_util(EPOLL_CTL_ADD, l_socket, this, EPOLLIN | EPOLLET))
+		throw std::runtime_error("epoll_ctl failed");
 }
 
 ListenSocket::~ListenSocket() {
-	epoll_util(EPOLL_CTL_DEL, l_socket, this, EPOLLIN | EPOLLET);
+	if (epoll_util(EPOLL_CTL_DEL, l_socket, this, EPOLLIN | EPOLLET))
+		throw std::runtime_error("epoll_del failed");
 	close(l_socket);
 }
 
@@ -36,10 +39,12 @@ IOEvent ListenSocket::read()
 	t_fd client_fd = accept(l_socket, (struct sockaddr *)&address, (socklen_t *)&addr_len);
 	if (client_fd == -1)
 		return(IOEvent(FAIL, this, "couldn't accept new user"));
-	set_nonblocking(client_fd);
+	if (set_nonblocking(client_fd))
+		return(IOEvent(FAIL, this, "set_nonblocking function failed"));
 	new_conn = new Connexion(netAddr, client_fd, router);
 	Server::socks.insert(new_conn);
-	epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN);
+	if (epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN))
+		return IOEvent(FAIL, this, "epoll_ctl failed");
 	Logger::info << "new client is now connected" << std::endl;
 	return IOEvent();
 }

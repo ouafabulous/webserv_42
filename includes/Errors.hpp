@@ -7,6 +7,18 @@
 #include <exception>
 #include <iostream>
 
+class Error {
+	public:
+		Error(std::string path = "");
+		~Error();
+		void	Send();
+
+	private:
+		uint		errno;
+		std::string	message;
+		std::string	path;
+}
+
 // typedef enum {
 // 	FAIL,
 // 	SUCCESS

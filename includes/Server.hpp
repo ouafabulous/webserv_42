@@ -23,14 +23,15 @@ public:
 	Server(const std::string confFile);
 	~Server();
 
-	static t_fd					epollfd;
-	static socket_set			socks;
-	void						routine();
+	static t_fd						epollfd;
+	static socket_set				socks;
+	void							routine();
 
 private:
 	typedef std::vector<t_network_address>	listen_list;
 
-	const Router				router;
+	const Router					router;
+	std::map<uint, std::string>		errors;
 };
 
 

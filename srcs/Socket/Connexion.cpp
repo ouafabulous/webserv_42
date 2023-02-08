@@ -6,30 +6,39 @@ inline bool ends_with(std::string const & value, std::string const & ending)
     return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
 }
 
+// CONSTRUCTORS & DESTRUCTOR
+
 Connexion::Connexion(const t_network_address netAddr,
 	const t_fd socket, const Router &router) :	c_socket(socket),
 												netAddr(netAddr),
-												router(router)
+												router(router),
+												header_end(false),
+												route(NULL),
+												ressource(NULL)
 {}
-
 Connexion::~Connexion() {
-	epoll_util(EPOLL_CTL_DEL, c_socket, this, EPOLLIN);
+	if (epoll_util(EPOLL_CTL_DEL, c_socket, this, EPOLLIN))
+		throw std::runtime_error("epoll_del failed");
 	close(c_socket);
 }
+
+
+// IOEvent
+
 IOEvent	Connexion::read() {
-	char	buffer[BUFFER_SIZE];
-	ssize_t	recv_size = -1;
+	ssize_t	recv_size;
 
 	Logger::debug << "read from conn" << std::endl;
-	if ((recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT)) > 0) {
-		buffer[recv_size -1] = 0;
-		request_header.append(buffer);
-	}
-	else
+	if ((recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT)) == -1)
 		return IOEvent(FAIL, this, "Connexion socket closed");
-	if (ends_with(request_header, "\n\r")) {
-		epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT);
-	}
+		// buffer[recv_size -1] = 0;
+		// request_header.append(buffer);
+	if (!header_end)
+		return readHeader();
+	// else
+	// 	return readBody();
+	// if (ends_with(request_header, "\n\r")) {
+	// }
 	return IOEvent();
 }
 IOEvent	Connexion::write() {
@@ -44,6 +53,24 @@ IOEvent	Connexion::write() {
 }
 IOEvent	Connexion::closed() { return IOEvent(FAIL, this, "client closed the connexion"); }
 
-void	Connexion::readHeader() {}
-void	Connexion::parseHeader() {}
+
+// Underlying operations
+
+IOEvent	Connexion::readHeader() {
+	request_header.append(buffer);
+	size_t	header_end_pos = request_header.find("\r\n\r\n");
+	Logger::debug << "read header" << std::endl;
+	if (request_header.length() >= MAX_HEADER_SIZE)
+		return IOEvent(ERROR, this, "header exceeds max header size", 413, c_socket);
+	if (header_end_pos != std::string::npos) {
+		Logger::debug << "End of header detected" << std::endl;
+		request.body.assign(request_header.begin() + header_end_pos + 4, request_header.end());
+		header_end = true;
+		return parseHeader();
+	}
+	return IOEvent();
+}
+IOEvent	Connexion::parseHeader() {
+	return IOEvent();
+}
 // bool	Connexion::readBody() {}

@@ -42,9 +42,9 @@ public:
 	// t_http_message		get_header();
 
 private:
-	void					readHeader();	// called by read() until header is fully received
-	void					parseHeader();	// called by read_header() when header is fully received
-	bool					readBody();	// called by read() if not read_header()
+	IOEvent					readHeader();	// called by read() until header is fully received
+	IOEvent					parseHeader();	// called by read_header() when header is fully received
+	IOEvent					readBody();	// called by read() if not read_header()
 
 	const t_fd				c_socket;
 	const t_network_address	netAddr;

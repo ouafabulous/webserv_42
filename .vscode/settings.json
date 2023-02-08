@@ -47,6 +47,8 @@
 		"numeric": "cpp",
 		"random": "cpp",
 		"iostream": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"cstring": "cpp",
+		"ctime": "cpp"
 	},
 }

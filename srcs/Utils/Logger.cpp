@@ -23,7 +23,7 @@ std::string	Logger::print_header(t_logger_level level) {
 	return result.str();
 }
 
-t_logger_level		Logger::min_level = ERROR;
+t_logger_level		Logger::min_level = ERR;
 t_logger_flags		Logger::flags = static_cast<t_logger_flags>(DATE|LEVEL);
 Logger::Debug		Logger::debug;
 Logger::Info		Logger::info;

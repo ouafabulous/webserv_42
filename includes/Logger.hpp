@@ -25,11 +25,12 @@
 #define BOLDCYAN    "\033[1m\033[36m"      /* Bold Cyan */
 #define BOLDWHITE   "\033[1m\033[37m"      /* Bold White */
 
+
 typedef	enum {
 	DEBUG,
 	INFO,
 	WARNING,
-	ERROR,
+	ERR,
 	MUTE
 }	t_logger_level;
 
@@ -38,7 +39,6 @@ typedef enum
 	DATE =		0b001,
 	LEVEL = 	0b010,
 } t_logger_flags;
-
 
 class Logger {
 private:
@@ -84,9 +84,9 @@ private:
 			~Error() {};
 
 			std::ostream&	operator<<(const std::string& message) {
-				if (ERROR < min_level)
+				if (ERR < min_level)
 					return hide;
-				std::cerr << print_header(ERROR) << message;
+				std::cerr << print_header(ERR) << message;
 				return std::cout;
 			}
 	};

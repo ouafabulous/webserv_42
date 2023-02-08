@@ -16,12 +16,16 @@ Server::Server(const std::string config_file)
 		try {
 			current_listen_socket = new ListenSocket(*it, router);
 			socks.insert(current_listen_socket);
-			Logger::info << INIT_SUCCESS_HEADER << "listening on " << *it << '\n';
+			Logger::info << "listening on " << *it << '\n';
 		}
 		catch(const std::runtime_error& e) {
-			Logger::warning << INIT_ERROR_HEADER << e.what() << " on " << *it << '\n';
+			Logger::warning << e.what() << " on " << *it << '\n';
 		}
 	}
+
+	// ERRORS DEFINITIONS
+	errors[404] = "HTTP/1.1 404 OK\nContent-Type:text/html\nContent-Length: 49\n\n<html><body><h1>File not found</h1></body></html>";
+	errors[413] = "413 Payload Too Large";
 }
 
 Server::~Server() {
@@ -52,11 +56,15 @@ void	Server::routine() {
 			else if (events[i].events & EPOLLOUT)
 				io_event = static_cast<IO*>(events[i].data.ptr)->write();
 			// check result of IO
+			if (io_event.result == ERROR) {
+				std::string	&error_message = errors[io_event.error];
+				send(io_event.client, error_message.c_str(), error_message.length(), MSG_DONTWAIT);
+			}
 			if (io_event.result) {
 				if (io_event.result == SUCCESS)
-					Logger::info << io_event.message << std::endl;
+					Logger::info << io_event.log << std::endl;
 				else
-					Logger::warning << io_event.message << std::endl;
+					Logger::warning << io_event.log << std::endl;
 				delete io_event.io_elem;
 				socks.erase(io_event.io_elem);
 			}
@@ -66,3 +74,4 @@ void	Server::routine() {
 
 t_fd			Server::epollfd = -1;
 std::set<IO*>	Server::socks;
+char			IO::buffer[BUFFER_SIZE];

@@ -1,22 +1,27 @@
 #include <Utils.hpp>
 #include <Server.hpp>
 
-void	set_nonblocking(int fd)
+#define SUCCESS 0
+#define ERROR 1
+
+bool	set_nonblocking(int fd)
 {
 	if (fd <0)
-		return ;
+		return ERROR;
 	int	flags = fcntl(fd, F_GETFL, 0);
 	if (flags == -1 || fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1)
-		throw std::runtime_error("set_nonblocking function failed");
+		return ERROR;
+	return SUCCESS;
 }
 
 
-void	epoll_util(int action, t_fd fd, IO* io_ptr, int flags) {
+bool	epoll_util(int action, t_fd fd, IO* io_ptr, int flags) {
 	epoll_event	event;
 	event.data.ptr = io_ptr;
 	event.events = flags;
 	if (epoll_ctl(Server::epollfd, action, fd, &event) == -1)
-		throw std::runtime_error("epoll_ctl failed");
+		return ERROR;
+	return SUCCESS;
 }
 
 // STREAM OVERLOAD
