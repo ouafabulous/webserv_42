@@ -5,11 +5,26 @@
 #include <iostream>
 #include <Server.hpp>
 
+#include <signal.h>
+#include <stdlib.h>
+
+void handle_sigpipe(int signal) {
+	(void)signal;
+	Logger::error << "Caught SIGPIPE signal, ignoring it." << std::endl;
+}
+void handle_sigint(int signal) {
+	(void)signal;
+	std::cout << "\n";
+	throw std::runtime_error("Shutdown server");
+}
+
 int main(int ac, char *av[])
 {
 	(void)ac;
 	(void)av;
-	Logger::setLevel(DEBUG);
+
+	signal(SIGPIPE, handle_sigpipe);
+	signal(SIGINT, handle_sigint);
 	// if (ac == 2)
 	// {
 	// 	std::ifstream file(av[1]);
@@ -20,10 +35,10 @@ int main(int ac, char *av[])
 		// Lexer	Lex(big_buffer);
 		// Lex.fillTokens();
 		// Lex.printTokens();
-	// Logger::debug("test" << "truc");
 
-	Server my_server("");
 	try {
+		Logger::setLevel(DEBUG);
+		Server my_server("");
 		my_server.routine();
 	}
 	catch(const std::exception& e) {

@@ -17,12 +17,11 @@ class ListenSocket : public IO
 {
 public:
 	ListenSocket(const t_network_address netAddr, const Router& router);
-	~ListenSocket();
+	virtual ~ListenSocket();
 
-	virtual void			read();
-	virtual void			write();
-	virtual void			closed();
-	virtual t_fd			fdDelete();
+	virtual IOEvent			read();
+	virtual IOEvent			write();
+	virtual IOEvent			closed();
 
 private:
 	const t_fd				l_socket;
@@ -36,11 +35,10 @@ class Connexion : public IO
 {
 public:
 	Connexion(const t_network_address netAddr, const t_fd socket, const Router &router);
-	~Connexion();
-	virtual void			read();
-	virtual void			write();
-	virtual void			closed();
-	virtual t_fd			fdDelete();
+	virtual ~Connexion();
+	virtual IOEvent			read();
+	virtual IOEvent			write();
+	virtual IOEvent			closed();
 	// t_http_message		get_header();
 
 private:

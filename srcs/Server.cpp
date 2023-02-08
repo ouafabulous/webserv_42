@@ -15,7 +15,7 @@ Server::Server(const std::string config_file)
 	{
 		try {
 			current_listen_socket = new ListenSocket(*it, router);
-			socks[current_listen_socket->fdDelete()] = current_listen_socket;
+			socks.insert(current_listen_socket);
 			Logger::info << INIT_SUCCESS_HEADER << "listening on " << *it << '\n';
 		}
 		catch(const std::runtime_error& e) {
@@ -25,8 +25,8 @@ Server::Server(const std::string config_file)
 }
 
 Server::~Server() {
-	for (socket_map::const_iterator it = socks.begin(); it != socks.end(); it++)
-		delete	it->second;
+	for (socket_set::const_iterator it = socks.begin(); it != socks.end(); it++)
+		delete	*it;
 	if (close(epollfd))
 		throw std::runtime_error("Unable to close epollfd");
 }
@@ -34,34 +34,35 @@ Server::~Server() {
 void	Server::routine() {
 	int				epoll_wait_return;
 	epoll_event		events[EPOLL_BACKLOG];
-	t_fd			to_delete;
+	IOEvent			io_event;
 
 	if (socks.empty())
 		throw std::runtime_error("there is no virtual server listening");
 	while (TRUE)
 	{
-		epoll_wait_return = epoll_wait(epollfd, events, EPOLL_BACKLOG, 0);
+		epoll_wait_return = epoll_wait(epollfd, events, EPOLL_BACKLOG, -1);
 		if (epoll_wait_return == -1)
 			throw std::runtime_error("Epoll wait return -1");
 		for (int i = 0; i < epoll_wait_return; i++)
 		{
-			try {
-				if (events[i].events & EPOLLHUP || events[i].events & EPOLLRDHUP)
-					static_cast<IO*>(events[i].data.ptr)->closed();
-				else if (events[i].events & EPOLLIN)
-					static_cast<IO*>(events[i].data.ptr)->read();
-				else if (events[i].events & EPOLLOUT)
-					static_cast<IO*>(events[i].data.ptr)->write();
-			}
-			catch(const std::exception& e) {
-				Logger::warning << ROUTINE_ERROR_HEADER << e.what() << '\n';
-				to_delete = static_cast<IO*>(events[i].data.ptr)->fdDelete();
-				delete socks[to_delete];
-				socks.erase(to_delete);
+			if (events[i].events & EPOLLHUP || events[i].events & EPOLLRDHUP)
+				io_event = static_cast<IO*>(events[i].data.ptr)->closed();
+			else if (events[i].events & EPOLLIN)
+				io_event = static_cast<IO*>(events[i].data.ptr)->read();
+			else if (events[i].events & EPOLLOUT)
+				io_event = static_cast<IO*>(events[i].data.ptr)->write();
+			// check result of IO
+			if (io_event.result) {
+				if (io_event.result == SUCCESS)
+					Logger::info << io_event.message << std::endl;
+				else
+					Logger::warning << io_event.message << std::endl;
+				delete io_event.io_elem;
+				socks.erase(io_event.io_elem);
 			}
 		}
 	}
 }
 
-t_fd							Server::epollfd = -1;
-std::map<t_fd, IO*>				Server::socks;
+t_fd			Server::epollfd = -1;
+std::set<IO*>	Server::socks;
