@@ -19,3 +19,6 @@ void	Block::printBlock() {
 Block *Block::getSibling(){
 	return(_sibling);
 }
+Block **Block::getSiblingAddress(){
+	return(&_sibling);
+}

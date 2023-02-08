@@ -13,6 +13,8 @@ class Block{
         void    addDirective(directive dir) {_directives.push_back(dir);};
         void    printBlock();
         Block   *getSibling();
+        Block   **getSiblingAddress();
+
 
     private:
         t_block_type            _type;

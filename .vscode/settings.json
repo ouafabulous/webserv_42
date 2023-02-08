@@ -46,6 +46,8 @@
 		"memory_resource": "cpp",
 		"numeric": "cpp",
 		"random": "cpp",
-		"iostream": "cpp"
+		"iostream": "cpp",
+		"ctime": "cpp",
+		"iomanip": "cpp"
 	}
 }
