@@ -92,4 +92,6 @@ typedef	enum	e_block_type
 }	t_block_type;
 
 
+typedef TokenList TokenList;
+
 #endif

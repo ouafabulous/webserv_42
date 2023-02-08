@@ -12,7 +12,7 @@ class Lexer
 	t_s_tok					get_tok_type[CHR_MAX];
 	int 					tok_rules[TOK_S_MAX][CHR_MAX];
 	std::string				_confile;
-	std::vector<t_token>	_tokens;
+	TokenList	_tokens;
 	// Lexer(){};
 
 public:
@@ -21,7 +21,7 @@ public:
 	// void	operator=(const Lexer&);
 	~Lexer();
 
-	std::vector<t_token> const & getTokens() const;
+	TokenList const & getTokens() const;
 
 	void					fillTokens();
 	void					printTokens();

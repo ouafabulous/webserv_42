@@ -94,13 +94,13 @@ void Lexer::fillTokens()
 	}
 }
 
-std::vector<t_token> const & Lexer::getTokens() const
+TokenList const & Lexer::getTokens() const
 {
 	return (_tokens);
 }
 
 void				Lexer::printTokens() {
-	for (std::vector<t_token>::const_iterator it = _tokens.begin(); it != _tokens.end(); it++)
+	for (TokenList::const_iterator it = _tokens.begin(); it != _tokens.end(); it++)
 		std::cout << *it << std::endl;
 }
 

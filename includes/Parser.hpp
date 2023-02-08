@@ -15,17 +15,17 @@ class Block;
 
 class Parser {
     public:
-        Parser(std::vector<t_token>	const & tokens);
+        Parser(TokenList	const & tokens);
         ~Parser(){};
         std::pair<unsigned int, unsigned int>   getBlockLimits() const;
-        // void                                    parse(Block *current_block, std::pair<uint, uint> limits, t_block_type type, std::vector<t_token>	const & tokens);
-        void                                    parse(Block **block, std::vector<t_token>	const & tokens, uint serverId);
+        // void                                    parse(Block *current_block, std::pair<uint, uint> limits, t_block_type type, TokenList	const & tokens);
+        void                                    parseServer(Block **block, TokenList	const & tokens, uint serverId);
         uint                                    getNextTokIndex(std::string const &tokens);
         void                                    printBlocks() const;
 
     private:
-        std::vector<t_token>	          _tokens;
-        Block                             *_blocks;
+        TokenList	          _tokens;
+        BlockServer                       *_blocks;
         std::vector<std::string>    directiveNames;
 };
 

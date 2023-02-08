@@ -24,4 +24,17 @@ class Block{
         Block                   *_child;
 };
 
+class BlockServer : public Block {
+    public:
+    BlockServer(std::string name) : Block(BL_SERVER, name) {};
+};
+
+class BlockLocation : public Block {
+    public:
+    BlockLocation(std::string name, std::string locationvalue) : Block(BL_LOCATION, name) {_locationValue = locationvalue};
+    
+    private:
+    std::string         _locationValue;    
+};
+
 #endif
