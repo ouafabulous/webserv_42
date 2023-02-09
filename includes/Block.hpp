@@ -6,35 +6,46 @@
 
 class Block{
     public:
-        Block(t_block_type type, std::string name) : _type(type), _name(name), _sibling(NULL), _child(NULL) {};
-        ~Block(){};
+        Block(t_block_type type, std::string name) : _type(type), _name(name){};
+        virtual ~Block(){};
 
-        void    addSibling(Block *sibling);
         void    addDirective(directive dir) {_directives.push_back(dir);};
         void    printBlock();
-        Block   *getSibling();
-        Block   **getSiblingAddress();
+        // Block   **getChildAddress();
 
 
-    private:
+    protected:
         t_block_type            _type;
         std::string             _name;
         std::vector<directive>  _directives;
-        Block                   *_sibling;
-        Block                   *_child;
+};
+
+class BlockLocation : public Block {
+    public:
+    BlockLocation(std::string name, std::string locationvalue) : Block(BL_LOCATION, name) {_locationValue = locationvalue;};
+
+    std::string getName() const;
+    std::string getLocationValue() const;
+
+    private:
+    std::string         _locationValue;    
 };
 
 class BlockServer : public Block {
     public:
     BlockServer(std::string name) : Block(BL_SERVER, name) {};
-};
-
-class BlockLocation : public Block {
-    public:
-    BlockLocation(std::string name, std::string locationvalue) : Block(BL_LOCATION, name) {_locationValue = locationvalue};
     
+    size_t      getNumberChild() const;
+    void        addChild(BlockLocation *child);
+    void        printBlock();
+
+    BlockServer   **getSiblingAddress();
+    void    addSibling(BlockServer *sibling);
+    BlockServer   *getSibling();
+
     private:
-    std::string         _locationValue;    
+    std::vector<BlockLocation *>      _childs;
+    BlockServer                   *_sibling;
 };
 
 #endif
