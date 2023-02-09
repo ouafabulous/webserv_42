@@ -3,6 +3,7 @@
 # define IO_HPP
 
 #include <Type.hpp>
+#include <Config.hpp>
 
 class IO;
 
@@ -30,6 +31,8 @@ public:
 	virtual IOEvent	read() = 0;		// called when EPOLLIN received
 	virtual IOEvent	write() = 0;	// called when EPOLLOUT received
 	virtual IOEvent	closed() = 0;	// called when EPOLLHUP received
+protected:
+	char	buffer[BUFFER_SIZE];
 };
 
 #endif

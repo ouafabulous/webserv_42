@@ -1,11 +1,12 @@
 #include <Ressource.hpp>
 
-CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn),
-													is_EOF(false)
+//	file_path of the CGI script to be defined
+//	CGI is still blocking for now, need to use FCNTL to make it non-blocking
+CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressource(conn)
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];
-	char	*args[] = {const_cast<char*>(cgi_path.c_str()), const_cast<char*>script_path};
+	char	*args[] = {const_cast<char*>(cgi_path.c_str()), const_cast<char*>(file_path.c_str())};
 
 	if (pipe(pipe_to_CGI) == -1)
 		throw std::runtime_error("CGI::CGI() pipe_to_CGI failed.");
@@ -45,8 +46,8 @@ CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn),
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
-		setenv("REQUEST_METHOD", conn->request.request_line.method.c_str(), 1);
-		setenv("QUERY_STRING", conn->request.request_line.path.c_str(), 1);
+		setenv("REQUEST_METHOD", conn->getRequest().request_line.method.c_str(), 1);
+		setenv("QUERY_STRING", conn->getRequest().request_line.path.c_str(), 1);
 
 		execve(cgi_path.c_str(), args, NULL);
 	}
@@ -69,20 +70,20 @@ CGI::~CGI()
 
 IOEvent	CGI::read()
 {
-	char	buffer[BUFFER_SIZE];
-	size_t	ret;
-
-	if (ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT) > 0)
-		response.insert(response.end(), buffer, buffer + ret);
+	size_t ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT);
+	if (ret == -1)
+		return IOEvent(FAIL, this, "CGI::read() failed.");
 	if (ret == 0)
 		is_EOF = true;
-	return IOEvent(SUCCESS, this, "CGI::read() OK");
+	else
+		response.insert(response.end(), buffer, buffer + ret);
+	return IOEvent();
 }
 
 IOEvent	CGI::write()
 {
-	if (send(fd_write, conn->request.body[0],
-		conn->request.body.size(), MSG_DONTWAIT) == -1)
+	if (send(fd_write, &conn->getRequest().body[0],
+		conn->getRequest().body.size(), MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "CGI::write() failed.");
 }
 

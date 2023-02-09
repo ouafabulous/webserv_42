@@ -47,3 +47,5 @@ IOEvent	Connexion::closed() { return IOEvent(FAIL, this, "client closed the conn
 void	Connexion::readHeader() {}
 void	Connexion::parseHeader() {}
 // bool	Connexion::readBody() {}
+
+t_http_message	&Connexion::			getRequest() { return request; }

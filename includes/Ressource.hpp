@@ -7,6 +7,7 @@
 class Ressource : public IO
 {
 public:
+	Ressource(Connexion *conn): conn(conn), is_EOF(false), fd_read(-1), fd_write(-1) {};
 	virtual ~Ressource() {};
 	virtual IOEvent		read() = 0;
 	virtual IOEvent		write() = 0;
@@ -65,7 +66,7 @@ public:
 class CGI : public Ressource
 {
 public:
-	CGI(Connexion *conn, std::string cgi_path);
+	CGI(Connexion *conn, std::string file_path, std::string cgi_path);
 	~CGI();
 	virtual IOEvent		read();
 	virtual IOEvent		write();

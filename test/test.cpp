@@ -40,12 +40,12 @@ void pipe_communication(char **env)
 	}
 	else if (pid == 0)
 	{
-		close(pipe_host_to_cgi[READ]);
-		close(pipe_cgi_to_host[WRITE]);
-		dup2(pipe_host_to_cgi[WRITE], STDOUT_FILENO);
-		dup2(pipe_cgi_to_host[READ], STDIN_FILENO);
 		close(pipe_host_to_cgi[WRITE]);
 		close(pipe_cgi_to_host[READ]);
+		dup2(pipe_host_to_cgi[READ], STDIN_FILENO);
+		dup2(pipe_cgi_to_host[WRITE], STDOUT_FILENO);
+		close(pipe_host_to_cgi[READ]);
+		close(pipe_cgi_to_host[WRITE]);
 
 		if (!cgi_path.empty())
 			execve(cgi_path.c_str(), args, env);
@@ -59,10 +59,10 @@ void pipe_communication(char **env)
 	{
 		char buffer[1024];
 
-		close(pipe_host_to_cgi[WRITE]);
-		close(pipe_cgi_to_host[READ]);
-		fd_write = pipe_host_to_cgi[READ];
-		fd_read = pipe_cgi_to_host[WRITE];
+		close(pipe_host_to_cgi[READ]);
+		close(pipe_cgi_to_host[WRITE]);
+		fd_write = pipe_host_to_cgi[WRITE];
+		fd_read = pipe_cgi_to_host[READ];
 		// std::string request = "POST /path HTTP/1.1\r\n"
 		// 					  "Host: example.com\r\n"
 		// 					  "Content-Type: application/x-www-form-urlencoded\r\n"
@@ -70,12 +70,13 @@ void pipe_communication(char **env)
 		// 					  "\r\n"
 		std::string request_body = "first_name=Maxime&last_name=Riaud\r\n";
 		write(fd_write, request_body.c_str(), request_body.length());
-		while (read(fd_read, buffer, 1024) > 0)
+
+		while(read(fd_read, buffer, 1024) > 0)
 			std::cout << buffer << std::endl;
 
 		wait(&wstatus);
-		close(pipe_host_to_cgi[READ]);
-		close(pipe_cgi_to_host[WRITE]);
+		close(fd_read);
+		close(fd_write);
 	}
 }
 
