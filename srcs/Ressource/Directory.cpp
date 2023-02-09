@@ -8,6 +8,6 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) :	conn(conn),
 }
 
 GetDirectory::~GetDirectory() {}
-void	GetDirectory::read() {}
-void	GetDirectory::write() {}
-void	GetDirectory::closed() {}
+IOEvent	GetDirectory::read() {}
+IOEvent	GetDirectory::write() {}
+IOEvent	GetDirectory::closed() {}

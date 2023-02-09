@@ -4,21 +4,17 @@
 
 #include <Socket.hpp>
 
-// Abstract Ressource Class
-
 class Ressource : public IO
 {
 public:
-	Ressource(Connexion *conn);
 	virtual ~Ressource() {};
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
-	virtual t_fd		fdDelete() = 0;
+	virtual IOEvent		read() = 0;
+	virtual IOEvent		write() = 0;
+	virtual IOEvent		closed() = 0;
 
 protected:
-	const t_fd			fd_read;
-	const t_fd			fd_write;
+	t_fd				fd_read;
+	t_fd				fd_write;
 	Connexion			*conn;
 	std::vector<char>	response;
 	bool				is_EOF;
@@ -32,9 +28,8 @@ class GetStaticFile : public Ressource
 public:
 	GetStaticFile(Connexion *conn, std::string file_path);
 	~GetStaticFile();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		closed();
 };
 
 class PostStaticFile : public Ressource
@@ -42,9 +37,8 @@ class PostStaticFile : public Ressource
 public:
 	PostStaticFile(Connexion *conn, std::string file_path);
 	~PostStaticFile();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 class DeleteStaticFile : public Ressource
@@ -52,9 +46,7 @@ class DeleteStaticFile : public Ressource
 public:
 	DeleteStaticFile(Connexion *conn, std::string file_path);
 	~DeleteStaticFile();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		closed();
 };
 
 class GetDirectory : public Ressource
@@ -62,9 +54,9 @@ class GetDirectory : public Ressource
 public:
 	GetDirectory(Connexion *conn, std::string dir_path);
 	~GetDirectory();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 
@@ -75,9 +67,9 @@ class CGI : public Ressource
 public:
 	CGI(Connexion *conn, std::string cgi_path);
 	~CGI();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 
@@ -88,9 +80,9 @@ class RedirectRessource : public Ressource
 public:
 	RedirectRessource(Connexion *conn, std::string url);
 	~RedirectRessource();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 #endif

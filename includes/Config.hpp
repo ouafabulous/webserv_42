@@ -6,6 +6,8 @@
 #define CONN_TO_LISTEN	64
 #define BUFFER_SIZE		4096
 #define CH_PERM			0644
+#define READ 0
+#define WRITE 1
 
 // ERRORS
 #define INIT_ERROR_HEADER	"[INIT ERROR]:\t"

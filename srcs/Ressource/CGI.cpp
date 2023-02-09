@@ -1,79 +1,94 @@
 #include <Ressource.hpp>
 
-//Ressource::Ressource(Connexion *conn) : conn(conn), is_EOF(false), fd_read(-1), fd_write(-1) {}
-
-CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn), is_EOF(false)
+CGI::CGI(Connexion *conn, std::string cgi_path) :	conn(conn),
+													is_EOF(false)
 {
-	int		pipe_in[2];
-	int		pipe_out[2];
+	int		pipe_to_CGI[2];
+	int		pipe_to_host[2];
+	char	*args[] = {const_cast<char*>(cgi_path.c_str()), const_cast<char*>script_path};
 
-	if (pipe(pipe_in) == -1 || pipe(pipe_out) == -1)
-		throw std::runtime_error("CGI::CGI() Pipe failed.");
+	if (pipe(pipe_to_CGI) == -1)
+		throw std::runtime_error("CGI::CGI() pipe_to_CGI failed.");
+	if (pipe(pipe_to_host) == -1)
+	{
+		close(pipe_to_CGI[READ]);
+		close(pipe_to_CGI[WRITE]);
+		throw std::runtime_error("CGI::CGI() pipe_to_host failed.");
+	}
 
 	pid_t	pid = fork();
 
 	if (pid < 0)
 	{
-		close(pipe_in[0]);
-		close(pipe_in[1]);
-		close(pipe_out[0]);
-		close(pipe_out[1]);
+		close(pipe_to_CGI[READ]);
+		close(pipe_to_CGI[WRITE]);
+		close(pipe_to_host[READ]);
+		close(pipe_to_host[WRITE]);
 		throw std::runtime_error("CGI::CGI() Fork failed");
 	}
 	else if (pid == 0)
 	{
-		close(pipe_out[1]);
-		close(pipe_in[0]);
-		dup2(pipe_out[0], STDIN_FILENO);	// child closes write, redirects stdin to read
-		dup2(pipe_in[1], STDOUT_FILENO);	// child closes read, redirects stdout to write
-		close(pipe_out[0]);
-		close(pipe_in[1]);
+		close(pipe_to_host[WRITE]);
+		close(pipe_to_CGI[READ]);
+		if (dup2(pipe_to_host[READ], STDIN_FILENO) == -1)
+		{
+			close(pipe_to_host[READ]);
+			close(pipe_to_CGI[WRITE]);
+			throw std::runtime_error("CGI::CGI() dup2 for pipe_to_host failed");
+		}
+		if (dup2(pipe_to_CGI[WRITE], STDOUT_FILENO) == -1)
+		{
+			close(pipe_to_host[READ]);
+			close(pipe_to_CGI[WRITE]);
+			throw std::runtime_error("CGI::CGI() dup2 for pipe_to_CGI failed");
+		}
+		close(pipe_to_host[READ]);
+		close(pipe_to_CGI[WRITE]);
 
 		setenv("REQUEST_METHOD", conn->request.request_line.method.c_str(), 1);
-		setenv("QUERY_STRING", conn->request.body.c_str(), 1);
-		// c_str() doesn't work on a vector, have to convert vector to string
-		//std::string body(conn->request.body.begin(), conn->request.body.end());
+		setenv("QUERY_STRING", conn->request.request_line.path.c_str(), 1);
 
-		execve(cgi_path.c_str(), NULL, NULL); // not good, need to pass env instead of NULL
+		execve(cgi_path.c_str(), args, NULL);
 	}
 	else
 	{
-		close(pipe_out[0]);
-		close(pipe_in[1]);
-		fd_read = pipe_in[0];
-		fd_write = pipe_out[1];
+		close(pipe_to_host[READ]);
+		close(pipe_to_CGI[WRITE]);
+		fd_read = pipe_to_CGI[READ];
+		fd_write = pipe_to_host[WRITE];
 	}
 }
 
 CGI::~CGI()
 {
-	epoll_util(EPOLL_CTL_DEL, fd_read, EPOLLIN);
-	epoll_util(EPOLL_CTL_DEL, fd_write, EPOLLOUT);
+	epoll_util(EPOLL_CTL_DEL, fd_read, this, EPOLLIN);
+	epoll_util(EPOLL_CTL_DEL, fd_write, this, EPOLLOUT);
 	close(fd_read);
 	close(fd_write);
 }
 
-void	CGI::read()
+IOEvent	CGI::read()
 {
 	char	buffer[BUFFER_SIZE];
 	size_t	ret;
 
-	ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT);
-	reponse.append(buffer, ret);
+	if (ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT) > 0)
+		response.insert(response.end(), buffer, buffer + ret);
 	if (ret == 0)
 		is_EOF = true;
+	return IOEvent(SUCCESS, this, "CGI::read() OK");
 }
 
-void	CGI::write()
+IOEvent	CGI::write()
 {
 	if (send(fd_write, conn->request.body[0],
 		conn->request.body.size(), MSG_DONTWAIT) == -1)
-		throw std::runtime_error("CGI::write() failed.");
+		return IOEvent(FAIL, this, "CGI::write() failed.");
 }
 
-void	CGI::closed()
+IOEvent	CGI::closed()
 {
-	throw std::runtime_error("CGI::closed() called");
+	return IOEvent(FAIL, this, "CGI::closed() called");
 }
 
-t_fd	CGI::fdDelete() { return conn; }
+

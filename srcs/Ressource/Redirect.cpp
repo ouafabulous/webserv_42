@@ -9,6 +9,6 @@ RedirectRessource::RedirectRessource(Connexion *conn, std::string url) : conn(co
 }
 
 RedirectRessource::~RedirectRessource() {}
-void	RedirectRessource::read() {}
-void	RedirectRessource::write() {}
-void	RedirectRessource::closed() {}
+IOEvent	RedirectRessource::read() {}
+IOEvent	RedirectRessource::write() {}
+IOEvent	RedirectRessource::closed() {}
