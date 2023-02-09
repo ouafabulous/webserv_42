@@ -6,7 +6,8 @@
 
 GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
 {
-	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK); // O_NONBLOCK
+	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
+	set_nonblocking(fd_read);
 }
 
 GetStaticFile::~GetStaticFile()
@@ -37,6 +38,7 @@ IOEvent	GetStaticFile::closed()
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
 {
 	fd_write = open(file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_NONBLOCK, CH_PERM);
+	set_nonblocking(fd_write);
 }
 
 PostStaticFile::~PostStaticFile()

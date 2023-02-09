@@ -1,7 +1,6 @@
 #include <Ressource.hpp>
 
 //	file_path of the CGI script to be defined
-//	CGI is still blocking for now, need to use FCNTL to make it non-blocking
 CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressource(conn)
 {
 	int		pipe_to_CGI[2];
@@ -56,7 +55,9 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 		fd_read = pipe_to_CGI[READ];
+		set_nonblocking(fd_read);
 		fd_write = pipe_to_host[WRITE];
+		set_nonblocking(fd_write);
 	}
 }
 
