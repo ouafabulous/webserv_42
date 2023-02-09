@@ -3,8 +3,8 @@
 #define SERVER_HPP
 
 #include <Config.hpp>
-#include <Errors.hpp>
 #include <Type.hpp>
+#include <Errors.hpp>
 #include <Router.hpp>
 #include <IO.hpp>
 #include <Socket.hpp>
@@ -31,7 +31,6 @@ private:
 	typedef std::vector<t_network_address>	listen_list;
 
 	const Router					router;
-	std::map<uint, std::string>		errors;
 };
 
 

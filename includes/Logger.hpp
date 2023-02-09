@@ -71,7 +71,8 @@ private:
 			Warning() {};
 			~Warning() {};
 
-			std::ostream&	operator<<(const std::string& message) {
+			template<typename T>
+			std::ostream&	operator<<(const T& message) {
 				if (WARNING < min_level)
 					return hide;
 				std::cerr << print_header(WARNING) << message;

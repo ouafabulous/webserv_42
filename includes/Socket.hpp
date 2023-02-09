@@ -39,6 +39,7 @@ public:
 	virtual IOEvent			read();
 	virtual IOEvent			write();
 	virtual IOEvent			closed();
+	void					writeError(uint error);
 	// t_http_message		get_header();
 
 private:

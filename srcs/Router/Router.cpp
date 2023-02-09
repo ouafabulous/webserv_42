@@ -7,11 +7,10 @@ Router::Router(const std::string &confile)
 {
 	(void)confile;
 	t_attributes	base;
-	my_map[t_network_address(INADDR_ANY, htons(80))]["google.com"] = Route(base);
+	my_map[t_network_address(INADDR_ANY, htons(8080))]["facebook.com"] = Route();
+	base.error_files.addError(404, "./README.md");
 	Route	random_route(base);
-	my_map[t_network_address(INADDR_ANY, htons(8080))]["facebook.com"] = random_route;
 	my_map[t_network_address(INADDR_ANY, htons(8088))]["www.facebook.com"] = random_route;
-
 }
 Router::~Router() {
 }
@@ -27,9 +26,9 @@ std::vector<t_network_address>	Router::getAddr() const {
 
 const Route	*Router::getRoute(const t_network_address netAddr, const t_http_message &req) const {
 	const vserver_map			&virtual_server = my_map.at(netAddr);
-	vserver_map::const_iterator	route = virtual_server.find(req.header_fields.at("Host"));
+	vserver_map::const_iterator	route;
 
-	if (route == virtual_server.end())
-		return (&virtual_server.begin()->second);
-	return (&route->second);
+	if (req.header_fields.find("Host") == req.header_fields.end())
+		return &virtual_server.begin()->second;
+	return &virtual_server.find(req.header_fields.at("Host"))->second;
 }

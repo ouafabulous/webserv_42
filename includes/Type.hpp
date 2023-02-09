@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <Errors.hpp>
 
 // IO
 
@@ -42,7 +43,7 @@ typedef struct s_attributes
 	std::vector<std::string>						server_names;		// defined by header field "Host"
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
-	std::map<uint, std::string>						error_files;		// path to default error pages
+	Errors											error_files;		// path to default error pages
 	std::string										redirect;			// uri for redirection,
 	std::string										root;				// path to root directory for serving static files
 	std::map<std::string, std::string>				cgi_path;			// path to CGI locations
@@ -77,5 +78,7 @@ typedef enum e_chr_class
 } t_chr_class;
 
 typedef std::pair<t_s_tok, std::string>	t_token;
+
+#define CRLF   "\r\n"
 
 #endif

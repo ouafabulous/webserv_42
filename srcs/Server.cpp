@@ -22,10 +22,6 @@ Server::Server(const std::string config_file)
 			Logger::warning << e.what() << " on " << *it << '\n';
 		}
 	}
-
-	// ERRORS DEFINITIONS
-	errors[404] = "HTTP/1.1 404 OK\nContent-Type:text/html\nContent-Length: 49\n\n<html><body><h1>File not found</h1></body></html>";
-	errors[413] = "413 Payload Too Large";
 }
 
 Server::~Server() {
@@ -56,12 +52,17 @@ void	Server::routine() {
 			else if (events[i].events & EPOLLOUT)
 				io_event = static_cast<IO*>(events[i].data.ptr)->write();
 			// check result of IO
-			if (io_event.result == ERROR) {
-				std::string	&error_message = errors[io_event.error];
-				send(io_event.client, error_message.c_str(), error_message.length(), MSG_DONTWAIT);
-			}
 			if (io_event.result) {
-				if (io_event.result == SUCCESS)
+				if (io_event.http_error) {
+					try {
+						dynamic_cast<Connexion*>(io_event.io_elem)->writeError(io_event.http_error);
+					}
+					catch(const std::exception& e) {
+						Logger::warning << "io_elem is not Connexion" << std::endl;
+					}
+					Logger::warning << io_event.http_error << " " << io_event.log << std::endl;
+				}
+				else if (io_event.result == SUCCESS)
 					Logger::info << io_event.log << std::endl;
 				else
 					Logger::warning << io_event.log << std::endl;

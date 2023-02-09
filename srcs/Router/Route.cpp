@@ -16,3 +16,7 @@ Route&	Route::operator=(const Route& rhs) {
 Route::~Route() {
 
 }
+
+std::string	Route::getError(uint http_error) const {
+	return attributes.error_files.getError(http_error);
+}

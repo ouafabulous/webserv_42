@@ -4,7 +4,7 @@
 
 #define EPOLL_BACKLOG	4096
 #define CONN_TO_LISTEN	64
-#define BUFFER_SIZE		4
+#define BUFFER_SIZE		4096
 #define MAX_HEADER_SIZE	4096
 
 #endif

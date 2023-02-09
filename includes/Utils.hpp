@@ -12,8 +12,9 @@
 #include <sys/epoll.h>
 #include <fcntl.h>
 
-bool	set_nonblocking(int fd);
-bool	epoll_util(int action, t_fd fd, IO* io_ptr, int flags);
+bool			set_nonblocking(int fd);
+bool			epoll_util(int action, t_fd fd, IO* io_ptr, int flags);
+std::string		http_header_formatter(uint status_code, size_t content_length);
 
 
 std::ostream&	operator<<(std::ostream &out, const t_network_address &netAddr);

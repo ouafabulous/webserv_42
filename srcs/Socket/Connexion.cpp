@@ -29,10 +29,10 @@ IOEvent	Connexion::read() {
 	ssize_t	recv_size;
 
 	Logger::debug << "read from conn" << std::endl;
-	if ((recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT)) == -1)
+	if ((recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT)) < 1)
 		return IOEvent(FAIL, this, "Connexion socket closed");
-		// buffer[recv_size -1] = 0;
 		// request_header.append(buffer);
+	buffer[recv_size] = 0;
 	if (!header_end)
 		return readHeader();
 	// else
@@ -53,24 +53,37 @@ IOEvent	Connexion::write() {
 }
 IOEvent	Connexion::closed() { return IOEvent(FAIL, this, "client closed the connexion"); }
 
+void	Connexion::writeError(uint http_error) {
+	std::stringstream	response;
+	std::string			body;
+
+	if (route)
+		body = route->getError(http_error);
+	else
+		body = Errors::getDefaultError(http_error);
+	response << http_header_formatter(http_error, body.length());
+	response << body;
+	send(c_socket, response.str().c_str(), response.str().length(), MSG_DONTWAIT);
+}
 
 // Underlying operations
 
 IOEvent	Connexion::readHeader() {
 	request_header.append(buffer);
-	size_t	header_end_pos = request_header.find("\r\n\r\n");
+	size_t	header_end_pos = request_header.find(CRLF);
 	Logger::debug << "read header" << std::endl;
 	if (request_header.length() >= MAX_HEADER_SIZE)
-		return IOEvent(ERROR, this, "header exceeds max header size", 413, c_socket);
+		return IOEvent(FAIL, this, "header exceeds max header size", 413);
 	if (header_end_pos != std::string::npos) {
 		Logger::debug << "End of header detected" << std::endl;
 		request.body.assign(request_header.begin() + header_end_pos + 4, request_header.end());
 		header_end = true;
+		route = router.getRoute(netAddr, request);
 		return parseHeader();
 	}
 	return IOEvent();
 }
 IOEvent	Connexion::parseHeader() {
-	return IOEvent();
+	return IOEvent(FAIL, this, "file not found", 404);
 }
 // bool	Connexion::readBody() {}
