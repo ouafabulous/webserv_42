@@ -2,6 +2,22 @@
 #include <iostream>
 #include <algorithm>
 
+Parser::~Parser(){
+    BlockServer *tmp1 = _blocks;
+    BlockServer *tmp2 = _blocks;
+    while (tmp1)
+    { 
+        std::vector<BlockLocation *> const &childs = tmp1->getChilds();
+        for(std::vector<BlockLocation *>::const_iterator it = childs.begin(); it != childs.end(); it++){
+            delete (*it);
+        }
+        tmp2 = tmp1;
+        tmp1 = tmp1->getSibling();
+        // for(std::vector<BlockLocation *>::iterator it = tmp2->)
+        delete(tmp2);
+    }
+}
+
 Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
 {
     std::string dn[7] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup"};
@@ -137,7 +153,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                                 t_token directiveValueTok = tokens[firstNonSpTokIndex];
                                 if (directiveValueTok.first == TOK_WORD)
                                 {
-                                    (*block)->addDirective(std::make_pair(directiveName, directiveValueTok.second));
+                                    locationBlock->addDirective(std::make_pair(directiveName, directiveValueTok.second));
                                 }
                                 i = firstNonSpTokIndex + 1;
                             }

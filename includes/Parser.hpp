@@ -16,7 +16,7 @@ class Block;
 class Parser {
     public:
         Parser(TokenList	const & tokens);
-        ~Parser(){};
+        ~Parser();
         std::pair<unsigned int, unsigned int>   getBlockLimits() const;
         // void                                    parse(Block *current_block, std::pair<uint, uint> limits, t_block_type type, TokenList	const & tokens);
         void                                    parse(BlockServer **block, TokenList	const & tokens, uint serverId);
