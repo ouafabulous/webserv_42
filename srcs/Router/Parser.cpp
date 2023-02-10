@@ -25,13 +25,21 @@ int findNextNonSpTok(TokenList const &tokens, uint i)
     return (tokNotSp - tokens.begin());
 }
 
-uint closingIndexBracket(TokenList const &tokens, uint j)
+void printVector(TokenList tokens)
 {
     uint i = 0;
-    uint br = 1;
-    TokenList subVector(tokens.begin() + j, tokens.end());
+    for (TokenList::iterator it = tokens.begin(); it != tokens.end(); it++)
+    {
+        std::cout << i << " " << it->first << " " << it->second << std::endl;
+        i++;
+    }
+}
 
-    for (TokenList::const_iterator it = tokens.begin(); it != tokens.end(); it++)
+uint closingIndexBracket(TokenList const &tokens, uint j)
+{
+    uint i = j;
+    uint br = 1;
+    for (TokenList::const_iterator it = tokens.begin() + j; it != tokens.end(); it++)
     {
         i++;
         if (it->first == TOK_BR_OP)
@@ -47,23 +55,12 @@ uint closingIndexBracket(TokenList const &tokens, uint j)
             }
         }
     }
-    // Throw an error if you don't find
     return (0);
 }
 
 bool isDirective(t_token token, std::vector<std::string> const &directiveNames)
 {
     return (token.first == TOK_WORD && std::find(directiveNames.begin(), directiveNames.end(), token.second) != directiveNames.end());
-}
-
-void printVector(TokenList tokens)
-{
-    uint i = 0;
-    for (TokenList::iterator it = tokens.begin(); it != tokens.end(); it++)
-    {
-        std::cout << i << " " << it->first << " " << it->second << std::endl;
-        i++;
-    }
 }
 
 bool tokensAreNotWords(TokenList const &tokens)
@@ -86,6 +83,8 @@ TokenList subVectorFrom(TokenList originalTokens, uint index)
 
 void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)
 {
+    printVector(tokens);
+    std::cout << "-----------" << std::endl;
     if (tokens.size() || !tokensAreNotWords(tokens))
     {
         uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0); // the first non space token in the tokens given
@@ -97,10 +96,16 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
             *block = new BlockServer("server_" + oss.str());
             uint i = secondNonSpTokIndex + 1;
             uint clServerBrIndex = closingIndexBracket(tokens, i);
+            std::cout << "i value: " << i << ", clServerBrIndex value: " << clServerBrIndex << std::endl;
             while (i < clServerBrIndex)
             {
+                // std::cout << "tokens[i].first: " << tokens[14].first << " tokens[i].second: " << tokens[14].second << std::endl;
+                // TokenList   subTokTest(tokens.begin() + i, tokens.begin() + clServerBrIndex);
+                // printVector(subTokTest);
+                // std::cout << "I entered here with this token: " << tokens[i].second << std::endl;
                 if (isDirective(tokens[i], directiveNames))
                 {
+                    std::cout << "I entered here 1" << std::endl;
                     std::string directiveName = tokens[i].second;
                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
                     t_token directiveValueTok = tokens[firstNonSpTokIndex];
@@ -112,6 +117,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                 }
                 else if (tokens[i].second == "location")
                 {
+                    std::cout << "I entered here 2" << std::endl;
                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
                     secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
                     if (tokens[firstNonSpTokIndex].first == TOK_WORD && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
@@ -143,15 +149,19 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                         static_cast<BlockServer *>(*block)->addChild(locationBlock);
                         i = clLocationBrIndex + 1;
                     }
-                    else
-                    {
-                        i++;
-                    }
                 }
+                else
+                {
+                    std::cout << "I entered here 3" << std::endl;
+                    i++;
+                }
+            }
                 TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
+                std::cout << "Here is the subtoken: " << std::endl;
+                // printVector(subToken);
+                std::cout << "Here is the clServerBrIndex: " << clServerBrIndex << std::endl;
                 parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
                 return;
-            }
         }
     }
 }

@@ -33,14 +33,14 @@ class BlockLocation : public Block {
 
 class BlockServer : public Block {
     public:
-    BlockServer(std::string name) : Block(BL_SERVER, name) {};
+    BlockServer(std::string name) : Block(BL_SERVER, name) {_sibling = NULL;};
     
     size_t      getNumberChild() const;
     void        addChild(BlockLocation *child);
     void        printBlock();
 
     BlockServer   **getSiblingAddress();
-    void    addSibling(BlockServer *sibling);
+    void          addSibling(BlockServer *sibling);
     BlockServer   *getSibling();
 
     private:
