@@ -3,36 +3,35 @@
 #define SERVER_HPP
 
 #include <Config.hpp>
-#include "Type.hpp"
-#include "Server.hpp"
-#include "Router.hpp"
+#include <Errors.hpp>
+#include <Type.hpp>
+#include <Router.hpp>
+#include <IO.hpp>
+#include <Socket.hpp>
 
 #include <sys/epoll.h>
+#include <unistd.h>
+#include <set>
+
+class ListenSocket;
 
 class Server
 {
 public:
+	typedef std::set<IO*>	socket_set;
+
 	Server(const std::string confFile);
 	~Server();
 
 	static t_fd					epollfd;
+	static socket_set			socks;
 	void						routine();
 
 private:
+	typedef std::vector<t_network_address>	listen_list;
+
 	const Router				router;
-	static std::map<t_fd, IO *>	socks;
 };
 
-class IO
-{
-public:
-	IO();
-	~IO();
-
-	virtual void	read() = 0;			// called when EPOLLIN received
-	virtual void	write() = 0;		// called when EPOLLOUT received
-	virtual void	closed() = 0;		// called when EPOLLHUP received
-	virtual t_fd	fdDelete() = 0;	// get the fd of the Connexion or ListenSocket to delete
-};
 
 #endif

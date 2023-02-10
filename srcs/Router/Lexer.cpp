@@ -40,16 +40,16 @@ Lexer::Lexer(const std::string confile): _confile(confile)
 {
 	// GET_CHR_CLASS INIT
 	for (int c = '\0'; c <= ' '; ++c)
-		get_chr_class[c] = CHR_SP;
-	get_chr_class[';'] = CHR_SC;
-	get_chr_class['}'] = CHR_BR_CL;
+		get_chr_class[static_cast<int>(c)] = CHR_SP;
+	get_chr_class[static_cast<int>(';')] = CHR_SC;
 	for (int c = '!'; c <= ':'; ++c)
-		get_chr_class[c] = CHR_WORD;
+		get_chr_class[static_cast<int>(c)] = CHR_WORD;
 	for (int c = '<'; c <= 'z'; ++c)
-		get_chr_class[c] = CHR_WORD;
-	get_chr_class['{'] = CHR_BR_OP;
-	get_chr_class['|'] = CHR_WORD;
-	get_chr_class['~'] = CHR_WORD;
+	get_chr_class[static_cast<int>(c)] = CHR_WORD;
+	get_chr_class[static_cast<int>('{')] = CHR_BR_OP;
+	get_chr_class[static_cast<int>('|')] = CHR_WORD;
+	get_chr_class[static_cast<int>('}')] = CHR_BR_CL;
+	get_chr_class[static_cast<int>('~')] = CHR_WORD;
 
 	// GET_TOK_TYPE INIT
 	get_tok_type[CHR_SP] = TOK_SP;

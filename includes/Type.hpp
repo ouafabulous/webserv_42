@@ -2,10 +2,10 @@
 #ifndef TYPE_HPP
 #define TYPE_HPP
 
-#include <map>
 #include <netinet/in.h>
 #include <string>
 #include <vector>
+#include <map>
 
 // IO
 
