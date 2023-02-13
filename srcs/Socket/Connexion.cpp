@@ -46,7 +46,7 @@ IOEvent	Connexion::read() {
 	return IOEvent();
 }
 IOEvent	Connexion::write() {
-	if (!ressource)
+	if (response.empty())
 		return IOEvent();
 	Logger::debug << "write to conn" << std::endl;
 	if (send(c_socket, response.c_str(), response.length(), MSG_DONTWAIT) == -1)
