@@ -11,10 +11,6 @@ class Ressource
 public:
 	Ressource(Connexion *conn);
 	virtual ~Ressource() = 0;
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
-	virtual t_fd		fdDelete();
 
 protected:
 	const t_fd			fd_read;

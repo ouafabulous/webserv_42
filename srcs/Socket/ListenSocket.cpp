@@ -48,5 +48,4 @@ IOEvent ListenSocket::read()
 	Logger::info << "new client is now connected" << std::endl;
 	return IOEvent();
 }
-IOEvent ListenSocket::write() { return IOEvent(); }
 IOEvent ListenSocket::closed() { return IOEvent(FAIL, this, "listen socket closed"); }

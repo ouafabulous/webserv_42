@@ -29,9 +29,9 @@ class IO
 {
 public:
 	virtual ~IO() {};
-	virtual IOEvent	read() = 0;		// called when EPOLLIN received
-	virtual IOEvent	write() = 0;	// called when EPOLLOUT received
-	virtual IOEvent	closed() = 0;	// called when EPOLLHUP received
+	virtual IOEvent	read() {IOEvent(FAIL, this, "Unknown error");};		// called when EPOLLIN received
+	virtual IOEvent	write() {IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLOUT received
+	virtual IOEvent	closed() {IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLHUP received
 
 protected:
 	static char	buffer[BUFFER_SIZE];

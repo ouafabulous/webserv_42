@@ -3,10 +3,11 @@
 #include <sstream>
 #include <string>
 #include <iostream>
-#include <Server.hpp>
-
-#include <signal.h>
-#include <stdlib.h>
+#include "Lexer.hpp"
+#include "Parser.hpp"
+#include "Server.hpp"
+#include "signal.h"
+#include "stdlib.h"
 
 void handle_sigpipe(int signal) {
 	(void)signal;
@@ -34,7 +35,13 @@ int main(int ac, char *av[])
 
 		// Lexer	Lex(big_buffer);
 		// Lex.fillTokens();
-		// Lex.printTokens();
+		// // Lex.printTokens();
+		// Parser	Parse(Lex.getTokens());
+		// Parse.printBlocks();
+		// // Lexer	Lex(big_buffer);
+		// // Lex.fillTokens();
+		// // Lex.printTokens();
+		
 
 	try {
 		Logger::setLevel(DEBUG);
