@@ -22,7 +22,7 @@ struct t_http_message
 {
 	t_request_line									request_line;
 	std::map<std::string, std::string>				header_fields;
-	std::vector<char>								body;
+	std::string										body;
 };
 
 typedef std::pair<in_addr_t, in_port_t>				t_network_address;

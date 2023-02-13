@@ -35,13 +35,13 @@ int main(int ac, char **av)
 	while ((entry = readdir(dir)) != NULL)
 	{
 		if (entry->d_type == DT_REG) // regular file
-			outfile << "<li><a href=\"" << entry->d_name
+			outfile << "<li><a href=\"./" << entry->d_name
 					<< "\">" << entry->d_name << "</a></li>\n";
 		else if (entry->d_type == DT_DIR) // directory
 		{
 			//if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 			//	continue;
-			outfile << "<li><a href=\"" << entry->d_name
+			outfile << "<li><a href=\"./" << entry->d_name
 					<< "/\">" << entry->d_name << "/</a></li>\n";
 		}
 	}

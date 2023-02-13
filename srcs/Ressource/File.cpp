@@ -6,6 +6,7 @@
 
 GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
 {
+	//need to construct the header ?!
 	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
 	set_nonblocking(fd_read);
 }
@@ -21,9 +22,10 @@ IOEvent	GetStaticFile::read()
 	size_t	ret;
 
 	ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT);
-	response.insert(response.end(), buffer, buffer + ret);
+	response.append(buffer, ret);
 	if (ret == 0)
 		is_EOF = true;
+	return IOEvent();
 }
 
 IOEvent	GetStaticFile::closed()
@@ -49,7 +51,7 @@ PostStaticFile::~PostStaticFile()
 
 IOEvent	PostStaticFile::write()
 {
-	if (send(fd_write, &conn->getRequest().body[0],
+	if (send(fd_write, conn->getRequest().body.c_str(),
 		conn->getRequest().body.size(), MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "PostStaticFile::write() failed");
 }

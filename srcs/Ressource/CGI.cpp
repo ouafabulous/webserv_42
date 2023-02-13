@@ -77,13 +77,13 @@ IOEvent	CGI::read()
 	if (ret == 0)
 		is_EOF = true;
 	else
-		response.insert(response.end(), buffer, buffer + ret);
+		response.append(buffer, ret);
 	return IOEvent();
 }
 
 IOEvent	CGI::write()
 {
-	if (send(fd_write, &conn->getRequest().body[0],
+	if (send(fd_write, conn->getRequest().body.c_str(),
 		conn->getRequest().body.size(), MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "CGI::write() failed.");
 }

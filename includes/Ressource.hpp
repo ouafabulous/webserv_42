@@ -17,10 +17,9 @@ protected:
 	t_fd				fd_read;
 	t_fd				fd_write;
 	Connexion			*conn;
-	std::vector<char>	response;
+	std::string			response;
 	bool				is_EOF;
 };
-
 
 // File && Directory Classes
 
