@@ -53,16 +53,7 @@ void	Server::routine() {
 				io_event = static_cast<IO*>(events[i].data.ptr)->write();
 			// check result of IO
 			if (io_event.result) {
-				if (io_event.http_error) {
-					try {
-						dynamic_cast<Connexion*>(io_event.io_elem)->writeError(io_event.http_error);
-					}
-					catch(const std::exception& e) {
-						Logger::warning << "io_elem is not Connexion" << std::endl;
-					}
-					Logger::warning << io_event.http_error << " " << io_event.log << std::endl;
-				}
-				else if (io_event.result == SUCCESS)
+				if (io_event.result == SUCCESS)
 					Logger::info << io_event.log << std::endl;
 				else
 					Logger::warning << io_event.log << std::endl;
@@ -75,4 +66,3 @@ void	Server::routine() {
 
 t_fd			Server::epollfd = -1;
 std::set<IO*>	Server::socks;
-char			IO::buffer[BUFFER_SIZE];

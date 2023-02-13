@@ -11,12 +11,12 @@ class Ressource
 public:
 	Ressource(Connexion *conn);
 	virtual ~Ressource() = 0;
+	std::vector<char>	response;
 
 protected:
 	const t_fd			fd_read;
 	const t_fd			fd_write;
 	Connexion			*conn;
-	std::vector<char>	response;
 	bool				is_EOF;
 };
 
@@ -87,6 +87,13 @@ public:
 	virtual void		read() = 0;
 	virtual void		write() = 0;
 	virtual void		closed() = 0;
+};
+
+class ErrorRessource : public Ressource
+{
+public:
+	ErrorRessource(Connexion *conn, std::string error_response);
+	~ErrorRessource();
 };
 
 #endif

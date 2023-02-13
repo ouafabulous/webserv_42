@@ -1,4 +1,5 @@
 #include <Socket.hpp>
+#include <Ressource.hpp>
 
 inline bool ends_with(std::string const & value, std::string const & ending)
 {
@@ -29,12 +30,15 @@ IOEvent	Connexion::read() {
 	ssize_t	recv_size;
 
 	Logger::debug << "read from conn" << std::endl;
-	if ((recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT)) < 1)
-		return IOEvent(FAIL, this, "Connexion socket closed");
+	if ((recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT)) == -1)
+		return IOEvent(FAIL, this, "Error happened while reading socket");
 		// request_header.append(buffer);
+	if (!recv_size)
+		return IOEvent(FAIL, this, "Client closed the connexion");
 	buffer[recv_size] = 0;
 	if (!header_end)
 		return readHeader();
+	// request.body.insert(request.body.end(), buffer, recv_size);
 	// else
 	// 	return readBody();
 	// if (ends_with(request_header, "\n\r")) {
@@ -42,38 +46,42 @@ IOEvent	Connexion::read() {
 	return IOEvent();
 }
 IOEvent	Connexion::write() {
-	int	flags = fcntl(c_socket, F_GETFL, O_NONBLOCK);
-	if (flags == -1)
-		return IOEvent(FAIL, this, "connexion socket closed");
-	std::string text = "HTTP/1.1 200 OK\nContent-Type:text/plain\nContent-Length: 12\n\nHello World!";
+	if (!ressource)
+		return IOEvent();
 	Logger::debug << "write to conn" << std::endl;
-	if (send(c_socket, text.c_str(), text.length(), MSG_DONTWAIT) < 1)
+	if (send(c_socket, &ressource->response[0], ressource->response.size(), MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "unable to write to the client socket");
 	return IOEvent(SUCCESS, this, "successfuly send response");
 }
 IOEvent	Connexion::closed() { return IOEvent(FAIL, this, "client closed the connexion"); }
 
-void	Connexion::writeError(uint http_error) {
+// Underlying operations
+
+IOEvent	Connexion::setError(std::string log, uint http_error) {
 	std::stringstream	response;
 	std::string			body;
 
+	Logger::warning << http_error << " " << log << std::endl;
 	if (route)
 		body = route->getError(http_error);
 	else
 		body = Errors::getDefaultError(http_error);
 	response << http_header_formatter(http_error, body.length());
 	response << body;
-	send(c_socket, response.str().c_str(), response.str().length(), MSG_DONTWAIT);
+	if (ressource)
+		delete ressource;
+	// ressource = new ErrorRessource(this, response.str());
+	// if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+	// 	return IOEvent(FAIL, this, "unable to epoll_ctl_mod");
+	return IOEvent();
 }
-
-// Underlying operations
 
 IOEvent	Connexion::readHeader() {
 	request_header.append(buffer);
 	size_t	header_end_pos = request_header.find(CRLF);
 	Logger::debug << "read header" << std::endl;
 	if (request_header.length() >= MAX_HEADER_SIZE)
-		return IOEvent(FAIL, this, "header exceeds max header size", 413);
+		return setError("header exceeds max header size", 413);
 	if (header_end_pos != std::string::npos) {
 		Logger::debug << "End of header detected" << std::endl;
 		request.body.assign(request_header.begin() + header_end_pos + 4, request_header.end());
@@ -84,6 +92,6 @@ IOEvent	Connexion::readHeader() {
 	return IOEvent();
 }
 IOEvent	Connexion::parseHeader() {
-	return IOEvent(FAIL, this, "file not found", 404);
+	return setError("file not found", 404);
 }
 // bool	Connexion::readBody() {}

@@ -32,6 +32,9 @@ public:
 	virtual IOEvent	read() {return IOEvent(FAIL, this, "Unknown error");};		// called when EPOLLIN received
 	virtual IOEvent	write() {return IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLOUT received
 	virtual IOEvent	closed() {return IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLHUP received
+
+protected:
+	char	buffer[BUFFER_SIZE];
 };
 
 #endif

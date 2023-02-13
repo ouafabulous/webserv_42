@@ -38,13 +38,13 @@ public:
 	virtual IOEvent			read();
 	virtual IOEvent			write();
 	virtual IOEvent			closed();
-	void					writeError(uint error);
 	// t_http_message		get_header();
 
 private:
 	IOEvent					readHeader();	// called by read() until header is fully received
 	IOEvent					parseHeader();	// called by read_header() when header is fully received
 	IOEvent					readBody();	// called by read() if not read_header()
+	IOEvent					setError(std::string log, uint http_error);
 
 	const t_fd				c_socket;
 	const t_network_address	netAddr;
