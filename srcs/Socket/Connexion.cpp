@@ -49,7 +49,7 @@ IOEvent	Connexion::write() {
 	if (!ressource)
 		return IOEvent();
 	Logger::debug << "write to conn" << std::endl;
-	if (send(c_socket, &ressource->response[0], ressource->response.size(), MSG_DONTWAIT) == -1)
+	if (send(c_socket, response.c_str(), response.length(), MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "unable to write to the client socket");
 	return IOEvent(SUCCESS, this, "successfuly send response");
 }

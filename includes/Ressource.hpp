@@ -17,10 +17,10 @@ public:
 	virtual IOEvent		closed() = 0;
 
 protected:
-	t_fd				fd_read;
-	t_fd				fd_write;
 	Connexion			*conn;
 	bool				is_EOF;
+	t_fd				fd_read;
+	t_fd				fd_write;
 };
 
 
