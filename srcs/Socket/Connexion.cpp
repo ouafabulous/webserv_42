@@ -58,21 +58,24 @@ IOEvent	Connexion::closed() { return IOEvent(FAIL, this, "client closed the conn
 // Underlying operations
 
 IOEvent	Connexion::setError(std::string log, uint http_error) {
-	std::stringstream	response;
 	std::string			body;
 
+	if (response_start)
+		return IOEvent(FAIL, this, log);
+	response.clear();
 	Logger::warning << http_error << " " << log << std::endl;
 	if (route)
 		body = route->getError(http_error);
 	else
 		body = Errors::getDefaultError(http_error);
-	response << http_header_formatter(http_error, body.length());
-	response << body;
-	if (ressource)
+	response.append(http_header_formatter(http_error, body.length()));
+	response.append(body);
+	if (ressource) {
 		delete ressource;
-	// ressource = new ErrorRessource(this, response.str());
-	// if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
-	// 	return IOEvent(FAIL, this, "unable to epoll_ctl_mod");
+		ressource = NULL;
+	}
+	if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+		return IOEvent(FAIL, this, "unable to epoll_ctl_mod");
 	return IOEvent();
 }
 

@@ -56,6 +56,8 @@ private:
 	bool					header_end;		// bool to define if we finished to read the header
 	const Route				*route;			// const or not
 	Ressource				*ressource;
+	std::string				response;
+	bool					response_start;	// true if connexion has started to respond to client
 };
 
 #endif
