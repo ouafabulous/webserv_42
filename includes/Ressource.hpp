@@ -23,7 +23,6 @@ protected:
 	t_fd				fd_write;
 };
 
-
 // File && Directory Classes
 
 class GetStaticFile : public Ressource
