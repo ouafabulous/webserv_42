@@ -27,9 +27,9 @@ class IO
 {
 public:
 	virtual ~IO() {};
-	virtual IOEvent	read() {IOEvent(FAIL, this, "Unknown error");};		// called when EPOLLIN received
-	virtual IOEvent	write() {IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLOUT received
-	virtual IOEvent	closed() {IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLHUP received
+	virtual IOEvent	read() {return IOEvent(FAIL, this, "Unknown error");};		// called when EPOLLIN received
+	virtual IOEvent	write() {return IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLOUT received
+	virtual IOEvent	closed() {return IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLHUP received
 };
 
 #endif
