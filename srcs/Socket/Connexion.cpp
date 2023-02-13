@@ -101,3 +101,11 @@ IOEvent	Connexion::parseHeader() {
 // bool	Connexion::readBody() {}
 
 t_http_message	&Connexion::			getRequest() { return request; }
+
+void	Connexion::append_response(std::string message, size_t n)
+{
+	if (n == 0)
+		response.append(message);
+	else
+		response.append(message, n);
+}

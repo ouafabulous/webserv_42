@@ -22,7 +22,7 @@ IOEvent	GetStaticFile::read()
 	size_t	ret;
 
 	ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT);
-	response.append(buffer, ret);
+	conn->append_response(buffer, ret);
 	if (ret == 0)
 		is_EOF = true;
 	return IOEvent();

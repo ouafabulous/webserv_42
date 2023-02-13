@@ -3,7 +3,7 @@
 #define SOCKET_HPP
 
 #include <IO.hpp>
-// #include <Ressource.hpp>
+//#include <Ressource.hpp>
 #include <Router.hpp>
 #include <Errors.hpp>
 #include <Utils.hpp>
@@ -39,6 +39,7 @@ public:
 	virtual IOEvent			write();
 	virtual IOEvent			closed();
 	t_http_message&			getRequest();
+	void					append_response(std::string message, size_t n);
 
 private:
 	IOEvent					readHeader();	// called by read() until header is fully received

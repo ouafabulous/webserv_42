@@ -77,7 +77,7 @@ IOEvent	CGI::read()
 	if (ret == 0)
 		is_EOF = true;
 	else
-		response.append(buffer, ret);
+		conn->append_response(buffer, ret);
 	return IOEvent();
 }
 
