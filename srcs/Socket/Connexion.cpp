@@ -15,7 +15,8 @@ Connexion::Connexion(const t_network_address netAddr,
 												router(router),
 												header_end(false),
 												route(NULL),
-												ressource(NULL)
+												ressource(NULL),
+												response_start(false)
 {}
 Connexion::~Connexion() {
 	if (epoll_util(EPOLL_CTL_DEL, c_socket, this, EPOLLIN))
