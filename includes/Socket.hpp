@@ -20,7 +20,6 @@ public:
 	virtual ~ListenSocket();
 
 	virtual IOEvent			read();
-	virtual IOEvent			write();
 	virtual IOEvent			closed();
 
 private:
