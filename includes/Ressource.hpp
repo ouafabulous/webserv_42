@@ -4,18 +4,21 @@
 
 #include <Socket.hpp>
 
-// Abstract Ressource Class
+#define READ 0
+#define WRITE 1
 
-class Ressource
+class Ressource : public IO
 {
 public:
-	Ressource(Connexion *conn);
-	virtual ~Ressource() = 0;
-	std::vector<char>	response;
+	Ressource(Connexion *conn): conn(conn), is_EOF(false), fd_read(-1), fd_write(-1) {};
+	virtual ~Ressource() {};
+	virtual IOEvent		read() = 0;
+	virtual IOEvent		write() = 0;
+	virtual IOEvent		closed() = 0;
 
 protected:
-	const t_fd			fd_read;
-	const t_fd			fd_write;
+	t_fd				fd_read;
+	t_fd				fd_write;
 	Connexion			*conn;
 	bool				is_EOF;
 };
@@ -26,41 +29,37 @@ protected:
 class GetStaticFile : public Ressource
 {
 public:
-	GetStaticFile(Connexion *conn);
+	GetStaticFile(Connexion *conn, std::string file_path);
 	~GetStaticFile();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		closed();
 };
 
 class PostStaticFile : public Ressource
 {
 public:
-	PostStaticFile(Connexion *conn);
+	PostStaticFile(Connexion *conn, std::string file_path);
 	~PostStaticFile();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 class DeleteStaticFile : public Ressource
 {
 public:
-	DeleteStaticFile(Connexion *conn);
+	DeleteStaticFile(Connexion *conn, std::string file_path);
 	~DeleteStaticFile();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		closed();
 };
 
 class GetDirectory : public Ressource
 {
 public:
-	GetDirectory(Connexion *conn);
+	GetDirectory(Connexion *conn, std::string dir_path);
 	~GetDirectory();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 
@@ -69,11 +68,11 @@ public:
 class CGI : public Ressource
 {
 public:
-	CGI(Connexion *conn);
+	CGI(Connexion *conn, std::string file_path, std::string cgi_path);
 	~CGI();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 
@@ -84,9 +83,9 @@ class RedirectRessource : public Ressource
 public:
 	RedirectRessource(Connexion *conn, std::string url);
 	~RedirectRessource();
-	virtual void		read() = 0;
-	virtual void		write() = 0;
-	virtual void		closed() = 0;
+	virtual IOEvent		read();
+	virtual IOEvent		write();
+	virtual IOEvent		closed();
 };
 
 class ErrorRessource : public Ressource

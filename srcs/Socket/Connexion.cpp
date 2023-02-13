@@ -98,3 +98,5 @@ IOEvent	Connexion::parseHeader() {
 	return setError("file not found", 404);
 }
 // bool	Connexion::readBody() {}
+
+t_http_message	&Connexion::			getRequest() { return request; }

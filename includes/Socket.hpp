@@ -38,7 +38,7 @@ public:
 	virtual IOEvent			read();
 	virtual IOEvent			write();
 	virtual IOEvent			closed();
-	// t_http_message		get_header();
+	t_http_message&			getRequest();
 
 private:
 	IOEvent					readHeader();	// called by read() until header is fully received

@@ -6,5 +6,6 @@
 #define CONN_TO_LISTEN	64
 #define BUFFER_SIZE		4096
 #define MAX_HEADER_SIZE	4096
+#define CH_PERM			0644
 
 #endif
