@@ -40,9 +40,10 @@ int main(int ac, char *av[])
 			Parser	Parse(Lex.getTokens());
 			Parse.printBlocks();
 		}
-		catch (const std::runtime_error &e)
-		{                                                                // specify the exception type
-            throw std::runtime_error("Error: " + std::string(e.what())); // re-throw the exception with a modified message
+		 catch (const std::runtime_error &e)
+		{       
+			std::cout << "ERROR WHILEPARSING" << std::endl;                                                         // specify the exception type
+            //throw std::runtime_error("Error: " + std::string(e.what())); // re-throw the exception with a modified message
         }
 		// // Lexer	Lex(big_buffer);
 		// // Lex.fillTokens();

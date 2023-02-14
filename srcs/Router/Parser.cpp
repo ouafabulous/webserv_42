@@ -35,12 +35,12 @@ Parser::~Parser()
 
 Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
 {
-    std::string dn[7] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup"};
-    for (uint i = 0; i != 7; i++)
-    {
-        directiveNames.push_back(dn[i]);
-    }
-    parse(&_blocks, tokens, 0);
+        std::string dn[7] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup"};
+        for (uint i = 0; i != 7; i++)
+        {
+            directiveNames.push_back(dn[i]);
+        }
+        parse(&_blocks, tokens, 0);
 }
 
 bool notSpace(t_token token)
@@ -145,8 +145,8 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                     t_token directiveValueTok = tokens[firstNonSpTokIndex];
                     if (directiveValueTok.first == TOK_WORD)
                     {
-                        DirectiveValue directiveValue(directiveName, directiveValueTok.second);
-                        (*block)->addDirective(std::make_pair(directiveName, directiveValue));
+                            DirectiveValue directiveValue(directiveName, directiveValueTok.second);
+                            (*block)->addDirective(std::make_pair(directiveName, directiveValue));
                     }
                     i = firstNonSpTokIndex + 1;
                 }
@@ -172,9 +172,11 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                                 t_token directiveValueTok = tokens[firstNonSpTokIndex];
                                 if (directiveValueTok.first == TOK_WORD)
                                 {
-                                    DirectiveValue directiveValue(directiveName, directiveValueTok.second);
-                                    locationBlock->addDirective(std::make_pair(directiveName, directiveValue));
-                                }
+
+                                        DirectiveValue directiveValue(directiveName, directiveValueTok.second);
+                                        locationBlock->addDirective(std::make_pair(directiveName, directiveValue));
+                                    }
+ 
                                 i = firstNonSpTokIndex + 1;
                             }
                             else

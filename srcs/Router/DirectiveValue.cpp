@@ -17,9 +17,10 @@ DirectiveValue::DirectiveValue(std::string directiveName, std::string directiveV
                 _directiveValue._type = INT;
             }
         }
-        catch (const std::runtime_error &e)
-        {                                                                // specify the exception type
-            throw std::runtime_error("Error: " + std::string(e.what())); // re-throw the exception with a modified message
+        catch (const std::exception &e)
+        {     
+        //    std::cout << "TEST" <<std::endl;                                                           // specify the exception type
+           throw; // re-throw the exception with a modified message
         }
     }
     else
