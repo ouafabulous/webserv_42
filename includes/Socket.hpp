@@ -39,13 +39,14 @@ public:
 	virtual IOEvent			write();
 	virtual IOEvent			closed();
 	t_http_message&			getRequest();
+	IOEvent					setError(std::string log, uint http_error);
+	void					append_response(std::string message);
 	void					append_response(std::string message, size_t n);
 
 private:
 	IOEvent					readHeader();	// called by read() until header is fully received
 	IOEvent					parseHeader();	// called by read_header() when header is fully received
 	IOEvent					readBody();	// called by read() if not read_header()
-	IOEvent					setError(std::string log, uint http_error);
 
 	const t_fd				c_socket;
 	const t_network_address	netAddr;

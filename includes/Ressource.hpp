@@ -3,9 +3,64 @@
 #define RESSOURCE_HPP
 
 #include <Socket.hpp>
+#include <dirent.h>
+#include <cstring>
+#include <sys/stat.h>
+#include <string.h>
+#include <sys/sendfile.h>
 
 #define READ 0
 #define WRITE 1
+
+const	std::map<std::string, std::string> MIME_MAP =
+{
+	{".html", "text/html"},
+	{".htm", "text/html"},
+	{".css", "text/css"},
+	{".js", "application/javascript"},
+	{".jpg", "image/jpeg"},
+	{".jpeg", "image/jpeg"},
+	{".png", "image/png"},
+	{".gif", "image/gif"},
+	{".svg", "image/svg+xml"},
+	{".txt", "text/plain"},
+	{".pdf", "application/pdf"},
+	{".zip", "application/zip"},
+	{".gz", "application/gzip"},
+	{".tar", "application/x-tar"},
+	{".mp3", "audio/mpeg"},
+	{".mp4", "video/mp4"},
+	{".mpeg", "video/mpeg"},
+	{".mpg", "video/mpeg"},
+	{".avi", "video/x-msvideo"},
+	{".wmv", "video/x-ms-wmv"},
+	{".mov", "video/quicktime"},
+	{".flv", "video/x-flv"},
+	{".swf", "application/x-shockwave-flash"},
+	{".webm", "video/webm"},
+	{".ogg", "video/ogg"},
+	{".ogv", "video/ogg"},
+	{".oga", "audio/ogg"},
+	{".ogx", "application/ogg"},
+	{".aac", "audio/aac"},
+	{".wav", "audio/wav"},
+	{".webp", "image/webp"},
+	{".ico", "image/x-icon"},
+	{".xml", "application/xml"},
+	{".json", "application/json"}
+};
+
+const	std::string			get_mime(std::string &file_path)
+{
+	size_t pos = file_path.find_last_of('.');
+	if (pos == std::string::npos)
+		return "application/octet-stream";
+
+	std::string extension = file_path.substr(pos);
+	if (MIME_MAP.count(extension) == 0)
+		return "application/octet-stream";
+	return MIME_MAP.at(extension);
+};
 
 class Ressource : public IO
 {
@@ -56,9 +111,11 @@ class GetDirectory : public Ressource
 public:
 	GetDirectory(Connexion *conn, std::string dir_path);
 	~GetDirectory();
-	virtual IOEvent		read();
-	virtual IOEvent		write();
 	virtual IOEvent		closed();
+	DIR					*get_dir();
+
+protected:
+	DIR					*dir;
 };
 
 

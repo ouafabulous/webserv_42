@@ -71,20 +71,22 @@ CGI::~CGI()
 
 IOEvent	CGI::read()
 {
-	size_t ret = recv(fd_read, buffer, BUFFER_SIZE, MSG_DONTWAIT);
+	memset(buffer, 0 , BUFFER_SIZE); // nope, add /0 at the end of the buffer
+	// not handling chuncked request yet ?
+	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
+
 	if (ret == -1)
-		return IOEvent(FAIL, this, "CGI::read() failed.");
+		return conn->setError("Error while reading CGI response", 500);
 	if (ret == 0)
 		is_EOF = true;
-	else
-		conn->append_response(buffer, ret);
+	conn->append_response(buffer, ret);
 	return IOEvent();
 }
 
 IOEvent	CGI::write()
 {
-	if (send(fd_write, conn->getRequest().body.c_str(),
-		conn->getRequest().body.size(), MSG_DONTWAIT) == -1)
+	if (::write(fd_write, conn->getRequest().body.c_str(),
+		conn->getRequest().body.size()) == -1)
 		return IOEvent(FAIL, this, "CGI::write() failed.");
 }
 
