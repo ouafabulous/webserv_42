@@ -43,7 +43,7 @@ public:
 
 private:
 	IOEvent					readHeader();	// called by read() until header is fully received
-	IOEvent					parseHeader();	// called by read_header() when header is fully received
+	IOEvent					parseHeader(std::vector<std::string>&);	// called by read_header() when header is fully received
 	IOEvent					readBody();	// called by read() if not read_header()
 	IOEvent					setError(std::string log, uint http_error);
 
@@ -55,6 +55,7 @@ private:
 	t_http_message			request;		// struct where header is stored when parsed
 	std::string				request_header;	// string where raw header is stored
 	bool					header_end;		// bool to define if we finished to read the header
+	bool					request_line_received; // first line of request has been received
 	const Route				*route;			// const or not
 	Ressource				*ressource;
 	std::string				response;

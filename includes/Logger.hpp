@@ -47,7 +47,8 @@ private:
 			Debug() {};
 			~Debug() {};
 
-			std::ostream&	operator<<(const std::string& message) {
+			template<typename T>
+			std::ostream&	operator<<(const T& message) {
 				if (DEBUG < Logger::min_level)
 					return hide;
 				std::cout << print_header(DEBUG) << message;
@@ -59,7 +60,8 @@ private:
 			Info() {};
 			~Info() {};
 
-			std::ostream&	operator<<(const std::string& message) {
+			template<typename T>
+			std::ostream&	operator<<(const T& message) {
 				if (INFO < Logger::min_level)
 					return hide;
 				std::cout << print_header(INFO) << message;
@@ -84,7 +86,8 @@ private:
 			Error() {};
 			~Error() {};
 
-			std::ostream&	operator<<(const std::string& message) {
+			template<typename T>
+			std::ostream&	operator<<(const T& message) {
 				if (ERR < min_level)
 					return hide;
 				std::cerr << print_header(ERR) << message;
@@ -96,7 +99,8 @@ private:
 			Hidden() {};
 			~Hidden() {};
 
-			std::ostream&	operator<<(const std::string& message) {
+			template<typename T>
+			std::ostream&	operator<<(const T& message) {
 				(void)message;
 				return *this;
 			}

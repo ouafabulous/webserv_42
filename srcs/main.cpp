@@ -24,7 +24,7 @@ int main(int ac, char *av[])
 	(void)ac;
 	(void)av;
 
-	signal(SIGPIPE, handle_sigpipe);
+	// signal(SIGPIPE, handle_sigpipe);
 	signal(SIGINT, handle_sigint);
 	// if (ac == 2)
 	// {
@@ -41,7 +41,7 @@ int main(int ac, char *av[])
 		// // Lexer	Lex(big_buffer);
 		// // Lex.fillTokens();
 		// // Lex.printTokens();
-		
+
 
 	try {
 		Logger::setLevel(DEBUG);

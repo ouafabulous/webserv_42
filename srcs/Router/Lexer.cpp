@@ -1,40 +1,6 @@
 #include <Lexer.hpp>
 #include <iostream>
-
-// HELPER FUNC
-
-std::string escape_string(const std::string &str) {
-  std::string result;
-  for (size_t i = 0; i < str.length(); i++)
-  {
-    switch (str[i]) {
-      case '\n':
-        result += "\\n";
-        break;
-      case '\r':
-        result += "\\r";
-        break;
-      case '\t':
-        result += "\\t";
-        break;
-      case '\"':
-        result += "\\\"";
-        break;
-      case '\'':
-        result += "\\\'";
-        break;
-      case '\\':
-        result += "\\\\";
-        break;
-      default:
-        result += str[i];
-        break;
-    }
-  }
-  return result;
-}
-
-// END HELPER
+#include <Utils.hpp>
 
 Lexer::Lexer(const std::string confile): _confile(confile)
 {

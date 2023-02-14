@@ -34,7 +34,7 @@ public:
 	virtual IOEvent	closed() {return IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLHUP received
 
 protected:
-	char	buffer[BUFFER_SIZE];
+	char	buffer[BUFFER_SIZE + 1];
 };
 
 #endif
