@@ -17,7 +17,7 @@ void	Block::printBlock() {
 		(*itLocation)->printBlock();
 	}
 	for (std::vector<directive>::iterator  itDir = _directives.begin(); itDir != _directives.end(); itDir++){
-		std::cout << "\033[1;31m" << itDir->first << " " << itDir->second << "\033[0m"  << std::endl;
+			std::cout << "\033[1;31m" << itDir->first << " " << itDir->second << "\033[0m"  << std::endl;
 	}
 	}
 	else if (_type == BL_LOCATION){

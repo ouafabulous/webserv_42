@@ -3,20 +3,33 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <netinet/in.h>
+#include <string>
+#include <vector>
+#include <map>
+#include <Errors.hpp>
+// #include <cstdint>
+#include <algorithm>
+#include <climits>
+#include <string.h>
+#include <stdexcept>
+#include <string>
+#include <DirectiveValue.hpp>
 
-Parser::~Parser(){
+Parser::~Parser()
+{
     BlockServer *tmp1 = _blocks;
     BlockServer *tmp2 = _blocks;
     while (tmp1)
-    { 
+    {
         std::vector<BlockLocation *> const &childs = tmp1->getChilds();
-        for(std::vector<BlockLocation *>::const_iterator it = childs.begin(); it != childs.end(); it++){
+        for (std::vector<BlockLocation *>::const_iterator it = childs.begin(); it != childs.end(); it++)
+        {
             delete (*it);
         }
         tmp2 = tmp1;
         tmp1 = tmp1->getSibling();
-        // for(std::vector<BlockLocation *>::iterator it = tmp2->)
-        delete(tmp2);
+        delete (tmp2);
     }
 }
 
@@ -27,7 +40,6 @@ Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
     {
         directiveNames.push_back(dn[i]);
     }
-    // t_block_type type = BL_SERVER;
     parse(&_blocks, tokens, 0);
 }
 
@@ -97,23 +109,21 @@ TokenList subVectorFrom(TokenList originalTokens, uint index)
     return (toReturn);
 }
 
-int stringToInt(std::string str){
-    char *end;
-    int number = strtol(str.c_str(), &end, 10);
-    if (end == str.c_str() + strlen(str.c_str()) && number >= 0) {
-        return(number);
-    } else {
-        throw std::runtime_error("Port is not a positive number !\n");
-    }
-    return 0;
-}
+// int stringToInt(std::string str){
+//     char *end;
+//     int number = strtol(str.c_str(), &end, 10);
+//     if (end == str.c_str() + strlen(str.c_str()) && number >= 0) {
+//         return(number);
+//     } else {
+//         throw std::runtime_error("Port is not a positive number !\n");
+//     }
+//     return 0;
+// }
 
 // a function that returns the nextNonSp token from a given index.
 
 void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)
 {
-    printVector(tokens);
-    std::cout << "-----------" << std::endl;
     if (tokens.size() || !tokensAreNotWords(tokens))
     {
         uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0); // the first non space token in the tokens given
@@ -130,20 +140,13 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
             {
                 if (isDirective(tokens[i], directiveNames))
                 {
-                    std::cout << "I entered here 1" << std::endl;
                     std::string directiveName = tokens[i].second;
                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
                     t_token directiveValueTok = tokens[firstNonSpTokIndex];
                     if (directiveValueTok.first == TOK_WORD)
                     {
-                        if (directiveName == "listen"){
-                            // DirectiveValue  dv(stringToInt(directiveValueTok.second));
-                            DirectiveValue  dv(5);
-                            (*block)->addDirective(std::make_pair(directiveName, DirectiveValue dv(stringToInt(directiveValueTok.second)))); //stringToInt throws an error when the value is not an int
-                        }
-                        else {
-                            (*block)->addDirective(std::make_pair(directiveName, directiveValueTok.second.c_str()));
-                        }
+                        DirectiveValue directiveValue(directiveName, directiveValueTok.second);
+                        (*block)->addDirective(std::make_pair(directiveName, directiveValue));
                     }
                     i = firstNonSpTokIndex + 1;
                 }
@@ -169,12 +172,8 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                                 t_token directiveValueTok = tokens[firstNonSpTokIndex];
                                 if (directiveValueTok.first == TOK_WORD)
                                 {
-                                    if (directiveName == "listen"){
-                                        locationBlock->addDirective(std::make_pair(directiveName, stringToInt(directiveValueTok.second)));
-                                    }
-                                    else {
-                                        locationBlock->addDirective(std::make_pair(directiveName, directiveValueTok.second.c_str()));
-                                    }
+                                    DirectiveValue directiveValue(directiveName, directiveValueTok.second);
+                                    locationBlock->addDirective(std::make_pair(directiveName, directiveValue));
                                 }
                                 i = firstNonSpTokIndex + 1;
                             }
@@ -193,17 +192,17 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                     i++;
                 }
             }
-                TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
-                std::cout << "Here is the subtoken: " << std::endl;
-                // printVector(subToken);
-                std::cout << "Here is the clServerBrIndex: " << clServerBrIndex << std::endl;
-                parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
-                return;
+            TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
+            std::cout << "Here is the subtoken: " << std::endl;
+            // printVector(subToken);
+            std::cout << "Here is the clServerBrIndex: " << clServerBrIndex << std::endl;
+            parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
+            return;
         }
     }
 }
 
-void    Parser::printBlocks() const
+void Parser::printBlocks() const
 {
     BlockServer *tmp = _blocks;
     while (tmp)

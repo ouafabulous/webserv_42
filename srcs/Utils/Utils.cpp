@@ -91,3 +91,14 @@ std::ostream&	operator<<(std::ostream &out, const t_network_address &netAddr)
 	out << ntohs(netAddr.second);
     return out;
 }
+
+int stringToInt(std::string str){
+    char *end;
+    int number = strtol(str.c_str(), &end, 10);
+    if (end == str.c_str() + strlen(str.c_str()) && number >= 0) {
+        return(number);
+    } else {
+        throw std::runtime_error("Port is not a positive number !\n");
+    }
+    return 0;
+}
