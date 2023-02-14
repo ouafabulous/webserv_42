@@ -3,7 +3,7 @@
 #include <iostream>
 #include <set>
 
-Router::Router(const std::string &confile)
+Router::Router(Parser const &confile)
 {
 	(void)confile;
 	t_attributes	base;

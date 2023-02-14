@@ -49,6 +49,7 @@
 		"iostream": "cpp",
 		"set": "cpp",
 		"cstring": "cpp",
-		"ctime": "cpp"
+		"ctime": "cpp",
+		"iomanip": "cpp"
 	},
 }

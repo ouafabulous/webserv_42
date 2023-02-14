@@ -2,7 +2,7 @@
 
 #define TRUE 1
 
-Server::Server(const std::string config_file)
+Server::Server(Parser const &config_file)
 : router(config_file)
 {
 	epollfd = epoll_create(EPOLL_BACKLOG);

@@ -2,6 +2,8 @@
 #ifndef ROUTER_HPP
 #define ROUTER_HPP
 
+#include "Parser.hpp"
+
 #include <Type.hpp>
 // #include "Socket.hpp"
 // #include "Ressource.hpp"
@@ -29,7 +31,7 @@ class Route
 class Router
 {
 public:
-	Router(const std::string &config);
+	Router(Parser const &config);
 	~Router();
 
 	std::vector<t_network_address>	getAddr() const;																	// get all the address and port to open ListenSockets

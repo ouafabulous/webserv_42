@@ -7,7 +7,8 @@
 #include <vector>
 #include <map>
 #include <Errors.hpp>
-
+// #include <cstdint>
+#include <climits>
 // IO
 
 typedef unsigned int uint;
@@ -83,7 +84,6 @@ typedef enum e_chr_class
 
 typedef std::pair<t_s_tok, std::string>		t_token;
 
-typedef	std::pair<std::string, std::string> directive;
 
 typedef	enum	e_block_type
 {
@@ -92,6 +92,27 @@ typedef	enum	e_block_type
 	BL_MAX,
 }	t_block_type;
 
+// const size_t	size_max_array = SSIZE_MAX/sizeof(char);
+
+// union directiveValue {
+//     int 							intValue;
+//     char[size_max_array]			stringValue;
+// };
+	union directiveValueUnion {
+		int		intValue;
+	    char	stringValue[1024];
+	};
+
+class DirectiveValue {
+	public:
+		DirectiveValue(int dv) : _directiveValue(dv){};
+		~DirectiveValue(){};
+
+	private:
+		directiveValueUnion	_directiveValue;
+};
+
+typedef	std::pair<std::string, DirectiveValue> directive;
 
 typedef std::vector<t_token> TokenList;
 
