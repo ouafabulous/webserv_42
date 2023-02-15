@@ -35,7 +35,7 @@ Parser::~Parser()
 
 Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
 {
-        std::string dn[7] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup"};
+        std::string dn[11] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup", "root", "error_files", "redirect", "auto-index"};
         for (uint i = 0; i != 7; i++)
         {
             directiveNames.push_back(dn[i]);
@@ -212,4 +212,8 @@ void Parser::printBlocks() const
         tmp->printBlock();
         tmp = tmp->getSibling();
     }
+}
+
+BlockServer *Parser::getBlock() const {
+    return(_blocks);
 }

@@ -28,7 +28,7 @@ void	Block::printBlock() {
 	}
 }
 
-BlockServer *BlockServer::getSibling(){
+BlockServer *BlockServer::getSibling() const{
 	return(_sibling);
 }
 BlockServer **BlockServer::getSiblingAddress(){
@@ -53,4 +53,8 @@ std::string	BlockLocation::getLocationValue() const {
 
 std::vector<BlockLocation *> const & BlockServer::getChilds() const{
 	return(_childs);
+}
+
+std::vector<directive> const    &Block::getDirectives() const {
+	return(_directives);
 }

@@ -44,17 +44,20 @@ typedef enum
 	DELETE = 	0b100
 } t_methods;
 
+
+
 typedef struct s_attributes
 {
-	t_methods 										methods_allowed;	// could be GET POST DELETE
-	std::vector<std::string>						server_names;		// defined by header field "Host"
+	t_methods 										allowed_methods;	// could be GET POST DELETE
+	std::vector<std::string>								server_names;		// defined by header field "Host"
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
-	Errors											error_files;		// path to default error pages
+	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
 	std::string										redirect;			// uri for redirection,
 	std::string										root;				// path to root directory for serving static files
-	std::map<std::string, std::string>				cgi_path;			// path to CGI locations
+	std::map<std::string, std::string>				cgi_path;			// path to CGI locations -- not implemented int the V0 of the parser
 	bool											directory_listing;	// autoindex on/off
+	uint											port;
 } t_attributes;
 
 typedef enum s_s_tok

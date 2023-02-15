@@ -24,6 +24,9 @@ class Route
 		const Ressource	*createRessource(const t_http_message &req) const;
 		std::string		getError(uint http_error) const;
 
+		void			printAttributes() const;
+
+
 	private:
 		t_attributes	attributes;
 };
@@ -36,6 +39,9 @@ public:
 
 	std::vector<t_network_address>	getAddr() const;																	// get all the address and port to open ListenSockets
 	const Route						*getRoute(const t_network_address netAddr, const t_http_message &req) const;		// get route which have to follow a connexion
+
+	void							fillAttributes(t_attributes *attributes, std::vector<directive>  const &directives);
+	void							printRoutes() const;
 
 private:
 	typedef std::map<std::string, Route>					vserver_map; 		// <"www.42.fr", *Route>
