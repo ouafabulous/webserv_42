@@ -2,6 +2,7 @@
 #ifndef RESSOURCE_HPP
 #define RESSOURCE_HPP
 
+#include <Router.hpp>
 #include <Socket.hpp>
 #include <dirent.h>
 #include <cstring>
@@ -11,55 +12,66 @@
 
 #define READ 0
 #define WRITE 1
+#define MAX_SIZE_ALLOWED 10000000
 
-const	std::map<std::string, std::string> MIME_MAP =
+typedef std::map<std::string, std::string> MimeMap;
+
+const MimeMap &get_mime_map()
 {
-	{".html", "text/html"},
-	{".htm", "text/html"},
-	{".css", "text/css"},
-	{".js", "application/javascript"},
-	{".jpg", "image/jpeg"},
-	{".jpeg", "image/jpeg"},
-	{".png", "image/png"},
-	{".gif", "image/gif"},
-	{".svg", "image/svg+xml"},
-	{".txt", "text/plain"},
-	{".pdf", "application/pdf"},
-	{".zip", "application/zip"},
-	{".gz", "application/gzip"},
-	{".tar", "application/x-tar"},
-	{".mp3", "audio/mpeg"},
-	{".mp4", "video/mp4"},
-	{".mpeg", "video/mpeg"},
-	{".mpg", "video/mpeg"},
-	{".avi", "video/x-msvideo"},
-	{".wmv", "video/x-ms-wmv"},
-	{".mov", "video/quicktime"},
-	{".flv", "video/x-flv"},
-	{".swf", "application/x-shockwave-flash"},
-	{".webm", "video/webm"},
-	{".ogg", "video/ogg"},
-	{".ogv", "video/ogg"},
-	{".oga", "audio/ogg"},
-	{".ogx", "application/ogg"},
-	{".aac", "audio/aac"},
-	{".wav", "audio/wav"},
-	{".webp", "image/webp"},
-	{".ico", "image/x-icon"},
-	{".xml", "application/xml"},
-	{".json", "application/json"}
-};
+	static MimeMap mime_map;
 
-const	std::string			get_mime(std::string &file_path)
+	if (mime_map.empty())
+	{
+		mime_map[".html"] = "text/html";
+		mime_map[".htm"] = "text/html";
+		mime_map[".css"] = "text/css";
+		mime_map[".js"] = "application/javascript";
+		mime_map[".jpg"] = "image/jpeg";
+		mime_map[".jpeg"] = "image/jpeg";
+		mime_map[".png"] = "image/png";
+		mime_map[".gif"] = "image/gif";
+		mime_map[".svg"] = "image/svg+xml";
+		mime_map[".txt"] = "text/plain";
+		mime_map[".pdf"] = "application/pdf";
+		mime_map[".zip"] = "application/zip";
+		mime_map[".gz"] = "application/gzip";
+		mime_map[".tar"] = "application/x-tar";
+		mime_map[".mp3"] = "audio/mpeg";
+		mime_map[".mp4"] = "video/mp4";
+		mime_map[".mpeg"] = "video/mpeg";
+		mime_map[".mpg"] = "video/mpeg";
+		mime_map[".avi"] = "video/x-msvideo";
+		mime_map[".wmv"] = "video/x-ms-wmv";
+		mime_map[".mov"] = "video/quicktime";
+		mime_map[".flv"] = "video/x-flv";
+		mime_map[".swf"] = "application/x-shockwave-flash";
+		mime_map[".webm"] = "video/webm";
+		mime_map[".ogg"] = "video/ogg";
+		mime_map[".ogv"] = "video/ogg";
+		mime_map[".oga"] = "audio/ogg";
+		mime_map[".ogx"] = "application/ogg";
+		mime_map[".aac"] = "audio/aac";
+		mime_map[".wav"] = "audio/wav";
+		mime_map[".webp"] = "image/webp";
+		mime_map[".ico"] = "image/x-icon";
+		mime_map[".xml"] = "application/xml";
+		mime_map[".json"] = "application/json";
+	}
+	return mime_map;
+}
+
+const	std::string			get_mime(const std::string &file_path)
 {
 	size_t pos = file_path.find_last_of('.');
 	if (pos == std::string::npos)
-		return "application/octet-stream";
+		return "application/octet-stream; charset=utf-8";
 
 	std::string extension = file_path.substr(pos);
-	if (MIME_MAP.count(extension) == 0)
-		return "application/octet-stream";
-	return MIME_MAP.at(extension);
+	const MimeMap &mimeMap = get_mime_map();
+	MimeMap::const_iterator it = mimeMap.find(extension);
+	if (it == mimeMap.end())
+		return "application/octet-stream; charset=utf-8";
+	return it->second;
 };
 
 class Ressource : public IO
@@ -96,6 +108,9 @@ public:
 	~PostStaticFile();
 	virtual IOEvent		write();
 	virtual IOEvent		closed();
+
+private:
+	size_t				bytes_read;
 };
 
 class DeleteStaticFile : public Ressource
@@ -118,7 +133,6 @@ protected:
 	DIR					*dir;
 };
 
-
 // CGI Class
 
 class CGI : public Ressource
@@ -129,6 +143,8 @@ public:
 	virtual IOEvent		read();
 	virtual IOEvent		write();
 	virtual IOEvent		closed();
+private:
+	size_t				bytes_read;
 };
 
 
@@ -137,11 +153,8 @@ public:
 class RedirectRessource : public Ressource
 {
 public:
-	RedirectRessource(Connexion *conn, std::string url);
+	RedirectRessource(Connexion *conn, const std::string url);
 	~RedirectRessource();
-	virtual IOEvent		read();
-	virtual IOEvent		write();
-	virtual IOEvent		closed();
 };
 
 class ErrorRessource : public Ressource

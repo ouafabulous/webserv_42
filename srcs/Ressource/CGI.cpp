@@ -5,6 +5,7 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];
+	bytes_read = 0;
 	char	*args[] = {const_cast<char*>(cgi_path.c_str()), const_cast<char*>(file_path.c_str())};
 
 	if (pipe(pipe_to_CGI) == -1)
@@ -71,28 +72,47 @@ CGI::~CGI()
 
 IOEvent	CGI::read()
 {
-	memset(buffer, 0 , BUFFER_SIZE); // nope, add /0 at the end of the buffer
 	// not handling chuncked request yet ?
 	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
 	if (ret == -1)
+	{
+		close(fd_read);
 		return conn->setError("Error while reading CGI response", 500);
+	}
 	if (ret == 0)
 		is_EOF = true;
+	buffer[ret] = '\0';
 	conn->append_response(buffer, ret);
 	return IOEvent();
 }
 
 IOEvent	CGI::write()
 {
-	if (::write(fd_write, conn->getRequest().body.c_str(),
-		conn->getRequest().body.size()) == -1)
-		return IOEvent(FAIL, this, "CGI::write() failed.");
+	if (bytes_read > conn->get_route().getMaxBodySize()
+		|| bytes_read > MAX_SIZE_ALLOWED)
+	{
+		close(fd_write);
+		return conn->setError("File size is too big", 413);
+	}
+
+	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
+		conn->getRequest().body.size());
+
+	if (ret <= 0)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return IOEvent();
+		else
+		{
+			close(fd_write);
+			return conn->setError("Error while writing to CGI", 500);
+		}
+	}
+	bytes_read += ret;
 }
 
 IOEvent	CGI::closed()
 {
 	return IOEvent(FAIL, this, "CGI::closed() called");
 }
-
-

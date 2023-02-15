@@ -117,3 +117,4 @@ t_http_message &Connexion::getRequest() { return request; }
 
 void Connexion::append_response(std::string message) { response.append(message); }
 void Connexion::append_response(std::string message, size_t n) { response.append(message, n); }
+Route Connexion::get_route() { return *route; }

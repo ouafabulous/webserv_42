@@ -20,3 +20,7 @@ Route::~Route() {
 std::string	Route::getError(uint http_error) const {
 	return attributes.error_files.getError(http_error);
 }
+
+size_t	Route::getMaxBodySize() const {
+	return attributes.max_body_length;
+}

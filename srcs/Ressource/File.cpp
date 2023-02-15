@@ -7,10 +7,11 @@
 GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
 {
 	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
+
 	if (fd_read == -1)
 	{
 		conn->setError("Error opening the file" + file_path, 404);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() failed");
+		throw std::runtime_error("GetStaticFile::GetStaticFile() Open failed");
 	}
 	set_nonblocking(fd_read);
 
@@ -19,13 +20,13 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource
 	if (fstat(fd_read, &st) == -1)
 	{
 		conn->setError("Error getting the file size for " + file_path, 404);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() failed");
+		throw std::runtime_error("GetStaticFile::GetStaticFile() Fstat failed");
 	}
 
 	std::string header = "HTTP/1.1 200 OK\r\n";
-	header += "Content-Type: " + get_mime(file_path) + "\r\n";
-	header += "Content-Length: " + std::to_string(st.st_size) + "\r\n";
-	header += "Connection: keep-alive\r\n\r\n";
+	header += "Content-Type: " + get_mime(file_path) + CRLF;
+	header += "Content-Length: " + std::to_string(st.st_size) + CRLF;
+	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
 
 	conn->append_response(header.c_str(), header.size());
 }
@@ -36,19 +37,22 @@ GetStaticFile::~GetStaticFile()
 	if (close(fd_read) == -1)
 	{
 		conn->setError("Error closing the file", 500);
-		throw std::runtime_error("GetStaticFile::~GetStaticFile() failed");
+		throw std::runtime_error("GetStaticFile::~GetStaticFile() Close failed");
 	}
 }
 
 IOEvent	GetStaticFile::read()
 {
-	memset(buffer, 0, BUFFER_SIZE); // instead of memset, add /0 at the end of the read/write
 	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
 	if (ret == -1)
+	{
+		close(fd_read);
 		return conn->setError("Error reading the file", 500);
+	}
 	if (ret == 0)
 		is_EOF = true;
+	buffer[ret] = '\0';
 	conn->append_response(buffer, ret);
 	return IOEvent();
 }
@@ -64,22 +68,57 @@ IOEvent	GetStaticFile::closed()
 
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
 {
-	//do we correctly check if max_body_size is exceeded?
+	std::string new_path = file_path;
+	bytes_read = 0;
+	int i = 0;
 
-	fd_write = open(file_path.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_NONBLOCK, CH_PERM);
+	while (access(new_path.c_str(), F_OK) == 0)
+	{
+		i++;
+		new_path = file_path + "_" + std::to_string(i);
+	}
+
+	fd_write = open(new_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 
 	if (fd_write == -1)
 	{
 		conn->setError("Error opening the file" + file_path, 404);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() failed");
+		throw std::runtime_error("PostStaticFile::PostStaticFile() Open failed");
 	}
 	set_nonblocking(fd_write);
 
+	//std::string mime_type;
+	//try
+	//{
+	//	mime_type = get_mime(new_path);
+	//}
+	//catch (const std::runtime_error &e)
+	//{
+	//	conn->setError("Error getting the mime type for " + new_path, 500);
+	//	if (close(fd_write) == -1)
+	//		{
+	//			conn->setError("Error closing the file", 500);
+	//			throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
+	//		}
+	//	throw std::runtime_error("PostStaticFile::PostStaticFile() Get mime failed");
+	//}
+
 	std::string header = "HTTP/1.1 200 OK\r\n";
-	header += "Content-Type: " + get_mime(file_path) + "\r\n";
+	header += "Content-Type: " + get_mime(new_path) + CRLF;
 	header += "Connection: keep-alive\r\n\r\n";
 
 	conn->append_response(header.c_str(), header.size());
+
+	//if (chmod(new_path.c_str(), CH_PERM) == -1)
+	//{
+	//	conn->setError("Error changing the file permissions for " + new_path, 500);
+	//	if (close(fd_write) == -1)
+	//	{
+	//		conn->setError("Error closing the file", 500);
+	//		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
+	//	}
+	//	throw std::runtime_error("PostStaticFile::PostStaticFile() Chmod failed");
+	//}
 }
 
 PostStaticFile::~PostStaticFile()
@@ -88,40 +127,37 @@ PostStaticFile::~PostStaticFile()
 	if (close(fd_write) == -1)
 	{
 		conn->setError("Error closing the file", 500);
-		throw std::runtime_error("GetStaticFile::~GetStaticFile() failed");
+		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
 	}
 }
 
 IOEvent	PostStaticFile::write()
 {
-	// need to check if the size is exceeding max_body_size?
-	// more likely, don't check it but accept to receive a set number of bytes MAX
-	// if no content length -> download til EOF OR max
-	// if content length -> download til content length
-	// conn->setError("File size is too big", 413);
+	// Check for chuncked request
 
-	// Check if file exists
-
-	// Parsing the body :
-	// Need to handle decoding the body considering it's mime type in Content-type
-	// if application/x-www-form-urlencoded extract data in key-value pairs :
-		// eg name=John+Doe&email=john%40example.com&age=30
-		// name: John Doe
-		// email: john@example.com
-		// age: 30
-	// if multipart/form-data (chunked request) :
+	if (bytes_read > conn->get_route().getMaxBodySize()
+		|| bytes_read > MAX_SIZE_ALLOWED)
+	{
+		close(fd_write); //handle close errors ?
+		return conn->setError("File size is too big", 413);
+	}
 
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
 		conn->getRequest().body.size());
 
-	if (ret == -1)
+	if (ret <= 0)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK)
 			return IOEvent();
 		else
+		{
+			close(fd_write);
 			return conn->setError("Error writing the file", 500);
+		}
 	}
+	bytes_read += ret;
 }
+
 IOEvent	PostStaticFile::closed()
 {
 	return IOEvent(FAIL, this, "PostStaticFile::closed() called");

@@ -42,6 +42,7 @@ public:
 	IOEvent					setError(std::string log, uint http_error);
 	void					append_response(std::string message);
 	void					append_response(std::string message, size_t n);
+	Route					get_route();
 
 private:
 	IOEvent					readHeader();	// called by read() until header is fully received
