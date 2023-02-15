@@ -14,8 +14,10 @@ Connexion::Connexion(const t_network_address netAddr,
 					 const t_fd socket, const Router &router) : c_socket(socket),
 																netAddr(netAddr),
 																router(router),
-																header_end(false),
-																request_line_received(false),
+																is_header_parsed(false),
+																is_request_line_parsed(false),
+																header_readed_size(0),
+																body_readed_size(0),
 																route(NULL),
 																ressource(NULL),
 																response_start(false)
@@ -35,20 +37,20 @@ IOEvent Connexion::read()
 {
 	ssize_t recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT);
 
+	Logger::debug << "read\n";
 	if (recv_size == -1)
 		return IOEvent(FAIL, this, "Error happened while reading socket");
 	// 	// request_header.append(buffer);
 	if (!recv_size)
 		return IOEvent(FAIL, this, "Client closed the connexion");
 	buffer[recv_size] = 0;
-	if (!header_end)
+	if (!is_header_parsed)
+	{
+		header_readed_size += recv_size;
 		return readHeader();
-	// request.body.insert(request.body.end(), buffer, recv_size);
-	// else
-	// 	return readBody();
-	// if (ends_with(request_header, "\n\r")) {
-	// }
-	return IOEvent();
+	}
+	body_readed_size += recv_size;
+	return readBody();
 }
 IOEvent Connexion::write()
 {
@@ -93,58 +95,130 @@ IOEvent Connexion::readHeader()
 	std::string current_line;
 	std::vector<std::string> lines;
 
-	request_header.append(buffer);
-	if (request_header.length() >= MAX_HEADER_SIZE)
+	raw_request.append(buffer);
+	if (header_readed_size >= MAX_HEADER_SIZE)
 		return setError("header exceeds max header size", 413);
 
-	line_start = request_header.begin();
-	for (std::string::iterator it = request_header.begin() + 1; it != request_header.end(); it++)
+	line_start = raw_request.begin();
+	for (std::string::iterator it = raw_request.begin() + 1; it != raw_request.end() && !is_header_parsed; it++)
 	{
 		if (*(it - 1) == '\r' && *it == '\n')
 		{
 			if (line_start == it - 1)
 			{ // Detect end of header (/r/n/r/n)
-				header_end = true;
-				break;
+				lines.push_back("");
+				is_header_parsed = true;
 			}
-			current_line.assign(line_start, it - 1);
-			lines.push_back(current_line);
+			else {
+				current_line.assign(line_start, it - 1);
+				lines.push_back(current_line);
+			}
 			line_start = it + 1;
 		}
 	}
-	request_header.erase(request_header.begin(), line_start);
-	if (lines.empty())
-		return IOEvent();
-	return parseHeader(lines);
+	raw_request.erase(raw_request.begin(), line_start);
+	if (!raw_request.empty() && is_header_parsed) { // if one part of the body is in the raw_request
+		header_readed_size -= raw_request.size();
+		body_readed_size += raw_request.size();
+	}
+	if (lines.size() > 0)
+		return parseHeader(lines);
+	return IOEvent();
 }
 IOEvent Connexion::parseHeader(std::vector<std::string> &lines)
 {
-	std::string&	curr_line = lines[0];
-	size_t			pos = 0;
-	if (!request_line_received) {
-		std::vector<std::string>	request_line;
-		while (pos != std::string::npos) {
-			pos = curr_line.find(" ");
-			request_line.push_back(curr_line.substr(0, pos));
-			curr_line.erase(0, pos + 1);
-		}
-		if (request_line.size() != 3)
-			return setError("request_line is invalid", 413);
-		request.request_line.method = request_line[0];
-		request.request_line.path = request_line[1];
-		request.request_line.http_version = request_line[2];
-		lines.erase(lines.begin());
-		request_line_received = true;
-	}
-	for (std::vector<std::string>::iterator it = lines.begin(); it != lines.end(); it++) {
+	std::vector<std::string>::iterator it = lines.begin();
+	size_t pos = 0;
+	std::string key;
+	std::string value;
+
+	if (!is_request_line_parsed && parseRequestLine(*it++)) // parsing of request line
+		return setError("request_line is invalid", 400);
+	for (; it != lines.end(); it++)
+	{ // parsing of all header fields
+		if (it->length() == 0)
+			return executeRoute();
 		if ((pos = (*it).find(":")) == std::string::npos)
-			return setError("header fields not RFC conform", 413);
-		request.header_fields[(*it).substr(0, pos)] = (*it).substr((*it).find_first_not_of(' ', pos + 1));
-		Logger::debug << request.header_fields[(*it).substr(0, pos)] << std::endl;
+			return setError("header fields not RFC conform", 400);
+		key = it->substr(0, pos);
+		value = it->substr(it->find_first_not_of(' ', pos + 1));
+		pos = value.find_last_not_of(' ');
+		if (pos != std::string::npos)
+			value.erase(pos + 1);
+		if (key.empty() || value.empty() || key.find(' ') != std::string::npos)
+			return setError("header fields not RFC conform", 400);
+		if (request.header_fields.find(key) != request.header_fields.end())
+			request.header_fields[key].append(",");
+		request.header_fields[key].append(value);
 	}
 	return IOEvent();
 }
-// bool	Connexion::readBody() {}
+
+bool Connexion::parseRequestLine(std::string &raw_line)
+{
+	std::vector<std::string> splitted_line;
+	size_t pos = 0;
+	while (pos != std::string::npos)
+	{
+		pos = raw_line.find(" ");
+		splitted_line.push_back(raw_line.substr(0, pos));
+		raw_line.erase(0, pos + 1);
+	}
+	if (splitted_line.size() != 3 || splitted_line[2] != HTTP_VERSION)
+		return NOK;
+	request.request_line.method = splitted_line[0];
+	request.request_line.path = splitted_line[1];
+	request.request_line.http_version = splitted_line[2];
+	is_request_line_parsed = true;
+	return OK;
+}
+
+IOEvent Connexion::executeRoute()
+{
+	route = router.getRoute(netAddr, request);
+	// if we are not waiting for a body
+	if (request.request_line.method == "GET" ||
+		(request.header_fields.find("Transfer-Encoding") == request.header_fields.end() && request.header_fields.find("Content-Length") == request.header_fields.end()))
+	{
+		if (body_readed_size > 0)
+		{
+			Logger::debug << body_readed_size << std::endl;
+			return setError("request contains body but GET Method, no Transfer-Encoding or Content-Length given", 400);
+		}
+		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+			return setError("unable to set EPOLL_CTL_MOD", 500);
+	}
+	else
+		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
+			return setError("unable to set EPOLL_CTL_MOD", 500);
+
+	// SETTING UP ROUTE AND RESSOURCE
+	if (!route)
+		return setError("internal error", 500);
+	// response = "HTTP/1.1 404 OK\nContent-Type:text/html\nContent-Length: 49\n\n<html><body><h1>File not found</h1></body></html>";
+	// route->handle();
+
+
+	// if we already have a body in raw_request
+	if (!raw_request.empty())
+		return readBody();
+	return IOEvent();
+}
+
+IOEvent	Connexion::readBody() {
+	Logger::debug << "read body" << std::endl;
+
+	// if chunked request
+	if (request.header_fields["Transfer-Encoding"] != "" && request.header_fields["Transfer-Encoding"] != "identity")
+		return parseChunkedBody();
+	if (body_readed_size == request.header_fields["Content-Length"] && epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+		return setError("unable to set EPOLL_CTL_MOD", 500);
+	else if (body_readed_size > request.header_fields["Content-Length"])
+		return setError("body to large", 413);
+	request.body.append(raw_request);
+	raw_request.clear();
+	return IOEvent();
+}
 
 t_http_message &Connexion::getRequest() { return request; }
 

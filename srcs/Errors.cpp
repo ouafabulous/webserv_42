@@ -19,6 +19,10 @@ Errors&	Errors::operator=(const Errors& rhs) {
 Errors::~Errors(){};
 
 
+std::string&		Errors::operator[](uint http_error) {
+	return custom_errors_path[http_error];
+}
+
 void	Errors::addError(uint status_code, std::string path) {
 	custom_errors_path[status_code] = path;
 }

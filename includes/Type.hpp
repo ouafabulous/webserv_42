@@ -95,6 +95,8 @@ typedef	enum	e_block_type
 
 typedef std::vector<t_token> TokenList;
 
-#define CRLF   "\r\n"
+#define CRLF	"\r\n"
+#define OK		0
+#define NOK		1
 
 #endif

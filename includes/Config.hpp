@@ -8,4 +8,6 @@
 #define MAX_HEADER_SIZE	4096
 #define CH_PERM			0644
 
+#define HTTP_VERSION	"HTTP/1.1"
+
 #endif
