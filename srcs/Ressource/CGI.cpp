@@ -5,7 +5,7 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];
-	bytes_read = 0;
+	//bytes_read = 0;
 	char	*args[] = {const_cast<char*>(cgi_path.c_str()), const_cast<char*>(file_path.c_str())};
 
 	if (pipe(pipe_to_CGI) == -1)
@@ -89,12 +89,12 @@ IOEvent	CGI::read()
 
 IOEvent	CGI::write()
 {
-	if (bytes_read > conn->get_route().getMaxBodySize()
-		|| bytes_read > MAX_SIZE_ALLOWED)
-	{
-		close(fd_write);
-		return conn->setError("File size is too big", 413);
-	}
+	//if (bytes_read > conn->get_route().getMaxBodySize()
+	//	|| bytes_read > MAX_SIZE_ALLOWED)
+	//{
+	//	close(fd_write);
+	//	return conn->setError("File size is too big", 413);
+	//}
 
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
 		conn->getRequest().body.size());
@@ -109,7 +109,7 @@ IOEvent	CGI::write()
 			return conn->setError("Error while writing to CGI", 500);
 		}
 	}
-	bytes_read += ret;
+	//bytes_read += ret;
 }
 
 IOEvent	CGI::closed()

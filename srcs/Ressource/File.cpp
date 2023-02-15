@@ -69,14 +69,7 @@ IOEvent	GetStaticFile::closed()
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
 {
 	std::string new_path = file_path;
-	bytes_read = 0;
-	int i = 0;
-
-	while (access(new_path.c_str(), F_OK) == 0)
-	{
-		i++;
-		new_path = file_path + "_" + std::to_string(i);
-	}
+	//bytes_read = 0;
 
 	fd_write = open(new_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 
@@ -87,38 +80,22 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressour
 	}
 	set_nonblocking(fd_write);
 
-	//std::string mime_type;
-	//try
-	//{
-	//	mime_type = get_mime(new_path);
-	//}
-	//catch (const std::runtime_error &e)
-	//{
-	//	conn->setError("Error getting the mime type for " + new_path, 500);
-	//	if (close(fd_write) == -1)
-	//		{
-	//			conn->setError("Error closing the file", 500);
-	//			throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
-	//		}
-	//	throw std::runtime_error("PostStaticFile::PostStaticFile() Get mime failed");
-	//}
-
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + get_mime(new_path) + CRLF;
 	header += "Connection: keep-alive\r\n\r\n";
 
 	conn->append_response(header.c_str(), header.size());
 
-	//if (chmod(new_path.c_str(), CH_PERM) == -1)
-	//{
-	//	conn->setError("Error changing the file permissions for " + new_path, 500);
-	//	if (close(fd_write) == -1)
-	//	{
-	//		conn->setError("Error closing the file", 500);
-	//		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
-	//	}
-	//	throw std::runtime_error("PostStaticFile::PostStaticFile() Chmod failed");
-	//}
+	if (chmod(new_path.c_str(), CH_PERM) == -1)
+	{
+		conn->setError("Error changing the file permissions for " + new_path, 500);
+		if (close(fd_write) == -1)
+		{
+			conn->setError("Error closing the file", 500);
+			throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
+		}
+		throw std::runtime_error("PostStaticFile::PostStaticFile() Chmod failed");
+	}
 }
 
 PostStaticFile::~PostStaticFile()
@@ -135,12 +112,12 @@ IOEvent	PostStaticFile::write()
 {
 	// Check for chuncked request
 
-	if (bytes_read > conn->get_route().getMaxBodySize()
-		|| bytes_read > MAX_SIZE_ALLOWED)
-	{
-		close(fd_write); //handle close errors ?
-		return conn->setError("File size is too big", 413);
-	}
+	//if (bytes_read > conn->get_route().getMaxBodySize()
+	//	|| bytes_read > MAX_SIZE_ALLOWED)
+	//{
+	//	close(fd_write);
+	//	return conn->setError("File size is too big", 413);
+	//}
 
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
 		conn->getRequest().body.size());
@@ -155,7 +132,7 @@ IOEvent	PostStaticFile::write()
 			return conn->setError("Error writing the file", 500);
 		}
 	}
-	bytes_read += ret;
+	//bytes_read += ret;
 }
 
 IOEvent	PostStaticFile::closed()

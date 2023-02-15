@@ -147,7 +147,6 @@ private:
 	size_t				bytes_read;
 };
 
-
 // Redirect Class
 
 class RedirectRessource : public Ressource
@@ -155,13 +154,6 @@ class RedirectRessource : public Ressource
 public:
 	RedirectRessource(Connexion *conn, const std::string url);
 	~RedirectRessource();
-};
-
-class ErrorRessource : public Ressource
-{
-public:
-	ErrorRessource(Connexion *conn, std::string error_response);
-	~ErrorRessource();
 };
 
 #endif
