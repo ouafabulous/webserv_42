@@ -5,6 +5,7 @@
 #include "Parser.hpp"
 
 #include <Type.hpp>
+#include <Utils.hpp>
 // #include "Socket.hpp"
 // #include "Ressource.hpp"
 

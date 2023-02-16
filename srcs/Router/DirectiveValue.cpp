@@ -3,7 +3,7 @@
 
 DirectiveValue::DirectiveValue(std::string directiveName, std::string directiveValue)
 {
-    if (directiveName == "listen" || DirectiveName == "client_max_body_size" || DirectiveValue == "error_files") // afterwards error_files should be checked if it respects the required format
+    if (directiveName == "listen" || directiveName == "client_max_body_size" || directiveValue == "error_files") // afterwards error_files should be checked if it respects the required format
     {
         try
         {

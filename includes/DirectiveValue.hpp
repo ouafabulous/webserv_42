@@ -14,6 +14,7 @@ union directiveValueUnion {
 
 		int		_intValue;
 	    char	_stringValue[1023];
+		std::string	*test;
 		// std::string	stringValue;
 };
 

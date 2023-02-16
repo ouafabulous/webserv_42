@@ -8,6 +8,7 @@
 #include "Server.hpp"
 #include "signal.h"
 #include "stdlib.h"
+#include "Router.hpp"
 
 void handle_sigpipe(int signal) {
 	(void)signal;
@@ -33,12 +34,14 @@ int main(int ac, char *av[])
 		buffer << file.rdbuf();
 		std::string big_buffer = buffer.str();
 
-		Lexer	Lex(big_buffer);
-		Lex.fillTokens();
+		Lexer	lex(big_buffer);
+		lex.fillTokens();
 		// Lex.printTokens();
 		try{
-			Parser	Parse(Lex.getTokens());
-			Parse.printBlocks();
+			Parser	parse(lex.getTokens());
+			parse.printBlocks();
+			Router	router(parse);
+			router.printRoutes();	
 		}
 		 catch (const std::runtime_error &e)
 		{       

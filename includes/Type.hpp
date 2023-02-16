@@ -49,7 +49,8 @@ typedef enum
 typedef struct s_attributes
 {
 	t_methods 										allowed_methods;	// could be GET POST DELETE
-	std::vector<std::string>								server_names;		// defined by header field "Host"
+	// std::vector<std::string>								server_names;		// defined by header field "Host"
+	std::string										server_name;  //just for testing
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
 	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser

@@ -17,8 +17,11 @@ Router::Router(Parser const &confile)
 			attributes.location = (*it)->getLocationValue();
 			fillAttributes(&attributes, (*it)->getDirectives());
 			Route route(attributes);
-			my_map[t_network_address(INADDR_ANY, htons(attributes.port))][attributes.server_names[0]] = route; // IADDR_ANY consideres that we listen on all ports aka 0.0.0.0
+			// std::cout <<"address: " << t_network_address(INADDR_ANY, htons(attributes.port)) << std::endl;
+			// std::cout << "server name: " << attributes.server_name << std::cout;
+			my_map[t_network_address(INADDR_ANY, htons(attributes.port))][attributes.server_name] = route; // IADDR_ANY consideres that we listen on all ports aka 0.0.0.0
 		}
+			// std::cout << "got here with this port: " << attributes.port << std::endl;
 		tmp1 = tmp1->getSibling();
 	}
 }
@@ -27,20 +30,21 @@ Router::~Router()
 {
 }
 
-std::ostream &operator<<(std::ostream &os, const t_network_address &addr)
-{
-	// Convert the IP address to a string
-	char ip_str[INET_ADDRSTRLEN];
-	inet_ntop(AF_INET, &(addr.first), ip_str, INET_ADDRSTRLEN);
+// std::ostream &operator<<(std::ostream &os, const t_network_address &addr)
+// {
+// 	// Convert the IP address to a string
+// 	char ip_str[INET_ADDRSTRLEN];
+// 	inet_ntop(AF_INET, &(addr.first), ip_str, INET_ADDRSTRLEN);
 
-	// Print the IP address and port
-	os << ip_str << ":" << ntohs(addr.second);
+// 	// Print the IP address and port
+// 	os << ip_str << ":" << ntohs(addr.second);
 
-	return os;
-}
+// 	return os;
+// }
 
 void Router::printRoutes() const
 {
+	std::cout << "size_of_router" << my_map.size() << std::endl;	
 	router_map::const_iterator router_iter;
 	for (router_iter = my_map.begin(); router_iter != my_map.end(); ++router_iter)
 	{
@@ -82,13 +86,14 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<directive> con
 		{
 			attributes->allowed_methods |= methodsDict[it->second.getDirectiveValue()._stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
 		}
-		if (it->first == "listen")
+			else if (it->first == "listen")
 		{
 			attributes->port = static_cast<uint>(it->second.getDirectiveValue()._intValue);
 		}
 		else if (it->first == "server_name")
 		{
-			attributes->server_names.push_back(it->second.getDirectiveValue()._stringValue);
+			attributes->server_name = it->second.getDirectiveValue()._stringValue;
+			// attributes->server_names.push_back(it->second.getDirectiveValue()._stringValue);
 		}
 		else if (it->first == "client_max_body_size")
 		{
@@ -104,7 +109,7 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<directive> con
 		}
 		else if (it->first == "auto-index")
 		{
-			(it->second.getDirectiveValue()._stringValue == "on") ? attributes->directory_listing = true : attributes->directory_listing = false;
+			(it->second.getDirectiveValue()._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
 		}
 	}
 }

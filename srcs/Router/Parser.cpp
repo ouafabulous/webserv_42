@@ -36,7 +36,7 @@ Parser::~Parser()
 Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
 {
         std::string dn[11] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup", "root", "error_files", "redirect", "auto-index"};
-        for (uint i = 0; i != 7; i++)
+        for (uint i = 0; i != 11; i++)
         {
             directiveNames.push_back(dn[i]);
         }
@@ -135,7 +135,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
             *block = new BlockServer("server_" + oss.str());
             uint i = secondNonSpTokIndex + 1;
             uint clServerBrIndex = closingIndexBracket(tokens, i);
-            std::cout << "i value: " << i << ", clServerBrIndex value: " << clServerBrIndex << std::endl;
+            // std::cout << "i value: " << i << ", clServerBrIndex value: " << clServerBrIndex << std::endl;
             while (i < clServerBrIndex)
             {
                 if (isDirective(tokens[i], directiveNames))
@@ -152,7 +152,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                 }
                 else if (tokens[i].second == "location")
                 {
-                    std::cout << "I entered here 2" << std::endl;
+                    // std::cout << "I entered here 2" << std::endl;
                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
                     secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
                     if (tokens[firstNonSpTokIndex].first == TOK_WORD && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
@@ -190,14 +190,14 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                 }
                 else
                 {
-                    std::cout << "I entered here 3" << std::endl;
+                    // std::cout << "I entered here 3" << std::endl;
                     i++;
                 }
             }
             TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
-            std::cout << "Here is the subtoken: " << std::endl;
+            // std::cout << "Here is the subtoken: " << std::endl;
             // printVector(subToken);
-            std::cout << "Here is the clServerBrIndex: " << clServerBrIndex << std::endl;
+            // std::cout << "Here is the clServerBrIndex: " << clServerBrIndex << std::endl;
             parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
             return;
         }
