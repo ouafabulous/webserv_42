@@ -9,6 +9,7 @@
 #include <Utils.hpp>
 #include <Config.hpp>
 #include <Server.hpp>
+#include <Dechunker.hpp>
 #include <sys/epoll.h>
 
 class Server;
@@ -40,11 +41,11 @@ public:
 	virtual IOEvent closed();
 	t_http_message &getRequest();
 	void append_response(std::string message, size_t n);
+	IOEvent setError(std::string log, uint http_error);
 
 private:
 	IOEvent readHeader();							 // called by read() until header is fully received
 	IOEvent readBody();								 // called by read() if not read_header()
-	IOEvent setError(std::string log, uint http_error);
 	// Parsing
 	IOEvent parseHeader(std::vector<std::string> &); // called by read_header() when header is fully received
 	bool 	parseRequestLine(std::string& request_line);
@@ -64,6 +65,7 @@ private:
 	bool is_request_line_parsed; // first line of request has been received
 	size_t header_readed_size;	// amount of bytes readed from the connexion for the header part
 	size_t body_readed_size;	// amount of bytes readed fron the connexion for the body part
+	Dechunker dechunker;	// object to dechunk http chunk request to a normal body string
 
 
 	// DATA RELATED TO THE INTERNAL PART AND RESPONSE PART

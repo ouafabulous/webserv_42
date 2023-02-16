@@ -7,7 +7,7 @@ Router::Router(const std::string &confile)
 {
 	(void)confile;
 	t_attributes	base;
-	base.max_body_length = 126;
+	base.max_body_length = 130;
 	my_map[t_network_address(INADDR_ANY, htons(8080))]["facebook.com"] = Route(base);
 	base.error_files.addError(404, "./README.md");
 	Route	random_route(base);
