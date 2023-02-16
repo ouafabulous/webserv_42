@@ -21,6 +21,7 @@ class Route
 		bool			checkHeader(const t_http_message &req) const;		// let a connexion know if her header is conform to the route
 		const Ressource	*createRessource(const t_http_message &req) const;
 		std::string		getError(uint http_error) const;
+		size_t			getMaxBodySize() const;
 
 	private:
 		t_attributes	attributes;

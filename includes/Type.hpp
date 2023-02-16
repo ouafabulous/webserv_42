@@ -25,6 +25,7 @@ struct t_http_message
 {
 	t_request_line									request_line;
 	std::map<std::string, std::string>				header_fields;
+	size_t											content_length;
 	std::string										body;
 };
 

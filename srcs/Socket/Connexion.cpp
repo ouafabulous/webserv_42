@@ -175,10 +175,9 @@ bool Connexion::parseRequestLine(std::string &raw_line)
 
 IOEvent Connexion::executeRoute()
 {
-	route = router.getRoute(netAddr, request);
 	// if we are not waiting for a body
 	if (request.request_line.method == "GET" ||
-		(request.header_fields.find("Transfer-Encoding") == request.header_fields.end() && request.header_fields.find("Content-Length") == request.header_fields.end()))
+		(request.header_fields["Transfer-Encoding"].empty() && request.header_fields["Content-Length"].empty()))
 	{
 		if (body_readed_size > 0)
 		{
@@ -188,13 +187,23 @@ IOEvent Connexion::executeRoute()
 		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
 			return setError("unable to set EPOLL_CTL_MOD", 500);
 	}
-	else
+	else {
+		if (!request.header_fields["Content-Length"].empty()){
+			std::stringstream	content_length_converter;
+			content_length_converter << request.header_fields["Content-Length"];
+			if (!(content_length_converter >> request.content_length))
+				return setError("Content-Length header field is not correct", 400);
+		}
 		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
 			return setError("unable to set EPOLL_CTL_MOD", 500);
+	}
 
 	// SETTING UP ROUTE AND RESSOURCE
+	route = router.getRoute(netAddr, request);
 	if (!route)
 		return setError("internal error", 500);
+	if (request.content_length > route->getMaxBodySize())
+		return setError("Content-Length header field is bigger than the maximum body size allowed for this route", 413);
 	// response = "HTTP/1.1 404 OK\nContent-Type:text/html\nContent-Length: 49\n\n<html><body><h1>File not found</h1></body></html>";
 	// route->handle();
 
@@ -209,11 +218,11 @@ IOEvent	Connexion::readBody() {
 	Logger::debug << "read body" << std::endl;
 
 	// if chunked request
-	if (request.header_fields["Transfer-Encoding"] != "" && request.header_fields["Transfer-Encoding"] != "identity")
-		return parseChunkedBody();
-	if (body_readed_size == request.header_fields["Content-Length"] && epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+	// if (request.header_fields["Transfer-Encoding"] != "" && request.header_fields["Transfer-Encoding"] != "identity")
+	// 	return parseChunkedBody();
+	if (body_readed_size == request.content_length && epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
 		return setError("unable to set EPOLL_CTL_MOD", 500);
-	else if (body_readed_size > request.header_fields["Content-Length"])
+	else if (body_readed_size > request.content_length)
 		return setError("body to large", 413);
 	request.body.append(raw_request);
 	raw_request.clear();
