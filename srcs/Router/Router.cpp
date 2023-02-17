@@ -19,15 +19,15 @@ Router::Router(Parser const &confile)
 		{
 			attributes.location = (*it)->getLocationValue();
 			fillAttributes(&attributes, (*it)->getDirectives());
-			Route route(attributes);
+			Route	route(attributes);
 			// std::cout <<"address: " << t_network_address(INADDR_ANY, htons(attributes.port)) << std::endl;
 			// std::cout << "server name: " << attributes.server_name << std::cout;
-			std::cout << "i: "<< i << std::endl;  
 			my_map[t_network_address(INADDR_ANY, htons(attributes.port))][attributes.server_name] = route; // IADDR_ANY consideres that we listen on all ports aka 0.0.0.0
-			i++;
 		}
+
 			// std::cout << "got here with this port: " << attributes.port << std::endl;
 		tmp1 = tmp1->getSibling();
+
 	}
 }
 
