@@ -17,6 +17,7 @@ Connexion::Connexion(const t_network_address netAddr,
 																request(t_http_message()),
 																is_header_parsed(false),
 																is_request_line_parsed(false),
+																is_body_parsed(false),
 																header_readed_size(0),
 																body_readed_size(0),
 																dechunker(request.body),
@@ -43,7 +44,9 @@ IOEvent Connexion::read()
 	if (recv_size == -1)
 		return IOEvent(FAIL, this, "Error happened while reading socket");
 	if (!recv_size)
-		return IOEvent(FAIL, this, "Client closed the connexion");
+		return closed();
+	if (is_body_parsed)
+		return setError("allready received an entire request", 400);
 	raw_request.append(buffer, recv_size);
 	if (!is_header_parsed)
 		return readHeader();
@@ -180,6 +183,7 @@ IOEvent Connexion::executeRoute()
 		}
 		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
 			return setError("unable to set EPOLL_CTL_MOD", 500);
+		is_body_parsed = true;
 	}
 	else {
 		if (!request.header_fields["Content-Length"].empty()){
@@ -188,8 +192,6 @@ IOEvent Connexion::executeRoute()
 			if (!(content_length_converter >> request.content_length))
 				return setError("Content-Length header field is not correct", 400);
 		}
-		// if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
-		// 	return setError("unable to set EPOLL_CTL_MOD", 500);
 	}
 
 	// SETTING UP ROUTE AND RESSOURCE
@@ -207,29 +209,26 @@ IOEvent Connexion::executeRoute()
 }
 
 IOEvent	Connexion::readBody() {
-	static int new_file = open("./tests/copy.mp4", O_WRONLY | O_CREAT | O_NONBLOCK | O_APPEND, CH_PERM);
 	// if chunked request
 	if (request.header_fields["Transfer-Encoding"] != "" && request.header_fields["Transfer-Encoding"] != "identity") {
 		IOEvent	io_resp = dechunker(raw_request);
 		if (io_resp.result == FAIL)
 			return setError(io_resp.log, io_resp.http_error);
-		else if (io_resp.result == SUCCESS && epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
-			return setError("unable to set EPOLL_CTL_MOD", 500);
-		if (request.body.size() > 0) {
-			if (::write(new_file, request.body.c_str(), request.body.size()) == -1)
-				return IOEvent(FAIL, this, "PostStaticFile::write() failed");
-			request.body.clear();
+		else if (io_resp.result == SUCCESS)
+		{
+			if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
+				return setError("unable to set EPOLL_CTL_MOD", 500);
+			is_body_parsed = true;
 		}
-		if (io_resp.result == SUCCESS)
-			close(new_file);
 	}
 	else {
 		request.body.append(raw_request, 0, request.content_length - request.body.size());
 		raw_request.clear();
-		if (request.body.size() == request.content_length && epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
-			return setError("unable to set EPOLL_CTL_MOD", 500);
-		// else if (request.body.size() > request.content_length)
-		// 	return setError("body to large", 413);
+		if (request.body.size() == request.content_length) {
+			if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+				return setError("unable to set EPOLL_CTL_MOD", 500);
+			is_body_parsed = true;
+		}
 	}
 	return IOEvent();
 }

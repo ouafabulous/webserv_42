@@ -63,6 +63,7 @@ private:
 	std::string raw_request;	// string where raw request is stored
 	bool is_header_parsed;		// bool to define if we finished to read the header
 	bool is_request_line_parsed; // first line of request has been received
+	bool is_body_parsed; // body is fully received
 	size_t header_readed_size;	// amount of bytes readed from the connexion for the header part
 	size_t body_readed_size;	// amount of bytes readed fron the connexion for the body part
 	Dechunker dechunker;	// object to dechunk http chunk request to a normal body string
