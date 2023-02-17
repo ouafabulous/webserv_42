@@ -3,6 +3,9 @@
 #include <iostream>
 #include <set>
 
+
+int i = 0;
+
 Router::Router(Parser const &confile)
 {
 	t_attributes attributes = {};
@@ -19,7 +22,9 @@ Router::Router(Parser const &confile)
 			Route route(attributes);
 			// std::cout <<"address: " << t_network_address(INADDR_ANY, htons(attributes.port)) << std::endl;
 			// std::cout << "server name: " << attributes.server_name << std::cout;
+			std::cout << "i: "<< i << std::endl;  
 			my_map[t_network_address(INADDR_ANY, htons(attributes.port))][attributes.server_name] = route; // IADDR_ANY consideres that we listen on all ports aka 0.0.0.0
+			i++;
 		}
 			// std::cout << "got here with this port: " << attributes.port << std::endl;
 		tmp1 = tmp1->getSibling();
@@ -50,7 +55,6 @@ void Router::printRoutes() const
 	{
 		std::cout << "--------------" << std::endl;
 		std::cout << "Router address: " << router_iter->first << std::endl;
-
 		// iterate through the elements of the vserver_map for each router address
 		const vserver_map &vserver_map_ref = router_iter->second;
 		for (vserver_map::const_iterator vserver_iter = vserver_map_ref.begin(); vserver_iter != vserver_map_ref.end(); ++vserver_iter)
