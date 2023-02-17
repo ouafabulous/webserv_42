@@ -25,7 +25,6 @@ class Route
 		const Ressource	*createRessource(const t_http_message &req) const;
 		std::string		getError(uint http_error) const;
 		size_t			getMaxBodySize() const;
-
 		void			printAttributes() const;
 
 

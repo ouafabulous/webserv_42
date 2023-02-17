@@ -14,6 +14,7 @@ class Errors {
 		void				addError(uint status_code, std::string path);
 		std::string			getError(uint status_code) const;
 		static std::string	getDefaultError(uint status_code);
+		std::string&		operator[](uint http_error);
 
 	private:
 		std::map<uint, std::string>			custom_errors_path;

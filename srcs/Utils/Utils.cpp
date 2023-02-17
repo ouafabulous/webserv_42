@@ -78,6 +78,37 @@ std::string http_header_formatter(uint status_code, size_t content_length) {
 	return result.str();
 }
 
+std::string escape_string(const std::string &str) {
+  std::string result;
+  for (size_t i = 0; i < str.length(); i++)
+  {
+    switch (str[i]) {
+      case '\n':
+        result += "\\n";
+        break;
+      case '\r':
+        result += "\\r";
+        break;
+      case '\t':
+        result += "\\t";
+        break;
+      case '\"':
+        result += "\\\"";
+        break;
+      case '\'':
+        result += "\\\'";
+        break;
+      case '\\':
+        result += "\\\\";
+        break;
+      default:
+        result += str[i];
+        break;
+    }
+  }
+  return result;
+}
+
 // STREAM OVERLOAD
 
 std::ostream&	operator<<(std::ostream &out, const t_network_address &netAddr)

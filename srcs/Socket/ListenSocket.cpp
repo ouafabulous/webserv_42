@@ -45,7 +45,7 @@ IOEvent ListenSocket::read()
 	Server::socks.insert(new_conn);
 	if (epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN))
 		return IOEvent(FAIL, this, "epoll_ctl failed");
-	Logger::info << "new client is now connected" << std::endl;
+	Logger::info << "new client is now connected: " << client_fd << std::endl;
 	return IOEvent();
 }
 IOEvent ListenSocket::closed() { return IOEvent(FAIL, this, "listen socket closed"); }

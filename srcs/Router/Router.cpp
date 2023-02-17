@@ -49,7 +49,7 @@ Router::~Router()
 
 void Router::printRoutes() const
 {
-	std::cout << "size_of_router" << my_map.size() << std::endl;	
+	std::cout << "size_of_router" << my_map.size() << std::endl;
 	router_map::const_iterator router_iter;
 	for (router_iter = my_map.begin(); router_iter != my_map.end(); ++router_iter)
 	{
@@ -133,6 +133,8 @@ const Route *Router::getRoute(const t_network_address netAddr, const t_http_mess
 	vserver_map::const_iterator route;
 
 	if (req.header_fields.find("Host") == req.header_fields.end())
+		return &virtual_server.begin()->second;
+	if (virtual_server.find(req.header_fields.at("Host")) == virtual_server.end())
 		return &virtual_server.begin()->second;
 	return &virtual_server.find(req.header_fields.at("Host"))->second;
 }

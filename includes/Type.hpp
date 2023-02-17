@@ -30,6 +30,7 @@ struct t_http_message
 {
 	t_request_line									request_line;
 	std::map<std::string, std::string>				header_fields;
+	size_t											content_length;
 	std::string										body;
 };
 
@@ -116,6 +117,8 @@ typedef	std::pair<std::string, DirectiveValue> directive;
 
 typedef std::vector<t_token> TokenList;
 
-#define CRLF   "\r\n"
+#define CRLF	"\r\n"
+#define OK		0
+#define NOK		1
 
 #endif
