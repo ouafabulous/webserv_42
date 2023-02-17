@@ -21,14 +21,12 @@ Router::Router(Parser const &confile)
 			fillAttributes(&attributes, (*it)->getDirectives());
 			Route	route(attributes);
 			// std::cout <<"address: " << t_network_address(INADDR_ANY, htons(attributes.port)) << std::endl;
-			// std::cout << "server name: " << attributes.server_name << std::cout;
 			my_map[t_network_address(INADDR_ANY, htons(attributes.port))][attributes.server_name] = route; // IADDR_ANY consideres that we listen on all ports aka 0.0.0.0
 		}
 
-			// std::cout << "got here with this port: " << attributes.port << std::endl;
 		tmp1 = tmp1->getSibling();
-
 	}
+	printRoutes();
 }
 
 Router::~Router()
@@ -53,16 +51,15 @@ void Router::printRoutes() const
 	router_map::const_iterator router_iter;
 	for (router_iter = my_map.begin(); router_iter != my_map.end(); ++router_iter)
 	{
-		std::cout << "--------------" << std::endl;
-		std::cout << "Router address: " << router_iter->first << std::endl;
 		// iterate through the elements of the vserver_map for each router address
 		const vserver_map &vserver_map_ref = router_iter->second;
 		for (vserver_map::const_iterator vserver_iter = vserver_map_ref.begin(); vserver_iter != vserver_map_ref.end(); ++vserver_iter)
 		{
-			std::cout << "  Virtual server name: " << vserver_iter->first << std::endl;
-			// print the details of the Route object
+			std::cout << "\n\n\n\n\n------------------------------\n\n\n\n\n" <<  std::endl;
+			// std::cout << "  Virtual server name: " << vserver_iter->first << std::endl;
+			// // print the details of the Route object
 			const Route &route = vserver_iter->second;
-			std::cout << "    Route properties: " << std::endl;
+			// std::cout << "    Route properties: " << std::endl;
 			route.printAttributes();
 			// print other properties of the Route object here
 		}
@@ -92,7 +89,8 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<directive> con
 		}
 			else if (it->first == "listen")
 		{
-			attributes->port = static_cast<uint>(it->second.getDirectiveValue()._intValue);
+			attributes->port = 8080;
+			// attributes->port = static_cast<uint>(it->second.getDirectiveValue()._intValue);
 		}
 		else if (it->first == "server_name")
 		{

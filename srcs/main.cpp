@@ -22,43 +22,33 @@ void handle_sigint(int signal) {
 
 int main(int ac, char *av[])
 {
-	(void)ac;
-	(void)av;
+	Logger::setLevel(DEBUG);
 
 	// signal(SIGPIPE, handle_sigpipe);
 	signal(SIGINT, handle_sigint);
-	if (ac == 2)
-	{
+	if (ac != 2) {
+		Logger::error << "configuration file path required" << std::endl;
+		return (1);
+	}
+
+	try {
+		// read file
 		std::ifstream file(av[1]);
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 		std::string big_buffer = buffer.str();
 
+		// lexing
 		Lexer	lex(big_buffer);
 		lex.fillTokens();
-		// Lex.printTokens();
-		try{
-			Parser	parse(lex.getTokens());
-			parse.printBlocks();
-			Router	router(parse);
-			router.printRoutes();	
-		}
-		 catch (const std::runtime_error &e)
-		{       
-			std::cout << "ERROR WHILEPARSING" << std::endl;                                                         // specify the exception type
-            //throw std::runtime_error("Error: " + std::string(e.what())); // re-throw the exception with a modified message
-        }
-		// // Lexer	Lex(big_buffer);
-		// // Lex.fillTokens();
-		// // Lex.printTokens();
-
-
-	// try {
-		// Logger::setLevel(DEBUG);
-		// Server my_server("");
-		// my_server.routine();
-	// }
-	// catch(const std::exception& e) {
-		// Logger::error << e.what();
+		Parser	parse(lex.getTokens());
+		// parse.printBlocks();
+		Router	router(parse);
+		// router.printRoutes();
+		Server my_server(parse);
+		my_server.routine();
+	}
+	catch(const std::exception& e) {
+		Logger::error << e.what();
 	}
 }
