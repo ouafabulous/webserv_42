@@ -20,7 +20,7 @@ class Server
 public:
 	typedef std::set<IO*>	socket_set;
 
-	Server(const std::string confFile);
+	Server(Parser const &confFile);
 	~Server();
 
 	static t_fd						epollfd;

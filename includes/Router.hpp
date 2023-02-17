@@ -2,7 +2,10 @@
 #ifndef ROUTER_HPP
 #define ROUTER_HPP
 
+#include "Parser.hpp"
+
 #include <Type.hpp>
+#include <Utils.hpp>
 // #include "Socket.hpp"
 // #include "Ressource.hpp"
 
@@ -23,6 +26,9 @@ class Route
 		std::string		getError(uint http_error) const;
 		size_t			getMaxBodySize() const;
 
+		void			printAttributes() const;
+
+
 	private:
 		t_attributes	attributes;
 };
@@ -30,11 +36,14 @@ class Route
 class Router
 {
 public:
-	Router(const std::string &config);
+	Router(Parser const &config);
 	~Router();
 
 	std::vector<t_network_address>	getAddr() const;																	// get all the address and port to open ListenSockets
 	const Route						*getRoute(const t_network_address netAddr, const t_http_message &req) const;		// get route which have to follow a connexion
+
+	void							fillAttributes(t_attributes *attributes, std::vector<directive>  const &directives);
+	void							printRoutes() const;
 
 private:
 	typedef std::map<std::string, Route>					vserver_map; 		// <"www.42.fr", *Route>

@@ -7,8 +7,13 @@
 #include <vector>
 #include <map>
 #include <Errors.hpp>
-
+// #include <cstdint>
+#include <algorithm>
+#include <climits>
+#include <DirectiveValue.hpp>
 // IO
+
+class DirectiveValue; 
 
 typedef unsigned int uint;
 
@@ -39,17 +44,21 @@ typedef enum
 	DELETE = 	0b100
 } t_methods;
 
+
+
 typedef struct s_attributes
 {
-	t_methods 										methods_allowed;	// could be GET POST DELETE
-	std::vector<std::string>						server_names;		// defined by header field "Host"
+	t_methods 										allowed_methods;	// could be GET POST DELETE
+	// std::vector<std::string>								server_names;		// defined by header field "Host"
+	std::string										server_name;  //just for testing
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
-	Errors											error_files;		// path to default error pages
+	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
 	std::string										redirect;			// uri for redirection,
 	std::string										root;				// path to root directory for serving static files
-	std::map<std::string, std::string>				cgi_path;			// path to CGI locations
+	std::map<std::string, std::string>				cgi_path;			// path to CGI locations -- not implemented int the V0 of the parser
 	bool											directory_listing;	// autoindex on/off
+	uint											port;
 } t_attributes;
 
 typedef enum s_s_tok
@@ -83,7 +92,6 @@ typedef enum e_chr_class
 
 typedef std::pair<t_s_tok, std::string>		t_token;
 
-typedef	std::pair<std::string, std::string> directive;
 
 typedef	enum	e_block_type
 {
@@ -92,6 +100,19 @@ typedef	enum	e_block_type
 	BL_MAX,
 }	t_block_type;
 
+// const size_t	size_max_array = SSIZE_MAX/sizeof(char);
+
+// union directiveValue {
+//     int 							intValue;
+//     char[size_max_array]			stringValue;
+// };
+	// union directiveValueUnion {
+	// 	int		_intValue;
+	//     char	_stringValue[1023];
+	// 	// std::string	stringValue;
+	// };
+
+typedef	std::pair<std::string, DirectiveValue> directive;
 
 typedef std::vector<t_token> TokenList;
 

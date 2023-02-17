@@ -8,6 +8,7 @@
 #include "Server.hpp"
 #include "signal.h"
 #include "stdlib.h"
+#include "Router.hpp"
 
 void handle_sigpipe(int signal) {
 	(void)signal;
@@ -26,29 +27,38 @@ int main(int ac, char *av[])
 
 	signal(SIGPIPE, handle_sigpipe);
 	signal(SIGINT, handle_sigint);
-	// if (ac == 2)
-	// {
-	// 	std::ifstream file(av[1]);
-	// 	std::stringstream buffer;
-	// 	buffer << file.rdbuf();
-	// 	std::string big_buffer = buffer.str();
+	if (ac == 2)
+	{
+		std::ifstream file(av[1]);
+		std::stringstream buffer;
+		buffer << file.rdbuf();
+		std::string big_buffer = buffer.str();
 
-		// Lexer	Lex(big_buffer);
-		// Lex.fillTokens();
-		// // Lex.printTokens();
-		// Parser	Parse(Lex.getTokens());
-		// Parse.printBlocks();
+		Lexer	lex(big_buffer);
+		lex.fillTokens();
+		// Lex.printTokens();
+		try{
+			Parser	parse(lex.getTokens());
+			parse.printBlocks();
+			Router	router(parse);
+			router.printRoutes();	
+		}
+		 catch (const std::runtime_error &e)
+		{       
+			std::cout << "ERROR WHILEPARSING" << std::endl;                                                         // specify the exception type
+            //throw std::runtime_error("Error: " + std::string(e.what())); // re-throw the exception with a modified message
+        }
 		// // Lexer	Lex(big_buffer);
 		// // Lex.fillTokens();
 		// // Lex.printTokens();
 		
 
-	try {
-		Logger::setLevel(DEBUG);
-		Server my_server("");
-		my_server.routine();
-	}
-	catch(const std::exception& e) {
-		Logger::error << e.what();
+	// try {
+		// Logger::setLevel(DEBUG);
+		// Server my_server("");
+		// my_server.routine();
+	// }
+	// catch(const std::exception& e) {
+		// Logger::error << e.what();
 	}
 }

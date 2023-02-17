@@ -22,6 +22,7 @@ class Parser {
         void                                    parse(BlockServer **block, TokenList	const & tokens, uint serverId);
         uint                                    getNextTokIndex(std::string const &tokens);
         void                                    printBlocks() const;
+        BlockServer                             *getBlock() const;
 
     private:
         TokenList	                            _tokens;

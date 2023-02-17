@@ -17,7 +17,7 @@ void	Block::printBlock() {
 		(*itLocation)->printBlock();
 	}
 	for (std::vector<directive>::iterator  itDir = _directives.begin(); itDir != _directives.end(); itDir++){
-		std::cout << "\033[1;31m" << itDir->first << " " << itDir->second << "\033[0m"  << std::endl;
+			std::cout << "\033[1;31m" << itDir->first << " " << itDir->second << "\033[0m"  << std::endl;
 	}
 	}
 	else if (_type == BL_LOCATION){
@@ -28,7 +28,7 @@ void	Block::printBlock() {
 	}
 }
 
-BlockServer *BlockServer::getSibling(){
+BlockServer *BlockServer::getSibling() const{
 	return(_sibling);
 }
 BlockServer **BlockServer::getSiblingAddress(){
@@ -53,4 +53,8 @@ std::string	BlockLocation::getLocationValue() const {
 
 std::vector<BlockLocation *> const & BlockServer::getChilds() const{
 	return(_childs);
+}
+
+std::vector<directive> const    &Block::getDirectives() const {
+	return(_directives);
 }

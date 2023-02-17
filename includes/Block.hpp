@@ -13,7 +13,7 @@ class Block{
         virtual void        printBlock();
         std::string         getName() const;
         // Block   **getChildAddress();
-
+        std::vector<directive> const    &getDirectives() const;
 
     protected:
         t_block_type            _type;
@@ -42,8 +42,9 @@ class BlockServer : public Block {
     // void            printBlock();
     BlockServer     **getSiblingAddress();
     void            addSibling(BlockServer *sibling);
-    BlockServer     *getSibling();
+    BlockServer     *getSibling() const;
     std::vector<BlockLocation *> const & getChilds() const;
+
 
     private:
     std::vector<BlockLocation *>    _childs;
