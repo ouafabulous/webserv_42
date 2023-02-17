@@ -100,32 +100,20 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 
 IOEvent Connexion::readHeader()
 {
-	std::string::iterator line_start;
-	std::string current_line;
+	size_t	pos = 0;
 	std::vector<std::string> lines;
 
-
-	line_start = raw_request.begin();
-	for (std::string::iterator it = raw_request.begin() + 1; it != raw_request.end() && !is_header_parsed; it++)
+	while (pos != std::string::npos && !is_header_parsed)
 	{
 		if (header_readed_size >= MAX_HEADER_SIZE)
 			return setError("header exceeds max header size", 413);
-		if (*(it - 1) == '\r' && *it == '\n')
-		{
-			if (line_start == it - 1)
-			{ // Detect end of header (/r/n/r/n)
-				lines.push_back("");
-				is_header_parsed = true;
-			}
-			else {
-				current_line.assign(line_start, it - 1);
-				lines.push_back(current_line);
-				header_readed_size += current_line.length();
-			}
-			line_start = it + 1;
-		}
+		pos = raw_request.find(CRLF);
+		lines.push_back(raw_request.substr(0, pos));
+		raw_request.erase(0, pos + 2);
+		header_readed_size += pos;
+		if (!pos)
+			is_header_parsed = true;
 	}
-	raw_request.erase(raw_request.begin(), line_start);
 	if (lines.size() > 0)
 		return parseHeader(lines);
 	return IOEvent();
