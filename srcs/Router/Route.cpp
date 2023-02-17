@@ -25,6 +25,9 @@ size_t	Route::getMaxBodySize() const {
 	return attributes.max_body_length;
 }
 void		Route::printAttributes() const {
+	std::cout << "-----Port-----" << std::endl;
+	std::cout << attributes.port << std::endl;
+	std::cout << std::endl;
 	std::cout << "-----Methods allowed-----" << std::endl;
 	if (attributes.allowed_methods & GET) {
 		std::cout << "GET ";

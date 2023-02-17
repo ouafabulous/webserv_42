@@ -109,17 +109,6 @@ TokenList subVectorFrom(TokenList originalTokens, uint index)
     return (toReturn);
 }
 
-// int stringToInt(std::string str){
-//     char *end;
-//     int number = strtol(str.c_str(), &end, 10);
-//     if (end == str.c_str() + strlen(str.c_str()) && number >= 0) {
-//         return(number);
-//     } else {
-//         throw std::runtime_error("Port is not a positive number !\n");
-//     }
-//     return 0;
-// }
-
 // a function that returns the nextNonSp token from a given index.
 
 void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)

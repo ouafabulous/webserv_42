@@ -43,7 +43,7 @@ int main(int ac, char *av[])
 		lex.fillTokens();
 		Parser	parse(lex.getTokens());
 		// parse.printBlocks();
-		Router	router(parse);
+		// Router	router(parse);
 		// router.printRoutes();
 		Server my_server(parse);
 		my_server.routine();

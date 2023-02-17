@@ -4,7 +4,7 @@
 #include <set>
 
 
-int i = 0;
+// int i = 0;
 
 Router::Router(Parser const &confile)
 {
@@ -47,7 +47,7 @@ Router::~Router()
 
 void Router::printRoutes() const
 {
-	std::cout << "size_of_router" << my_map.size() << std::endl;
+	// std::cout << "size_of_router: " << my_map.size() << std::endl;
 	router_map::const_iterator router_iter;
 	for (router_iter = my_map.begin(); router_iter != my_map.end(); ++router_iter)
 	{
@@ -62,6 +62,8 @@ void Router::printRoutes() const
 			// std::cout << "    Route properties: " << std::endl;
 			route.printAttributes();
 			// print other properties of the Route object here
+		// std::cout << "i: " << i << std::endl;
+		// i++;
 		}
 		std::cout << "--------------" << std::endl;
 	}
@@ -89,8 +91,9 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<directive> con
 		}
 			else if (it->first == "listen")
 		{
-			attributes->port = 8080;
-			// attributes->port = static_cast<uint>(it->second.getDirectiveValue()._intValue);
+			// attributes->port = 8080;
+			attributes->port = static_cast<uint>(it->second.getDirectiveValue()._intValue);
+			// std::cout << "attributes_port: " << attributes->port << std::endl;
 		}
 		else if (it->first == "server_name")
 		{

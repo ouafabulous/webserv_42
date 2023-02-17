@@ -3,7 +3,7 @@
 
 DirectiveValue::DirectiveValue(std::string directiveName, std::string directiveValue)
 {
-    if (directiveName == "listen" || directiveName == "client_max_body_size" || directiveValue == "error_files") // afterwards error_files should be checked if it respects the required format
+    if (directiveName == "listen" || directiveName == "client_max_body_size" || directiveName == "error_files") // afterwards error_files should be checked if it respects the required format
     {
         try
         {
@@ -12,10 +12,10 @@ DirectiveValue::DirectiveValue(std::string directiveName, std::string directiveV
             {
                 throw std::runtime_error("Port number should be a positive integer!");
             }
-            else
-            {
-                _directiveValue._type = INT;
-            }
+            // else
+            // {
+                // _directiveValue._type = INT;
+            // }
         }
         catch (const std::exception &e)
         {     
@@ -25,7 +25,7 @@ DirectiveValue::DirectiveValue(std::string directiveName, std::string directiveV
     }
     else
     {
-        _directiveValue._type = STRING;
+        // _directiveValue._type = STRING;
         std::copy(directiveValue.begin(), directiveValue.begin() + 1024, _directiveValue._stringValue);
     }
 }
