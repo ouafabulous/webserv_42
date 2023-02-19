@@ -113,7 +113,7 @@ std::string escape_string(const std::string &str) {
 
 std::ostream&	operator<<(std::ostream &out, const t_network_address &netAddr)
 {
-	const static std::string	text[5] = {"TOK_WORD", "TOK_SP\t", "TOK_RL\t", "TOK_SC\t", "TOK_BR\t"};
+	// const static std::string	text[5] = {"TOK_WORD", "TOK_SP\t", "TOK_RL\t", "TOK_SC\t", "TOK_BR\t"};
 
 	if (netAddr.first) {
 		unsigned char *p = (unsigned char *)&netAddr.first;

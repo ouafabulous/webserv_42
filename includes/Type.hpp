@@ -70,6 +70,7 @@ typedef enum s_s_tok
 	TOK_SC,
 	TOK_BR_OP,
 	TOK_BR_CL,
+	TOK_COM,
 	TOK_S_MAX,
 } t_s_tok;
 
@@ -88,6 +89,7 @@ typedef enum e_chr_class
 	CHR_SC,					// SEMICOLONS
 	CHR_BR_OP,
 	CHR_BR_CL,					// BRACKETS
+	CHR_COM,
 	CHR_MAX,
 } t_chr_class;
 

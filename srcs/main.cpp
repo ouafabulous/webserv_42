@@ -41,12 +41,13 @@ int main(int ac, char *av[])
 		// lexing
 		Lexer	lex(big_buffer);
 		lex.fillTokens();
-		Parser	parse(lex.getTokens());
+		lex.printTokens();
+		// Parser	parse(lex.getTokens());
 		// parse.printBlocks();
 		// Router	router(parse);
 		// router.printRoutes();
-		Server my_server(parse);
-		my_server.routine();
+		// Server my_server(parse);
+		// my_server.routine();
 	}
 	catch(const std::exception& e) {
 		Logger::error << e.what();
