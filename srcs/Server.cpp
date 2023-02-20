@@ -7,7 +7,7 @@ Server::Server(Parser const &config_file)
 {
 	epollfd = epoll_create(EPOLL_BACKLOG);
 	if (epollfd == -1)
-		throw std::runtime_error("Unable to create epollfd");
+		throw std::runtime_error("Unable to create epollfd\n");
 
 	listen_list		lsocket_to_build = router.getAddr();
 	ListenSocket	*current_listen_socket;
@@ -28,7 +28,7 @@ Server::~Server() {
 	for (socket_set::const_iterator it = socks.begin(); it != socks.end(); it++)
 		delete	*it;
 	if (close(epollfd))
-		throw std::runtime_error("Unable to close epollfd");
+		throw std::runtime_error("Unable to close epollfd\n");
 }
 
 void	Server::routine() {
@@ -37,12 +37,12 @@ void	Server::routine() {
 	IOEvent			io_event;
 
 	if (socks.empty())
-		throw std::runtime_error("there is no virtual server listening");
+		throw std::runtime_error("there is no virtual server listening\n");
 	while (TRUE)
 	{
 		epoll_wait_return = epoll_wait(epollfd, events, EPOLL_BACKLOG, -1);
 		if (epoll_wait_return == -1)
-			throw std::runtime_error("Epoll wait return -1");
+			throw std::runtime_error("Epoll wait return -1\n");
 		for (int i = 0; i < epoll_wait_return; i++)
 		{
 			if (events[i].events & EPOLLHUP || events[i].events & EPOLLRDHUP)
