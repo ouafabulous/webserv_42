@@ -50,9 +50,10 @@ IOEvent	GetStaticFile::read()
 		close(fd_read);
 		return conn->setError("Error reading the file", 500);
 	}
+	if (!ret)
+		return closed();
 	if (ret == 0)
 		is_EOF = true;
-	buffer[ret] = '\0';
 	conn->append_response(buffer, ret);
 	return IOEvent();
 }
@@ -69,7 +70,6 @@ IOEvent	GetStaticFile::closed()
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
 {
 	std::string new_path = file_path;
-	//bytes_read = 0;
 
 	fd_write = open(new_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 
@@ -85,17 +85,6 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressour
 	header += "Connection: keep-alive\r\n\r\n";
 
 	conn->append_response(header.c_str(), header.size());
-
-	if (chmod(new_path.c_str(), CH_PERM) == -1)
-	{
-		conn->setError("Error changing the file permissions for " + new_path, 500);
-		if (close(fd_write) == -1)
-		{
-			conn->setError("Error closing the file", 500);
-			throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
-		}
-		throw std::runtime_error("PostStaticFile::PostStaticFile() Chmod failed");
-	}
 }
 
 PostStaticFile::~PostStaticFile()
@@ -110,15 +99,6 @@ PostStaticFile::~PostStaticFile()
 
 IOEvent	PostStaticFile::write()
 {
-	// Check for chuncked request
-
-	//if (bytes_read > conn->get_route().getMaxBodySize()
-	//	|| bytes_read > MAX_SIZE_ALLOWED)
-	//{
-	//	close(fd_write);
-	//	return conn->setError("File size is too big", 413);
-	//}
-
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
 		conn->getRequest().body.size());
 
@@ -132,7 +112,6 @@ IOEvent	PostStaticFile::write()
 			return conn->setError("Error writing the file", 500);
 		}
 	}
-	//bytes_read += ret;
 }
 
 IOEvent	PostStaticFile::closed()
