@@ -1,4 +1,5 @@
 #include "Router.hpp"
+#include "Type.hpp"
 
 Route::Route(const t_attributes attributes)
 : attributes(attributes) {

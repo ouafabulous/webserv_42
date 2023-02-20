@@ -1,27 +1,30 @@
-#include <Router.hpp>
 
 #include <iostream>
 #include <set>
+#include "Type.hpp"
+#include "Router.hpp"
 
 
 // int i = 0;
-
 Router::Router(Parser const &confile)
 {
-	t_attributes attributes = {};
-	BlockServer *tmp1 = confile.getBlock();
+	t_attributes 	attributes = {};
+	BlockServer 	*tmp1 = confile.getBlock();
 	while (tmp1)
 	{
 		fillAttributes(&attributes, tmp1->getDirectives());
 		std::vector<BlockLocation *>::const_iterator it;
 		std::vector<BlockLocation *> const &locations = tmp1->getChilds();
+		Route	globalRoute(attributes);
+		NetworkRoute	globalNetworkRoute(t_network_address(INADDR_ANY, htons(attributes.port)), attributes.server_name, globalRoute);
+		_networkRoutes.push_back(globalNetworkRoute);
 		for (it = locations.begin(); it != locations.end(); it++)
 		{
 			attributes.location = (*it)->getLocationValue();
 			fillAttributes(&attributes, (*it)->getDirectives());
-			Route	route(attributes);
-			// std::cout <<"address: " << t_network_address(INADDR_ANY, htons(attributes.port)) << std::endl;
-			my_map[t_network_address(INADDR_ANY, htons(attributes.port))][attributes.server_name] = route; // IADDR_ANY consideres that we listen on all ports aka 0.0.0.0
+			Route			route(attributes);
+			NetworkRoute	networkRoute(t_network_address(INADDR_ANY, htons(attributes.port)), attributes.server_name, globalRoute);
+			_networkRoutes.push_back(networkRoute);
 		}
 
 		tmp1 = tmp1->getSibling();
@@ -48,23 +51,17 @@ Router::~Router()
 void Router::printRoutes() const
 {
 	// std::cout << "size_of_router: " << my_map.size() << std::endl;
-	router_map::const_iterator router_iter;
-	for (router_iter = my_map.begin(); router_iter != my_map.end(); ++router_iter)
+	std::vector<NetworkRoute>::const_iterator	iterRouter;
+	for (iterRouter = _networkRoutes.begin(); iterRouter != _networkRoutes.end(); ++iterRouter)
 	{
-		// iterate through the elements of the vserver_map for each router address
-		const vserver_map &vserver_map_ref = router_iter->second;
-		for (vserver_map::const_iterator vserver_iter = vserver_map_ref.begin(); vserver_iter != vserver_map_ref.end(); ++vserver_iter)
-		{
 			std::cout << "\n\n\n\n\n------------------------------\n\n\n\n\n" <<  std::endl;
-			// std::cout << "  Virtual server name: " << vserver_iter->first << std::endl;
-			// // print the details of the Route object
-			const Route &route = vserver_iter->second;
-			// std::cout << "    Route properties: " << std::endl;
-			route.printAttributes();
-			// print other properties of the Route object here
-		// std::cout << "i: " << i << std::endl;
-		// i++;
-		}
+			std::cout << "---Adresse: " << iterRouter->address << std::endl;
+			std::cout << "---Server Names: ";
+			for (std::vector<std::string>::iterator servNameIter = iterRouter->begin(); servNameIter != iterRouter->end(); servNameIter++){
+				std::cout << servNameIter << " ";
+			}
+			std::cout << "---Route: ";
+			iterRouter->route.printAttributes();
 		std::cout << "--------------" << std::endl;
 	}
 }
@@ -74,7 +71,7 @@ t_methods operator|=(t_methods& a, t_methods b)
     return a = static_cast<t_methods>(a | b);
 }
 
-void Router::fillAttributes(t_attributes *attributes, std::vector<directive> const &directives)
+void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> const &directives)
 {
 	std::map<std::string, t_methods> methodsDict;
 
@@ -82,39 +79,41 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<directive> con
     methodsDict["GET"] = GET;
     methodsDict["POST"] = POST;
     methodsDict["DELETE"] = DELETE;
-	std::vector<directive>::const_iterator it;
+	std::vector<Directive>::const_iterator it;
+	std::vector<directiveValueUnion>::const_iterator	directiveValIter;
 	for (it = directives.begin(); it != directives.end(); it++)
 	{
-		if (it->first == "allowed_methods")
+		if (it->getDirectiveName() == "allowed_methods")
 		{
-			attributes->allowed_methods |= methodsDict[it->second.getDirectiveValue()._stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
+			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
+				attributes->allowed_methods |= methodsDict[directiveValIter->_stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
+			}			
 		}
-			else if (it->first == "listen")
+			else if (it->getDirectiveName() == "listen")
 		{
-			// attributes->port = 8080;
-			attributes->port = static_cast<uint>(it->second.getDirectiveValue()._intValue);
-			// std::cout << "attributes_port: " << attributes->port << std::endl;
+			attributes->port = static_cast<uint>((it->getDirectiveValues())[0]._intValue);
 		}
-		else if (it->first == "server_name")
+		else if (it->getDirectiveName() == "server_name")
 		{
-			attributes->server_name = it->second.getDirectiveValue()._stringValue;
-			// attributes->server_names.push_back(it->second.getDirectiveValue()._stringValue);
+			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
+				attributes->server_name.push_back(directiveValIter->_stringValue);
+			}
 		}
-		else if (it->first == "client_max_body_size")
+		else if (it->getDirectiveName() == "client_max_body_size")
 		{
-			attributes->max_body_length = static_cast<size_t>(it->second.getDirectiveValue()._intValue);
+			attributes->max_body_length = static_cast<size_t>((it->getDirectiveValues())[0]._intValue);
 		}
-		else if (it->first == "redirect")
+		else if (it->getDirectiveName() == "redirect")
 		{
-			attributes->redirect = it->second.getDirectiveValue()._stringValue;
+			attributes->redirect = (it->getDirectiveValues())[0]._stringValue;
 		}
-		else if (it->first == "root")
+		else if (it->getDirectiveName() == "root")
 		{
-			attributes->root = it->second.getDirectiveValue()._stringValue;
+			attributes->root = (it->getDirectiveValues())[0]._stringValue
 		}
-		else if (it->first == "auto-index")
+		else if (it->getDirectiveName() == "auto-index")
 		{
-			(it->second.getDirectiveValue()._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
+			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
 		}
 	}
 }

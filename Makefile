@@ -6,7 +6,7 @@ TMPDIR = .tmp
 
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
-ROUTER = $(addprefix Router/, Lexer.cpp Router.cpp Route.cpp Parser.cpp Block.cpp DirectiveValue.cpp)
+ROUTER = $(addprefix Router/, Lexer.cpp Router.cpp Route.cpp Parser.cpp Block.cpp Directive.cpp)
 SOCKET = $(addprefix Socket/, ListenSocket.cpp Connexion.cpp Dechunker.cpp IOEvent.cpp)
 UTILS = $(addprefix Utils/, Utils.cpp Logger.cpp)
 SRCS = $(addprefix srcs/, main.cpp Server.cpp Errors.cpp $(ROUTER) $(SOCKET) $(UTILS))
