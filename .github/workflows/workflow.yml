@@ -29,4 +29,5 @@ jobs:
     - name: Check if server is responding
       run: |
         sleep 5
-        curl http://localhost:8080
+        curl -v http://localhost:8080
+        curl -v -d @refs/en.subject.pdf http://localhost:8080
