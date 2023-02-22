@@ -44,9 +44,9 @@ int main(int ac, char *av[])
 		// lex.printTokens();
 		Parser	parse(lex.getTokens());
 		// parse.printBlocks();
-		Router	router(parse);
+		// Router	router(parse);
 		// router.printRoutes();
-		// Server my_server(parse);
+		Server my_server(parse);
 		// my_server.routine();
 	}
 	catch(const std::exception& e) {
