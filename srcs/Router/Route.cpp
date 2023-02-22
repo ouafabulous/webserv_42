@@ -63,3 +63,33 @@ void		Route::printAttributes() const {
 
 	std::cout << "Redirect: \t" << attributes.redirect << std::endl;
 }
+
+bool	Route::checkRequest(const t_http_message &req) const {
+	std::string	http_method = req.request_line.method;
+	t_methods	request_method;
+	if (strcmp(http_method, "GET") == 0)
+    {
+        request_method = GET;
+    }
+    else if (strcmp(http_method, "POST") == 0)
+    {
+        request_method = POST;
+    }
+    else if (strcmp(http_method, "DELETE") == 0)
+    {
+        request_method = DELETE;
+    }
+    else
+    {
+        // Invalid HTTP request method
+        return 1; // throw an exception
+    }
+	if (attributes.allowed_methods & request_method){
+		return 1;
+	}
+	return 0;
+}
+
+const Ressource	*Route::createRessource(const t_http_message &req) const{
+
+} 
