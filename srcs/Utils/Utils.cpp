@@ -134,3 +134,17 @@ int stringToInt(std::string str){
 	// std::cout << "and transformed it to this result: " << res << std::endl;
     return(res);
 }
+
+size_t	matchingChar(const std::string& a, const std::string& b) {
+	size_t result = 0;
+	std::string::const_iterator it_a = a.begin();
+	std::string::const_iterator it_b = b.begin();
+
+	while (it_a != a.end() && it_b != b.end() && *it_a == *it_b)
+	{
+		it_a++;
+		it_b++;
+		result++;
+	}
+	return (result);
+}

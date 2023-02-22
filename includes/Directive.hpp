@@ -15,6 +15,8 @@ union directiveValueUnion {
 	    char	_stringValue[DIRECTIVE_NAME_LENGTH];
 };
 
+
+
 class Directive {
 	public:
 		Directive(std::string directiveName);
@@ -25,9 +27,9 @@ class Directive {
 		std::string	const	&						getDirectiveName() const;
 
 	private:
-		t_type								_type;
-		std::vector<directiveValueUnion>	_directiveValues;
 		std::string							_directiveName;
+		std::vector<directiveValueUnion>	_directiveValues;
+		t_type								_type;
 };
 
 std::ostream &			operator<<( std::ostream & o, Directive const & i );

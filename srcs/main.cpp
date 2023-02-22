@@ -41,10 +41,10 @@ int main(int ac, char *av[])
 		// lexing
 		Lexer	lex(big_buffer);
 		lex.fillTokens();
-		lex.printTokens();
-		// Parser	parse(lex.getTokens());
+		// lex.printTokens();
+		Parser	parse(lex.getTokens());
 		// parse.printBlocks();
-		// Router	router(parse);
+		Router	router(parse);
 		// router.printRoutes();
 		// Server my_server(parse);
 		// my_server.routine();

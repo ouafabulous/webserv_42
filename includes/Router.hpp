@@ -5,27 +5,25 @@
 #include "Parser.hpp"
 #include "Type.hpp"
 #include <Utils.hpp>
-// #include "Socket.hpp"
-// #include "Ressource.hpp"
-
 #include <arpa/inet.h>
 
 class Ressource;
 
 
-class Route
+	class Route
 {
 	public:
 		Route(const t_attributes = t_attributes());
 		Route(const Route& ref);
 		~Route();
 		Route&			operator=(const Route& rhs);
-		// void			handle(t_http_message &req) const;
-		bool			checkHeader(const t_http_message &req) const;		// let a connexion know if her header is conform to the route
+		// void			handle(t_http_message &req,Connexion *connexion) const;
+		bool			checkRequest(const t_http_message &req) const;		// let a connexion know if her header is conform to the route
 		const Ressource	*createRessource(const t_http_message &req) const;
 		std::string		getError(uint http_error) const;
 		size_t			getMaxBodySize() const;
 		void			printAttributes() const;
+		t_attributes const &getAttributes() const;
 
 
 	private:
@@ -33,12 +31,11 @@ class Route
 };
 
 struct NetworkRoute {
-  t_network_address			address;
-  std::vector<std::string>	server_name;
-//   t_attributes				att={};
-  Route						route;
-  NetworkRoute(t_network_address address_, std::vector<std::string> string_list_)
-    : address(address_), server_name(string_list_) {
+  t_network_address			_address;
+  std::vector<std::string>	_server_name;
+  Route						_route;
+  NetworkRoute(t_network_address address_, std::vector<std::string> string_list_, Route route_)
+    : _address(address_), _server_name(string_list_), _route(route_){
   }
 };
 
@@ -57,6 +54,7 @@ public:
 
 private:
 	std::vector<NetworkRoute>		_networkRoutes;
+	bool							isInServerName(const std::string& host, const std::vector<std::string>	server_names) const;
 };
 
 

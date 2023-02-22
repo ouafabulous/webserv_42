@@ -6,7 +6,7 @@ Directive::Directive(std::string directiveName) : _directiveName(directiveName),
 {}
 
 void    Directive::addDirectiveValue(std::string directiveValue){
-        if (directiveName == "listen" || directiveName == "client_max_body_size" || directiveName == "error_files") // afterwards error_files should be checked if it respects the required format
+        if (_directiveName == "listen" || _directiveName == "client_max_body_size" || _directiveName == "error_files") // afterwards error_files should be checked if it respects the required format
     {
         try
         {
@@ -48,13 +48,13 @@ t_type  const &Directive::getType() const {
     return(_type);
 }
 
-std::string const   &getDirectiveName() const {
+std::string const   &Directive::getDirectiveName() const {
     return (_directiveName);
 }
 
 std::ostream &operator<<(std::ostream &o, Directive const &i)
 {
-    typedef std::vector<DirectiveValueUnion> dir_vec;
+    typedef std::vector<directiveValueUnion> dir_vec;
     dir_vec             values = i.getDirectiveValues();
     dir_vec::iterator   valuesIter;
     if (i.getType() == INT){

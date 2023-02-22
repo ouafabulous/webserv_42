@@ -8,10 +8,10 @@
 // int i = 0;
 Router::Router(Parser const &confile)
 {
-	t_attributes 	attributes = {};
 	BlockServer 	*tmp1 = confile.getBlock();
 	while (tmp1)
 	{
+		t_attributes 	attributes = {};
 		fillAttributes(&attributes, tmp1->getDirectives());
 		std::vector<BlockLocation *>::const_iterator it;
 		std::vector<BlockLocation *> const &locations = tmp1->getChilds();
@@ -36,33 +36,18 @@ Router::~Router()
 {
 }
 
-// std::ostream &operator<<(std::ostream &os, const t_network_address &addr)
-// {
-// 	// Convert the IP address to a string
-// 	char ip_str[INET_ADDRSTRLEN];
-// 	inet_ntop(AF_INET, &(addr.first), ip_str, INET_ADDRSTRLEN);
-
-// 	// Print the IP address and port
-// 	os << ip_str << ":" << ntohs(addr.second);
-
-// 	return os;
-// }
-
 void Router::printRoutes() const
 {
-	// std::cout << "size_of_router: " << my_map.size() << std::endl;
 	std::vector<NetworkRoute>::const_iterator	iterRouter;
 	for (iterRouter = _networkRoutes.begin(); iterRouter != _networkRoutes.end(); ++iterRouter)
 	{
-			std::cout << "\n\n\n\n\n------------------------------\n\n\n\n\n" <<  std::endl;
-			std::cout << "---Adresse: " << iterRouter->address << std::endl;
-			std::cout << "---Server Names: ";
-			for (std::vector<std::string>::iterator servNameIter = iterRouter->begin(); servNameIter != iterRouter->end(); servNameIter++){
-				std::cout << servNameIter << " ";
-			}
+			std::cout << "------------------------------" <<  std::endl;
+			std::cout << "---Adresse: " << iterRouter->_address << std::endl;
+			std::cout << std::endl;
 			std::cout << "---Route: ";
-			iterRouter->route.printAttributes();
-		std::cout << "--------------" << std::endl;
+			std::cout << std::endl;
+			iterRouter->_route.printAttributes();
+		std::cout << "--------------\n\n" << std::endl;
 	}
 }
 
@@ -74,7 +59,6 @@ t_methods operator|=(t_methods& a, t_methods b)
 void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> const &directives)
 {
 	std::map<std::string, t_methods> methodsDict;
-
     // Add some entries to the dictionary
     methodsDict["GET"] = GET;
     methodsDict["POST"] = POST;
@@ -109,7 +93,7 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 		}
 		else if (it->getDirectiveName() == "root")
 		{
-			attributes->root = (it->getDirectiveValues())[0]._stringValue
+			attributes->root = (it->getDirectiveValues())[0]._stringValue;
 		}
 		else if (it->getDirectiveName() == "auto-index")
 		{
@@ -121,20 +105,44 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 std::vector<t_network_address> Router::getAddr() const
 {
 	std::vector<t_network_address> response;
-	for (router_map::const_iterator it = my_map.begin(); it != my_map.end(); it++)
-		response.push_back(it->first);
+	for (std::vector<NetworkRoute>::const_iterator it = _networkRoutes.begin(); it != _networkRoutes.end(); it++)
+		response.push_back(it->_address);
 
 	return (response);
 }
 
+bool	Router::isInServerName(const std::string& host, const std::vector<std::string>	server_names) const {
+	for (std::vector<std::string>::const_iterator servNameIter = server_names.begin(); servNameIter != server_names.end(); servNameIter++){
+		if (*servNameIter == host)
+			return true;
+	}
+	return false;
+}
+
+t_attributes const &Route::getAttributes() const{
+	return(this->attributes);
+}
+
+
+
 const Route *Router::getRoute(const t_network_address netAddr, const t_http_message &req) const
 {
-	const vserver_map &virtual_server = my_map.at(netAddr);
-	vserver_map::const_iterator route;
-
+	typedef std::vector<NetworkRoute>::const_iterator route_iter_type;
+	route_iter_type iterRoutes;
+	route_iter_type	response = _networkRoutes.begin();
+	size_t matching_char_result = 0;
 	if (req.header_fields.find("Host") == req.header_fields.end())
-		return &virtual_server.begin()->second;
-	if (virtual_server.find(req.header_fields.at("Host")) == virtual_server.end())
-		return &virtual_server.begin()->second;
-	return &virtual_server.find(req.header_fields.at("Host"))->second;
+		// error
+
+	for (iterRoutes = _networkRoutes.begin(); iterRoutes != _networkRoutes.end(); iterRoutes++){
+		if (iterRoutes->_address != netAddr)
+			continue;
+		if (!isInServerName(req.header_fields.at("Host"), iterRoutes->_server_name))
+			continue;
+		if (matchingChar(req.request_line.path, iterRoutes->_route.getAttributes().location) > matching_char_result) {
+			response = iterRoutes;
+			matching_char_result = matchingChar(req.request_line.path, iterRoutes->_route.getAttributes().location);
+		}
+	}
+	return &(response->_route);
 }

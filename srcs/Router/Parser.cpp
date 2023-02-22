@@ -142,7 +142,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                         }
                         i = firstNonSpTokIndex;
                     }
-                    (*block)->addDirective(std::make_pair(directiveName, directiveValue));
+                    (*block)->addDirective(directive);
                 }
                 else if (tokens[i].second == "location")
                 {
@@ -173,7 +173,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                                     }
                                     i = firstNonSpTokIndex + 1;
                                 }
-                                locationBlock->addDirective(std::make_pair(directiveName, directiveValue));
+                                locationBlock->addDirective(directive);
                             }
                             else
                             {
