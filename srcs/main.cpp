@@ -47,7 +47,7 @@ int main(int ac, char *av[])
 		// Router	router(parse);
 		// router.printRoutes();
 		Server my_server(parse);
-		// my_server.routine();
+		my_server.routine();
 	}
 	catch(const std::exception& e) {
 		Logger::error << e.what();
