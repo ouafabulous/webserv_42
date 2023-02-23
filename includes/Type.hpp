@@ -21,7 +21,7 @@ typedef int t_fd;
 
 struct t_request_line
 {
-	std::string method;
+	t_methods 	method;
 	std::string path;
 	std::string http_version;
 };
@@ -50,8 +50,7 @@ typedef enum
 typedef struct s_attributes
 {
 	t_methods 										allowed_methods;	// could be GET POST DELETE
-	// std::vector<std::string>								server_names;		// defined by header field "Host"
-	std::vector<std::string>						server_name;  
+	std::vector<std::string>						server_name; 		// defined by the hesder field "Host:"  
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
 	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
@@ -60,6 +59,7 @@ typedef struct s_attributes
 	std::map<std::string, std::string>				cgi_path;			// path to CGI locations -- not implemented int the V0 of the parser
 	bool											directory_listing;	// autoindex on/off
 	uint											port;
+	std::string										index;
 } t_attributes;
 
 typedef enum s_s_tok

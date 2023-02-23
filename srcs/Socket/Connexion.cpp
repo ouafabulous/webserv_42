@@ -1,5 +1,6 @@
 #include <Socket.hpp>
 #include <Ressource.hpp>
+#include <Utils.hpp>
 
 inline bool ends_with(std::string const &value, std::string const &ending)
 {
@@ -160,7 +161,8 @@ bool Connexion::parseRequestLine(std::string &raw_line)
 	}
 	if (splitted_line.size() != 3 || splitted_line[2] != HTTP_VERSION)
 		return NOK;
-	request.request_line.method = splitted_line[0];
+	std::string	methodString = splitted_line[0];
+	request.request_line.method = methodToEnum(methodString);
 	request.request_line.path = splitted_line[1];
 	request.request_line.http_version = splitted_line[2];
 	is_request_line_parsed = true;

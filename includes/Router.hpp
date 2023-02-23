@@ -7,6 +7,7 @@
 #include "Connexion.hpp"
 #include <Utils.hpp>
 #include <arpa/inet.h>
+#include <Ressource.hpp>
 
 class Ressource;
 
@@ -20,7 +21,7 @@ class Ressource;
 		Route&			operator=(const Route& rhs);
 		void			handle(t_http_message &req,Connexion *connexion) const;
 		bool			checkRequest(const t_http_message &req) const;		// let a connexion know if her header is conform to the route
-		const Ressource	*createRessource(const t_http_message &req) const;
+		const Ressource	*createRessource(const t_http_message &req, Connexion *connexion) const;
 		std::string		getError(uint http_error) const;
 		size_t			getMaxBodySize() const;
 		void			printAttributes() const;

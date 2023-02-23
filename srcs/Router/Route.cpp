@@ -57,32 +57,56 @@ void		Route::printAttributes() const {
 	std::cout << attributes.directory_listing << std::endl;
 }
 
-bool	Route::checkRequest(const t_http_message &req) const {
-	std::string	http_method = req.request_line.method;
-	t_methods	request_method;
-	if (strcmp(http_method, "GET") == 0)
-    {
-        request_method = GET;
-    }
-    else if (strcmp(http_method, "POST") == 0)
-    {
-        request_method = POST;
-    }
-    else if (strcmp(http_method, "DELETE") == 0)
-    {
-        request_method = DELETE;
-    }
-    else
-    {
-        // Invalid HTTP request method
-        return 1; // throw an exception
-    }
+
+IOevent	Route::checkRequest(const t_http_message &req) const {
+	t_methods	request_method = req.request_line.method;
 	if (attributes.allowed_methods & request_method){
-		return 1;
+		// je sais pas trop comment utiliser le debugge ici
+		return setError("", 400);
+		// return 1;
 	}
-	return 0;
+	return IOEvent(); // what does that do?
 }
 
-const Ressource	*Route::createRessource(const t_http_message &req) const{
 
+const Ressource	*Route::createRessource(const t_http_message &req, Connexion *conn) const{
+	// Je suppose que nous avons bien une route
+	// Where to checkif a path is valid?
+	t_request_line	reqLine = req.request_line;
+	std::string		completePath = attributes.root + reqLine.path;
+	if (reqLine.method & GET){
+		if (fileExists(completePath)){
+			return(&(GetStaticFile(conn, completePath)));
+		}
+		else if(directoryExists(completePath)){
+			if (attributes.redirect){
+				return(&(RedirectRessource(conn, attributes.directory_listing)));
+			}
+			if(attributes.directory_listing){
+				return(&(GetDirectory(conn, completePath)));	
+			}
+			else if (attributes.index.size() > 0){
+				for (std::vector<std::string>::iterator indexIt = attributes.index.begin; indexIt != attributes.index.end(); indexIt++){
+					if (fileExists(*indexIt)){
+						return(&(GetStaticFile(conn, *indexIt)));
+					} 
+				}
+				if (fileExists(reqLine.path+"index.html")){
+					return(&(GetStaticFile(conn, completePath+"index.html")));
+				}
+				return () // I need to return a message error: 403 not found
+			}
+		}
+	}
+	else if (reqLine.method & POST) {
+		return(&(PostStaticFile(conn, completePath)));
+	}
+	else if (reqline.method & DELETE) {
+		if (fileExists(completePath)){
+			return (&(DeleteStaticFile()))
+		}
+		else {
+			// not found error
+		}
+	}
 } 
