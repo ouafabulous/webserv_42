@@ -30,5 +30,7 @@ int             stringToInt(std::string str);
 bool            endsWithSlash(const std::string& str);
 bool            fileExists(const char* fileName);
 bool            directoryExists(const char* path);
+bool            containsSubstring(const std::string& str, const std::string& substr);
+std::string     extractBeforeChar(const std::string& inputString, char delimiter);
 
 #endif

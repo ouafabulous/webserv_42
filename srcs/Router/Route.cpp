@@ -68,6 +68,25 @@ IOevent	Route::checkRequest(const t_http_message &req) const {
 	return IOEvent(); // what does that do?
 }
 
+typedef	enum {
+	NONE,
+	PYTHON,
+	PHP,
+	PERL
+}
+
+t_cgi	isCGI(std::string const &path){
+	if (containsSubstring(path, ".py")){
+		return(PYTHON);
+	}
+	else if (containsSubstring(path, ".php")) {
+		return(PHP);
+	}
+	else if (containsSubstring(path, ".pl")) {
+		return(PERL);
+	}
+	return (NONE);
+}
 
 const Ressource	*Route::createRessource(const t_http_message &req, Connexion *conn) const{
 	// Je suppose que nous avons bien une route
@@ -75,7 +94,16 @@ const Ressource	*Route::createRessource(const t_http_message &req, Connexion *co
 	t_request_line	reqLine = req.request_line;
 	std::string		completePath = attributes.root + reqLine.path;
 	if (reqLine.method & GET){
-		if (fileExists(completePath)){
+		t_cgi cgi = isCGI(completePath);
+		if (cgi != NONE){
+			if (fileExists(extractBeforeChar(completePath, "?"))){
+				return (&(CGI(conn, completePath, pathCgi[CGI]))) //pathCGI to define
+						}
+			else {
+				//not found
+			}
+		}
+		else if (fileExists(completePath)) {
 			return(&(GetStaticFile(conn, completePath)));
 		}
 		else if(directoryExists(completePath)){
@@ -110,3 +138,9 @@ const Ressource	*Route::createRessource(const t_http_message &req, Connexion *co
 		}
 	}
 } 
+
+void			handle(t_http_message &req,Connexion *connexion) const{
+	if (req.request_line.method & GET) {
+
+	}
+}
