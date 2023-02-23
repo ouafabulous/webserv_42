@@ -191,10 +191,14 @@ IOEvent Connexion::executeRoute()
 		}
 	}
 
+	if (request.header_fields["Host"].empty())
+		return setError("missing Host header field", 400);
+
 	// SETTING UP ROUTE AND RESSOURCE
 	route = router.getRoute(netAddr, request);
 	if (!route)
 		return setError("internal error - route not found", 500);
+	route->printAttributes();
 	if (request.content_length > route->getMaxBodySize())
 		return setError("Content-Length header field is bigger than the maximum body size allowed for this route", 413);
 	// route->handle();

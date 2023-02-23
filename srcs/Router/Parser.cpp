@@ -155,6 +155,9 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                         std::string locationName = "Location_" + oss.str();
                         std::string locationValue = tokens[firstNonSpTokIndex].second;
                         BlockLocation *locationBlock = new BlockLocation(locationName, locationValue);
+						Directive	locationDirective("location");
+						locationDirective.addDirectiveValue(locationValue);
+						locationBlock->addDirective(locationDirective);
                         i = secondNonSpTokIndex + 1;
                         uint clLocationBrIndex = closingIndexBracket(tokens, i);
                         while (i < clLocationBrIndex)

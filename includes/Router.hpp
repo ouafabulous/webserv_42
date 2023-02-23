@@ -53,7 +53,9 @@ public:
 	void							printRoutes() const;
 
 private:
-	std::vector<NetworkRoute>		_networkRoutes;
+	typedef std::vector<NetworkRoute>	t_route_vector;
+	typedef std::map<t_network_address, t_route_vector>	t_network_map;
+	t_network_map					_network_map;
 	bool							isInServerName(const std::string& host, const std::vector<std::string>	server_names) const;
 };
 

@@ -17,19 +17,19 @@ Router::Router(Parser const &confile)
 		std::vector<BlockLocation *> const &locations = tmp1->getChilds();
 		Route	globalRoute(attributes);
 		NetworkRoute	globalNetworkRoute(t_network_address(INADDR_ANY, htons(attributes.port)), attributes.server_name, globalRoute);
-		_networkRoutes.push_back(globalNetworkRoute);
+		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(globalNetworkRoute);
 		for (it = locations.begin(); it != locations.end(); it++)
 		{
 			attributes.location = (*it)->getLocationValue();
 			fillAttributes(&attributes, (*it)->getDirectives());
 			Route			route(attributes);
 			NetworkRoute	networkRoute(t_network_address(INADDR_ANY, htons(attributes.port)), attributes.server_name, globalRoute);
-			_networkRoutes.push_back(networkRoute);
+			_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(networkRoute);
 		}
 
 		tmp1 = tmp1->getSibling();
 	}
-	printRoutes();
+	// printRoutes();
 }
 
 Router::~Router()
@@ -38,16 +38,19 @@ Router::~Router()
 
 void Router::printRoutes() const
 {
-	std::vector<NetworkRoute>::const_iterator	iterRouter;
-	for (iterRouter = _networkRoutes.begin(); iterRouter != _networkRoutes.end(); ++iterRouter)
+	for (t_network_map::const_iterator it1 = _network_map.begin(); it1 != _network_map.end(); it1++)
 	{
-			std::cout << "------------------------------" <<  std::endl;
-			std::cout << "---Adresse: " << iterRouter->_address << std::endl;
-			std::cout << std::endl;
-			std::cout << "---Route: ";
-			std::cout << std::endl;
-			iterRouter->_route.printAttributes();
-		std::cout << "--------------\n\n" << std::endl;
+		t_route_vector::const_iterator	iterRouter;
+		for (iterRouter = it1->second.begin(); iterRouter != it1->second.end(); ++iterRouter)
+		{
+				std::cout << "------------------------------" <<  std::endl;
+				std::cout << "---Adresse: " << iterRouter->_address << std::endl;
+				std::cout << std::endl;
+				std::cout << "---Route: ";
+				std::cout << std::endl;
+				iterRouter->_route.printAttributes();
+			std::cout << "--------------\n\n" << std::endl;
+		}
 	}
 }
 
@@ -71,9 +74,9 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 		{
 			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
 				attributes->allowed_methods |= methodsDict[directiveValIter->_stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
-			}			
+			}
 		}
-			else if (it->getDirectiveName() == "listen")
+		else if (it->getDirectiveName() == "listen")
 		{
 			attributes->port = static_cast<uint>((it->getDirectiveValues())[0]._intValue);
 		}
@@ -105,8 +108,8 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 std::vector<t_network_address> Router::getAddr() const
 {
 	std::vector<t_network_address> response;
-	for (std::vector<NetworkRoute>::const_iterator it = _networkRoutes.begin(); it != _networkRoutes.end(); it++)
-		response.push_back(it->_address);
+	for (t_network_map::const_iterator it = _network_map.begin(); it != _network_map.end(); it++)
+		response.push_back(it->first);
 
 	return (response);
 }
@@ -127,16 +130,12 @@ t_attributes const &Route::getAttributes() const{
 
 const Route *Router::getRoute(const t_network_address netAddr, const t_http_message &req) const
 {
-	typedef std::vector<NetworkRoute>::const_iterator route_iter_type;
-	route_iter_type iterRoutes;
-	route_iter_type	response = _networkRoutes.begin();
+	const t_route_vector&	route_vector = _network_map.at(netAddr);
+	t_route_vector::const_iterator iterRoutes = route_vector.begin();
+	t_route_vector::const_iterator response = iterRoutes;
 	size_t matching_char_result = 0;
-	if (req.header_fields.find("Host") == req.header_fields.end())
-		// error
 
-	for (iterRoutes = _networkRoutes.begin(); iterRoutes != _networkRoutes.end(); iterRoutes++){
-		if (iterRoutes->_address != netAddr)
-			continue;
+	for (; iterRoutes != route_vector.end(); iterRoutes++){
 		if (!isInServerName(req.header_fields.at("Host"), iterRoutes->_server_name))
 			continue;
 		if (matchingChar(req.request_line.path, iterRoutes->_route.getAttributes().location) > matching_char_result) {
