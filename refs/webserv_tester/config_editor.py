@@ -1,7 +1,7 @@
 from config_generator import ConfigGenerator
 
-#server type =
-#ConfigGenerator(
+# server type =
+# ConfigGenerator(
 #    server_name='localhost',
 #    ports=[8080],
 #    client_max_body_size='10m',
@@ -12,7 +12,7 @@ from config_generator import ConfigGenerator
 #        'A/': {'root': 'html1', 'index': 'index1.html index1.htm', 'methods_allowed': {'GET', 'POST', 'DELETE'},
 #                'autoindex': 'on', 'cgi_index': 'index.php', 'cgi_param': 'SCRIPT_FILENAME'}
 #    }
-#)
+# )
 
 servers = [
     ConfigGenerator(
