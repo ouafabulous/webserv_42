@@ -13,14 +13,20 @@ from config_editor import servers
 config_file = [server.generate() for server in servers]
 
 # Write config file to disk
-with open('default.conf', 'w') as f:
+index = 1
+filename = f"default_{index}.conf"
+
+with open(filename, 'w') as f:
     for server in servers:
         config_file = server.generate()
         f.write(config_file)
+index += 1
 
+
+# Unit tests
 class TestWebServer(unittest.TestCase):
     SERVER_EXECUTABLE = '../../webserv'
-    DEFAULT_CONF_PATH = 'default.conf'
+    DEFAULT_CONF_PATH = filename
     CGI_DIR = '/var/www/cgi-bin'
     NUMBER_REQUESTS = 100
     PORTS = [server.ports[0] for server in servers]
