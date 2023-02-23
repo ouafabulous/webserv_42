@@ -151,7 +151,7 @@ private:
 class RedirectRessource : public Ressource
 {
 public:
-	RedirectRessource(Connexion *conn, const std::string url);
+	RedirectRessource(Connexion *conn, std::string const &url);
 	~RedirectRessource();
 };
 

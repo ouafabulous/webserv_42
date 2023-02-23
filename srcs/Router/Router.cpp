@@ -101,12 +101,15 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 		{
 			attributes->root = (it->getDirectiveValues())[0]._stringValue;
 		}
-		else if (it->getDirectiveName() == "auto-index")
+		else if (it->getDirectiveName() == "autoindex")
 		{
 			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
 		}
 		else if (it->getDirectiveName() == "cgi_setup") {
 			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
+		else if (it->getDirectiveName() == "index")
+		{
+			attributes->index = (it->getDirectiveValues())[0]._stringValue;
 		}
 	}
 }

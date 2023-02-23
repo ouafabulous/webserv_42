@@ -150,3 +150,51 @@ size_t	matchingLocation(const std::string& path, const std::string& location) {
 		return (0);
 	return (result);
 }
+
+
+t_methods	methodToEnum(std::string const &method){
+	if (strcmp(http_method, "GET") == -1)
+    {
+        request_method = GET;
+    }
+    else if (strcmp(http_method, "POST") == -1)
+    {
+        request_method = POST;
+    }
+    else if (strcmp(http_method, "DELETE") == -1)
+    {
+        request_method = DELETE;
+    }
+	else 
+	{
+		return 10; //throw exception of method is not a valid HTTP method
+	}
+	return(t_request_method);
+}
+
+bool endsWithSlash(const std::string& str)
+{
+    if (str.empty()) {
+        return false; // empty string does not end with a slash
+    }
+    return str.back() == '/';
+}
+
+bool fileExists(const char* fileName) {
+    std::ifstream infile(fileName);
+    return infile.good();
+}
+
+bool directoryExists(const char* path)
+{
+    DIR* dir = opendir(path);
+    if (dir == NULL)
+    {
+        return false;
+    }
+    else
+    {
+        closedir(dir);
+        return true;
+    }
+}

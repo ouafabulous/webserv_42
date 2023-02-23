@@ -36,7 +36,7 @@ Parser::~Parser()
 
 Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
 {
-    std::string dn[11] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup", "error_files", "redirect"};
+    std::string dn[11] = {"listen", "server_name", "client_max_body_size", "root", "allowed_methods", "autoindex", "cgi_setup", "root", "error_files", "redirect", "index"};
     for (uint i = 0; i != 11; i++)
     {
         directiveNames.push_back(dn[i]);
