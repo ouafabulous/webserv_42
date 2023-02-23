@@ -198,3 +198,27 @@ bool directoryExists(const char* path)
         return true;
     }
 }
+
+
+bool containsSubstring(const std::string& str, const std::string& substr) {
+    if (substr.empty()) {
+        return true;
+    }
+    for (size_t i = 0; i < str.length(); i++) {
+        if (str[i] == substr[0]) {
+            if (str.substr(i, substr.length()) == substr) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+std::string extractBeforeChar(const std::string& inputString, char delimiter) {
+    size_t pos = inputString.find(delimiter);
+
+    if (pos == std::string::npos) {
+        return inputString;
+    }
+    return inputString.substr(0, pos);
+}
