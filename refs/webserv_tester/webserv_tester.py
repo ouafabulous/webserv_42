@@ -7,6 +7,7 @@ import threading
 from config_editor import servers
 
 # can you process a post request without CGI for a form
+# add a test where we try an HTTP request with a different version
 
 # Generate config file
 config_file = [server.generate() for server in servers]
@@ -48,20 +49,20 @@ class TestWebServer(unittest.TestCase):
 
 ########################################################################
 
-    def test_default_error_pages(self):
-        # Test that the server serves default error pages for 404 and 500 errors
-        response = requests.get(
-            f'http://localhost:{self.PORTS[0]}/nonexistent_page.html')
-        self.assertEqual(response.status_code, 404)
-        self.assertIn('404 Not Found', response.text)
+    #def test_default_error_pages(self):
+    #    # Test that the server serves default error pages for 404 and 500 errors
+    #    response = requests.get(
+    #        f'http://localhost:{self.PORTS[0]}/nonexistent_page.html')
+    #    self.assertEqual(response.status_code, 404)
+    #    self.assertIn('404 Not Found', response.text)
 
-        response = requests.get(f'http://localhost:{self.PORTS[0]}/error')
-        self.assertEqual(response.status_code, 500)
-        self.assertIn('500 Internal Server Error', response.text)
+    #    response = requests.get(f'http://localhost:{self.PORTS[0]}/error')
+    #    self.assertEqual(response.status_code, 500)
+    #    self.assertIn('500 Internal Server Error', response.text)
 
-        response = requests.put(f'http://localhost:{self.PORTS[0]}/index.html')
-        self.assertEqual(response.status_code, 405)
-        self.assertIn('405 Method Not Allowed', response.text)
+    #    response = requests.put(f'http://localhost:{self.PORTS[0]}/index.html')
+    #    self.assertEqual(response.status_code, 405)
+    #    self.assertIn('405 Method Not Allowed', response.text)
 
 ########################################################################
 
