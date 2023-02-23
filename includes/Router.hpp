@@ -30,14 +30,12 @@ class Ressource;
 		t_attributes	attributes;
 };
 
-struct NetworkRoute {
-  t_network_address			_address;
-  std::vector<std::string>	_server_name;
-  Route						_route;
-  NetworkRoute(t_network_address address_, std::vector<std::string> string_list_, Route route_)
-    : _address(address_), _server_name(string_list_), _route(route_){
-  }
-};
+typedef struct s_vserver {
+  std::vector<std::string>	_server_names;
+  std::vector<Route>		_routes;
+  s_vserver(std::vector<std::string> server_names)
+    : _server_names(server_names){ }
+} t_vserver;
 
 
 class Router
@@ -53,9 +51,11 @@ public:
 	void							printRoutes() const;
 
 private:
-	typedef std::vector<NetworkRoute>	t_route_vector;
-	typedef std::map<t_network_address, t_route_vector>	t_network_map;
+	typedef std::vector<t_vserver>	t_vserver_vec;
+	typedef std::map<t_network_address, t_vserver_vec>	t_network_map;
+
 	t_network_map					_network_map;
+	const t_vserver&				findVserver(const t_network_address addr, const std::string& host) const;
 	bool							isInServerName(const std::string& host, const std::vector<std::string>	server_names) const;
 };
 

@@ -124,8 +124,8 @@ std::ostream&	operator<<(std::ostream &out, const t_network_address &netAddr)
 }
 
 int stringToInt(std::string str){
-	// std::cout << "got here with this str: " << str << std::endl; 
-	std::stringstream	number;	
+	// std::cout << "got here with this str: " << str << std::endl;
+	std::stringstream	number;
     number << str;
 	int	res;
 	if (!(number >> res) || res < 0) {
@@ -135,16 +135,18 @@ int stringToInt(std::string str){
     return(res);
 }
 
-size_t	matchingChar(const std::string& a, const std::string& b) {
+size_t	matchingLocation(const std::string& path, const std::string& location) {
 	size_t result = 0;
-	std::string::const_iterator it_a = a.begin();
-	std::string::const_iterator it_b = b.begin();
+	std::string::const_iterator it_path = path.begin();
+	std::string::const_iterator it_location = location.begin();
 
-	while (it_a != a.end() && it_b != b.end() && *it_a == *it_b)
+	while (it_path != path.end() && it_location != location.end() && *it_path == *it_location)
 	{
-		it_a++;
-		it_b++;
+		it_path++;
+		it_location++;
 		result++;
 	}
+	if (it_location != location.end())
+		return (0);
 	return (result);
 }

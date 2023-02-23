@@ -8,26 +8,26 @@
 // int i = 0;
 Router::Router(Parser const &confile)
 {
-	BlockServer 	*tmp1 = confile.getBlock();
-	while (tmp1)
+	BlockServer 	*curr_vserver = confile.getBlock();
+	while (curr_vserver)
 	{
 		t_attributes 	attributes = {};
-		fillAttributes(&attributes, tmp1->getDirectives());
+		fillAttributes(&attributes, curr_vserver->getDirectives());
 		std::vector<BlockLocation *>::const_iterator it;
-		std::vector<BlockLocation *> const &locations = tmp1->getChilds();
-		Route	globalRoute(attributes);
-		NetworkRoute	globalNetworkRoute(t_network_address(INADDR_ANY, htons(attributes.port)), attributes.server_name, globalRoute);
-		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(globalNetworkRoute);
+		std::vector<BlockLocation *> const &locations = curr_vserver->getChilds();
+		t_vserver		vserver(attributes.server_name);
+		// push_back default virtual_server route
+		attributes.location = "/";
+		vserver._routes.push_back(Route(attributes));
+		// push_back each location route
 		for (it = locations.begin(); it != locations.end(); it++)
 		{
 			attributes.location = (*it)->getLocationValue();
 			fillAttributes(&attributes, (*it)->getDirectives());
-			Route			route(attributes);
-			NetworkRoute	networkRoute(t_network_address(INADDR_ANY, htons(attributes.port)), attributes.server_name, globalRoute);
-			_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(networkRoute);
+			vserver._routes.push_back(Route(attributes));
 		}
-
-		tmp1 = tmp1->getSibling();
+		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(vserver);
+		curr_vserver = curr_vserver->getSibling();
 	}
 	// printRoutes();
 }
@@ -40,16 +40,19 @@ void Router::printRoutes() const
 {
 	for (t_network_map::const_iterator it1 = _network_map.begin(); it1 != _network_map.end(); it1++)
 	{
-		t_route_vector::const_iterator	iterRouter;
-		for (iterRouter = it1->second.begin(); iterRouter != it1->second.end(); ++iterRouter)
+		t_vserver_vec::const_iterator	vserverIt;
+		for (vserverIt = it1->second.begin(); vserverIt != it1->second.end(); ++vserverIt)
 		{
+			for (std::vector<Route>::const_iterator routeIt = vserverIt->_routes.begin(); routeIt != vserverIt->_routes.end(); routeIt++)
+			{
 				std::cout << "------------------------------" <<  std::endl;
-				std::cout << "---Adresse: " << iterRouter->_address << std::endl;
+				std::cout << "---Adresse: " << it1->first.second << std::endl;
 				std::cout << std::endl;
 				std::cout << "---Route: ";
 				std::cout << std::endl;
-				iterRouter->_route.printAttributes();
-			std::cout << "--------------\n\n" << std::endl;
+				routeIt->printAttributes();
+				std::cout << "--------------\n\n" << std::endl;
+			}
 		}
 	}
 }
@@ -126,22 +129,35 @@ t_attributes const &Route::getAttributes() const{
 	return(this->attributes);
 }
 
+const t_vserver&	Router::findVserver(const t_network_address addr, const std::string& host) const {
+	const t_vserver_vec&			vserver_vec = _network_map.at(addr);
+
+	for (
+		t_vserver_vec::const_iterator	vserverIt = vserver_vec.begin();
+		vserverIt != vserver_vec.end();
+		vserverIt++)
+	{
+		if (isInServerName(host, vserverIt->_server_names))
+			return *vserverIt;
+	}
+	return *vserver_vec.begin();
+}
+
 
 
 const Route *Router::getRoute(const t_network_address netAddr, const t_http_message &req) const
 {
-	const t_route_vector&	route_vector = _network_map.at(netAddr);
-	t_route_vector::const_iterator iterRoutes = route_vector.begin();
-	t_route_vector::const_iterator response = iterRoutes;
-	size_t matching_char_result = 0;
+	const t_vserver&				vserver = findVserver(netAddr, req.header_fields.at("Host"));
+	const Route*					response = &(*vserver._routes.begin());
+	size_t 							matching_char_result = 1;
 
-	for (; iterRoutes != route_vector.end(); iterRoutes++){
-		if (!isInServerName(req.header_fields.at("Host"), iterRoutes->_server_name))
-			continue;
-		if (matchingChar(req.request_line.path, iterRoutes->_route.getAttributes().location) > matching_char_result) {
-			response = iterRoutes;
-			matching_char_result = matchingChar(req.request_line.path, iterRoutes->_route.getAttributes().location);
+
+	for (std::vector<Route>::const_iterator routeIt = vserver._routes.begin(); routeIt != vserver._routes.end(); routeIt++)
+	{
+		if (matchingLocation(req.request_line.path, routeIt->getAttributes().location) > matching_char_result) {
+			response = &(*routeIt);
+			matching_char_result = matchingLocation(req.request_line.path, routeIt->getAttributes().location);
 		}
 	}
-	return &(response->_route);
+	return (response);
 }

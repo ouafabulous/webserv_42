@@ -198,7 +198,8 @@ IOEvent Connexion::executeRoute()
 	route = router.getRoute(netAddr, request);
 	if (!route)
 		return setError("internal error - route not found", 500);
-	route->printAttributes();
+	response = http_header_formatter(200, route->getAttributes().location.length()) + route->getAttributes().location;
+	// route->printAttributes();
 	if (request.content_length > route->getMaxBodySize())
 		return setError("Content-Length header field is bigger than the maximum body size allowed for this route", 413);
 	// route->handle();
