@@ -84,7 +84,6 @@ t_cgi	isCGI(std::string const &path){
 }
 
 const Ressource	*Route::createRessource(const t_http_message &req, Connexion *conn) const{
-	// Je suppose que nous avons bien une route
 	// Where to checkif a path is valid?
 	t_request_line	reqLine = req.request_line;
 	std::string		completePath = attributes.root + reqLine.path;
