@@ -68,12 +68,7 @@ IOevent	Route::checkRequest(const t_http_message &req) const {
 	return IOEvent(); // what does that do?
 }
 
-typedef	enum {
-	NONE,
-	PYTHON,
-	PHP,
-	PERL
-}
+
 
 t_cgi	isCGI(std::string const &path){
 	if (containsSubstring(path, ".py")){
@@ -96,7 +91,7 @@ const Ressource	*Route::createRessource(const t_http_message &req, Connexion *co
 	if (reqLine.method & GET){
 		t_cgi cgi = isCGI(completePath);
 		if (cgi != NONE){
-			if (fileExists(extractBeforeChar(completePath, "?"))){
+			if (fileExists(extractBeforeChar(completePath, "?")) && check_permissions(completePath, S_IXUSR | S_IXGRP)){
 				return (&(CGI(conn, completePath, pathCgi[CGI]))) //pathCGI to define
 						}
 			else {

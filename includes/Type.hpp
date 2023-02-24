@@ -14,6 +14,9 @@
 // #include "Router.hpp"
 // IO
 
+#define pythonPath "/usr/bin/python"
+#define phpPath "/usr/bin/php"
+#define	perlPath "/usr/bin/perl"
 
 typedef unsigned int uint;
 
@@ -22,11 +25,12 @@ typedef int t_fd;
 struct t_request_line
 {
 	t_methods 	method;
+	std::string	methodVerbose;
 	std::string path;
 	std::string http_version;
 };
 
-struct t_http_message
+	struct t_http_message
 {
 	t_request_line									request_line;
 	std::map<std::string, std::string>				header_fields;
@@ -123,6 +127,28 @@ typedef std::vector<t_token> TokenList;
 
 class Route;
 
+typedef	enum {
+	NONE,
+	PYTHON,
+	PHP,
+	PERL
+}		t_cgi_type;
+
+typedef struct s_cgiInfo
+{
+	std::string					_filePath;
+	std::string					_queryString;
+	std::string					_executable;
+  	s_cgiInfo(const std::string& filePath = "", const std::string& queryString = "", const std::string& _executable)
+        : _filePath(filePath), _queryString(queryString), _executable(executable)
+}				t_cgiInfo;
+
+
+static const std::map<t_cgi_type, std::string> cgiExecutable = {
+    {PYTHON, pythonPath},
+    {PHP, phpPath},
+    {PERL, perlPath}
+};
 
 
 #endif

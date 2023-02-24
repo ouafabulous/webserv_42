@@ -32,5 +32,6 @@ bool            fileExists(const char* fileName);
 bool            directoryExists(const char* path);
 bool            containsSubstring(const std::string& str, const std::string& substr);
 std::string     extractBeforeChar(const std::string& inputString, char delimiter);
+bool            check_permissions(const std::string& file_path, const mode_t& mode);
 
 #endif

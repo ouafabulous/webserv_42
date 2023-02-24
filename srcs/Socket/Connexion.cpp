@@ -162,6 +162,7 @@ bool Connexion::parseRequestLine(std::string &raw_line)
 	if (splitted_line.size() != 3 || splitted_line[2] != HTTP_VERSION)
 		return NOK;
 	std::string	methodString = splitted_line[0];
+	request.request_line.methodVerbose = methodString;
 	request.request_line.method = methodToEnum(methodString);
 	request.request_line.path = splitted_line[1];
 	request.request_line.http_version = splitted_line[2];

@@ -1,12 +1,12 @@
 #include <Ressource.hpp>
 
 //	file_path of the CGI script to be defined
-CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressource(conn)
+CGI::CGI(Connexion *conn, t_cgi_info cgiInfo) :	Ressource(conn)
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];
 	//bytes_read = 0;
-	char	*args[] = {const_cast<char*>(cgi_path.c_str()), const_cast<char*>(file_path.c_str())};
+	char	*args[] = {const_cast<char*>(cgiInfo._executable.c_str()), const_cast<char*>(cgiInfo._filePath.c_str())};
 
 	if (pipe(pipe_to_CGI) == -1)
 		throw std::runtime_error("CGI::CGI() pipe_to_CGI failed.");
@@ -46,8 +46,8 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
-		setenv("REQUEST_METHOD", conn->getRequest().request_line.method.c_str(), 1);
-		setenv("QUERY_STRING", conn->getRequest().request_line.path.c_str(), 1);
+		setenv("REQUEST_METHOD", conn->request.request_line.methodVerbose.c_str(), 1);
+		setenv("QUERY_STRING", cgiInfo._queryString.c_str(), 1);
 
 		execve(cgi_path.c_str(), args, NULL);
 	}

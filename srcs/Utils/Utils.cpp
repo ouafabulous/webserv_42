@@ -219,3 +219,26 @@ std::string extractBeforeChar(const std::string& inputString, char delimiter) {
     }
     return inputString.substr(0, pos);
 }
+
+bool check_permissions(const std::string& file_path, const mode_t& mode) {
+    struct stat file_stat;
+
+    if (stat(file_path.c_str(), &file_stat) == 0) {
+        if ((file_stat.st_mode & S_IFMT) == S_IFDIR) {
+            // File is a directory
+            if (access(file_path.c_str(), mode) == 0) {
+                return true;
+            }
+        } else {
+            // File is not a directory
+            if (access(file_path.c_str(), mode) == 0) {
+                return true;
+            }
+        }
+    } else {
+        std::cerr << "Error: " << strerror(errno) << std::endl;
+        //maybe throw Permission denied !
+    }
+
+    return false;
+}
