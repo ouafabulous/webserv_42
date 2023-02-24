@@ -16,6 +16,11 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 		throw std::runtime_error("CGI::CGI() pipe_to_host failed.");
 	}
 
+	if (epoll_util(EPOLL_CTL_ADD, pipe_to_CGI[READ], this, EPOLLIN | EPOLLHUP | EPOLLRDHUP)
+		&& epoll_util(EPOLL_CTL_ADD, pipe_to_host[WRITE], this, EPOLLOUT | EPOLLRDHUP)
+	)
+		throw std::runtime_error("CGI::CGI() epoll_util failed");
+
 	pid_t	pid = fork();
 
 	if (pid < 0)
@@ -49,6 +54,9 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 		setenv("QUERY_STRING", conn->getRequest().request_line.path.c_str(), 1);
 
 		execve(cgi_path.c_str(), args, NULL);
+		exit(1);
+		// check that execve didnt fail
+		// if execution go until here, execve failed -> need to notify parent fork to throw error
 	}
 	else
 	{
@@ -88,22 +96,22 @@ IOEvent	CGI::read()
 
 IOEvent	CGI::write()
 {
-	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
-		conn->getRequest().body.size());
+	if (conn->getRequest().body.empty())
+		return IOEvent();
 
-	if (ret <= 0)
-	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return IOEvent();
-		else
-		{
-			close(fd_write);
-			return conn->setError("Error while writing to CGI", 500);
-		}
+	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(), conn->getRequest().body.size());
+
+	if (!ret) {
+		is_EOF = true;
+		return IOEvent();
 	}
+
+	if (ret < 0)
+		return conn->setError("Error while writing to CGI", 500);
 }
 
 IOEvent	CGI::closed()
 {
-	return IOEvent(FAIL, this, "CGI::closed() called");
+	return conn->setError("An error happend while running CGI binary", 500);
+	// return IOEvent(FAIL, this, "CGI::closed() called");
 }
