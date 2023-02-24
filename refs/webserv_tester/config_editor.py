@@ -15,23 +15,33 @@ from config_generator import ConfigGenerator
 # )
 
 servers = [
-    # ConfigGenerator(
-    #     server_name='localhost',
-    #     ports=[80],
-    #     client_max_body_size='10m',
-    #     root='/var/www/html',
-    #     index='indexmain.html indexmain.htm',
-    #     locations={
-    #         'A/': {'root': 'html1', 'index': 'index1.html index1.htm', 'methods_allowed': 'POST', 'autoindex': 'on'},
-    #         'B/': {'root': 'html2', 'index': 'index2.html index2.htm index2'}
-    #     }
-    # ),
+     ConfigGenerator(
+         server_name='localhost',
+         ports=[8080],
+         client_max_body_size='10m',
+         root='/var/www/html',
+         index='indexmain.html indexmain.htm',
+         locations={
+             'A/': {'root': 'html1', 'index': 'index1.html index1.htm', 'methods_allowed': 'POST', 'autoindex': 'on'},
+             'B/': {'root': 'html2', 'index': 'index2.html index2.htm index2'}
+         }
+     ),
     ConfigGenerator(
         server_name='localhost2',
         ports=[8090],
         client_max_body_size='20m',
         methods_allowed='GET DELETE',
         root='/var/www/php/',
+        locations={
+            'cgi-bin/': {'cgi_index': 'index.php', 'cgi_param': 'SCRIPT_FILENAME '}
+        }
+    ),
+    ConfigGenerator(
+        server_name='localhost2',
+        ports=[8091],
+        client_max_body_size='10m',
+        methods_allowed='DELETE',
+        root='/var/www/',
         locations={
             'cgi-bin/': {'cgi_index': 'index.php', 'cgi_param': 'SCRIPT_FILENAME '}
         }

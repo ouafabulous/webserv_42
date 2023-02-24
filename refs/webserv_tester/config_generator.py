@@ -60,6 +60,6 @@ class ConfigGenerator:
                     location_block.append(f'\t\tcgi_param\t{cgi_param};')
                 location_block.append('\t}')
                 server_block += location_block
-            server_block.append('}\n')
+            server_block.append('}\n\n')
             configs += server_block
         return '\n'.join(configs)
