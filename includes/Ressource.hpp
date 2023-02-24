@@ -1,7 +1,7 @@
-#pragma once
 #ifndef RESSOURCE_HPP
 #define RESSOURCE_HPP
 
+#include <Type.hpp>
 #include <Router.hpp>
 #include <Socket.hpp>
 #include <dirent.h>
