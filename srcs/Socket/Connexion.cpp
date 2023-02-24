@@ -202,8 +202,10 @@ IOEvent Connexion::executeRoute()
 	if (!route)
 		return setError("internal error - route not found", 500);
 	response = http_header_formatter(200, route->getAttributes().location.length()) + route->getAttributes().location;
-	// route->printAttributes();
-	route->createRessource(request, this);
+	IOEvent ioevent_handler = route->setRessource(request, this);
+	if (ioevent_handler.result == FAIL) {
+		return setError(ioevent_handler.log, ioevent.http_error);
+	}
 	if (request.content_length > route->getMaxBodySize())
 		return setError("Content-Length header field is bigger than the maximum body size allowed for this route", 413);
 	// route->handle();
