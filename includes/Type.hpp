@@ -134,6 +134,7 @@ typedef	enum {
 	PERL
 }		t_cgi_type;
 
+
 typedef struct s_cgiInfo
 {
 	std::string					_filePath;
@@ -144,7 +145,7 @@ typedef struct s_cgiInfo
 }				t_cgiInfo;
 
 
-static const std::map<t_cgi_type, std::string> cgiExecutable = {
+static const std::map<t_cgi_type, std::string> cgiPath = {
     {PYTHON, pythonPath},
     {PHP, phpPath},
     {PERL, perlPath}

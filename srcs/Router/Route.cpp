@@ -83,27 +83,23 @@ t_cgi	isCGI(std::string const &path){
 	return (NONE);
 }
 
-const Ressource	*Route::createRessource(const t_http_message &req, Connexion *conn) const{
+IOEvent	Route::setRessource(const t_http_message &req, Connexion *conn) const{
 	// Where to checkif a path is valid?
 	t_request_line	reqLine = req.request_line;
 	std::string		completePath = attributes.root + reqLine.path;
-	if (reqLine.method & GET){
-		t_cgi cgi = isCGI(completePath);
-		if (cgi != NONE){
-			if (fileExists(extractBeforeChar(completePath, "?")) && check_permissions(completePath, S_IXUSR | S_IXGRP)){
-				return (&(CGI(conn, completePath, pathCgi[CGI]))) //pathCGI to define
-						}
-			else {
-				//not found
-			}
-		}
-		else if (fileExists(completePath)) {
-			return(&(GetStaticFile(conn, completePath)));
+	if (attributes.redirect){
+		conn->ressource = new RedirectRessource(conn, attributes.redirect+reqLine.path);
+	}
+	t_cgi cgi = isCGI(completePath);
+	if (cgi != NONE){
+		if (fileExists(extractBeforeChar(completePath, "?")) && check_permissions(completePath, S_IXUSR | S_IXGRP)){
+			return (new CGI(conn, completePath, pathCgi[CGI]))) 
+		else if (reqLine.method & GET){
+			if (fileExists(completePath)) {
+				return(&(GetStaticFile(conn, completePath)));
 		}
 		else if(directoryExists(completePath)){
-			if (attributes.redirect){
-				return(&(RedirectRessource(conn, attributes.directory_listing)));
-			}
+
 			if(attributes.directory_listing){
 				return(&(GetDirectory(conn, completePath)));	
 			}
@@ -122,6 +118,31 @@ const Ressource	*Route::createRessource(const t_http_message &req, Connexion *co
 	}
 	else if (reqLine.method & POST) {
 		return(&(PostStaticFile(conn, completePath)));
+	epoll_util(EPOLL_CTL_DEL, fd_read, this, EPOLLIN);
+	if (close(fd_read) == -1)
+	{
+		conn->setError("Error closing the file", 500);
+		throw std::runtime_error("GetStaticFile::~GetStaticFile() Close failed");
+	}
+}
+
+IOEvent	GetStaticFile::read()
+{
+	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
+
+	if (ret == -1)
+	{
+		close(fd_read);
+		return conn->setError("Error reading the file", 500);
+	}
+	if (!ret)
+		return closed();
+	if (ret == 0)
+		is_EOF = true;
+	conn->append_response(buffer, ret);
+	return IOEvent();
+}
+
 	}
 	else if (reqline.method & DELETE) {
 		if (fileExists(completePath)){
