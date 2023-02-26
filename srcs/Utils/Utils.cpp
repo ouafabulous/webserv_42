@@ -220,7 +220,16 @@ std::string extractBeforeChar(const std::string& inputString, char delimiter) {
     return inputString.substr(0, pos);
 }
 
-bool check_permissions(const std::string& file_path, const mode_t& mode) {
+std::string extractAfterChar(const std::string& inputString, char delimiter) {
+    size_t pos = inputString.find(delimiter);
+
+    if (pos == std::string::npos) {
+        return "";
+    }
+    return inputString.substr(pos + 1);
+}
+
+bool checkPermissions(const std::string& file_path, const mode_t& mode) {
     struct stat file_stat;
 
     if (stat(file_path.c_str(), &file_stat) == 0) {

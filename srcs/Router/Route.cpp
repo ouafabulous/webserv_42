@@ -70,17 +70,16 @@ IOevent	Route::checkRequest(const t_http_message &req) const {
 
 
 
-t_cgi	isCGI(std::string const &path){
-	if (containsSubstring(path, ".py")){
-		return(PYTHON);
+int	Route::isCGI(std::string const &path){
+	std::map<std::string, std::string>::iterator	cgiIt;
+	int	i = 0;
+	for (cgiIt = cgiMap.begin(); cgiIt != cgiMap.end(); cgiIt++) {
+		if (containsSubstring(path, it->first)) {
+			return (i);
+		}
+		i++;
 	}
-	else if (containsSubstring(path, ".php")) {
-		return(PHP);
-	}
-	else if (containsSubstring(path, ".pl")) {
-		return(PERL);
-	}
-	return (NONE);
+	return (-1);
 }
 
 IOEvent	Route::setRessource(const t_http_message &req, Connexion *conn) const{
@@ -90,16 +89,35 @@ IOEvent	Route::setRessource(const t_http_message &req, Connexion *conn) const{
 	if (attributes.redirect){
 		conn->ressource = new RedirectRessource(conn, attributes.redirect+reqLine.path);
 	}
-	t_cgi cgi = isCGI(completePath);
-	if (cgi != NONE){
-		if (fileExists(extractBeforeChar(completePath, "?")) && check_permissions(completePath, S_IXUSR | S_IXGRP)){
-			return (new CGI(conn, completePath, pathCgi[CGI]))) 
-		else if (reqLine.method & GET){
+	bool cgi = isCGI(completePath);
+	if (cgi > -1){
+		if (fileExists(extractBeforeChar(completePath, "?"))){
+			if (check_permissions(completePath, S_IXUSR | S_IXGRP)){
+				t_cgi_info	cgiInfo( extractBeforeChar(completePath, "?"),extractAfterChar(completePath, "?"), cgiMap[cgi]->second);
+				return (new CGI(conn, cgiInfo));
+			}
+			else {
+				// throw permission denied
+			}
+		} 
+	else if (reqLine.method & GET){
 			if (fileExists(completePath)) {
-				return(&(GetStaticFile(conn, completePath)));
-		}
-		else if(directoryExists(completePath)){
-
+				if (checkPermissions(completePath, S_IRUSR | S_IRGRP)) {
+					return(&(GetStaticFile(conn, completePath)));
+				}
+				else {
+					//throw permissions exception
+				}
+			}
+			else if(directoryExists(completePath)){
+				if (checkPermissions(completePath, S_IRUSR | S_IRGRP)) {
+					if (fileExists(completePath +"index.html")) {
+						
+					}
+				}
+				else {
+					//
+				}
 			if(attributes.directory_listing){
 				return(&(GetDirectory(conn, completePath)));	
 			}
