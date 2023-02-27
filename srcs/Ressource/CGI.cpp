@@ -102,6 +102,8 @@ IOEvent CGI::write()
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
 					conn->getRequest().body.size());
 
+	// if ret > 0
+
 	if (!ret)
 	{
 		is_EOF = true;
