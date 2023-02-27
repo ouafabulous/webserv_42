@@ -1,6 +1,8 @@
 #include <Socket.hpp>
 #include <Ressource.hpp>
 #include <Utils.hpp>
+#include <Route.hpp>
+#include <Router.hpp>
 
 inline bool ends_with(std::string const &value, std::string const &ending)
 {
@@ -64,7 +66,7 @@ IOEvent Connexion::write()
 }
 IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the connexion"); }
 
-t_http_message &Connexion::getRequest() { return request; }
+t_http_message const &Connexion::getRequest() const { return request; }
 
 void Connexion::append_response(std::string message) { response.append(message); }
 void Connexion::append_response(std::string message, size_t n) { response.append(message, n); }
@@ -173,7 +175,7 @@ bool Connexion::parseRequestLine(std::string &raw_line)
 IOEvent Connexion::executeRoute()
 {
 	// if we are not waiting for a body
-	if (request.request_line.method == "GET" ||
+	if (request.request_line.methodVerbose == "GET" ||
 		(request.header_fields["Transfer-Encoding"].empty() && request.header_fields["Content-Length"].empty()))
 	{
 		if (body_readed_size > 0)
@@ -204,7 +206,7 @@ IOEvent Connexion::executeRoute()
 	response = http_header_formatter(200, route->getAttributes().location.length()) + route->getAttributes().location;
 	IOEvent ioevent_handler = route->setRessource(request, this);
 	if (ioevent_handler.result == FAIL) {
-		return setError(ioevent_handler.log, ioevent.http_error);
+		return setError(ioevent_handler.log, ioevent_handler.http_error); //setRessource retourne un setError aussi --> redondance
 	}
 	if (request.content_length > route->getMaxBodySize())
 		return setError("Content-Length header field is bigger than the maximum body size allowed for this route", 413);

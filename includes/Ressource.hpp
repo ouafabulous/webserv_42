@@ -2,7 +2,6 @@
 #define RESSOURCE_HPP
 
 #include <Type.hpp>
-// #include <Router.hpp>
 #include <Socket.hpp>
 #include <dirent.h>
 #include <cstring>
@@ -11,6 +10,7 @@
 #include <sys/sendfile.h>
 
 class Router;
+class Connexion;
 
 #define READ 0
 #define WRITE 1
@@ -100,6 +100,7 @@ public:
 	GetStaticFile(Connexion *conn, std::string file_path);
 	~GetStaticFile();
 	virtual IOEvent		read();
+	virtual IOEvent		write(){return IOEvent();}; //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
 	virtual IOEvent		closed();
 };
 
@@ -108,6 +109,7 @@ class PostStaticFile : public Ressource
 public:
 	PostStaticFile(Connexion *conn, std::string file_path);
 	~PostStaticFile();
+	virtual	IOEvent		read(){return IOEvent();};  //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
 	virtual IOEvent		write();
 	virtual IOEvent		closed();
 
@@ -128,6 +130,9 @@ class GetDirectory : public Ressource
 public:
 	GetDirectory(Connexion *conn, std::string dir_path);
 	~GetDirectory();
+	virtual IOEvent		read(){return IOEvent();}; //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
+	virtual IOEvent		write(){return IOEvent();}; //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
+	virtual IOEvent		closed(){return IOEvent();};
 	DIR					*get_dir();
 
 protected:
@@ -140,6 +145,7 @@ class CGI : public Ressource
 {
 public:
 	CGI(Connexion *conn, t_cgiInfo cgiInfo); 
+	~CGI();
 	virtual IOEvent		read();
 	virtual IOEvent		write();
 	virtual IOEvent		closed();
@@ -154,6 +160,13 @@ class RedirectRessource : public Ressource
 public:
 	RedirectRessource(Connexion *conn, std::string const &url);
 	~RedirectRessource();
+	
+	// virtual IOEvent		read(){return IOEvent();};
+	// virtual IOEvent		write(){return IOEvent();};
+	// virtual IOEvent		closed(){return IOEvent();};
+	virtual IOEvent		read(){return IOEvent();}; //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
+	virtual IOEvent		write(){return IOEvent();}; //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
+	virtual IOEvent		closed(){return IOEvent();}; //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
 };
 
 #endif

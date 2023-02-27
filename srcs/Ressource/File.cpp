@@ -1,5 +1,5 @@
 #include <Ressource.hpp>
-
+#include <sstream>
 /**************************************************************************/
 /******************************** GET FILE ********************************/
 /**************************************************************************/
@@ -30,8 +30,11 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + get_mime(file_path) + CRLF;
-	header += "Content-Length: " + std::to_string(st.st_size) + CRLF;
-	header += "Connection: closed\r\n\r\n";
+	std::ostringstream s;
+	s << st.st_size;
+	std::string	s_size(s.str());
+	header += "Content-Length: " + s_size + CRLF;
+	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
 
 	conn->append_response(header.c_str(), header.size());
 }
@@ -48,7 +51,7 @@ GetStaticFile::~GetStaticFile()
 
 IOEvent GetStaticFile::read()
 {
-	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
+	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
 	if (ret == -1)
 	{
@@ -124,6 +127,8 @@ IOEvent PostStaticFile::write()
 	}
 	if (ret < 0)
 		return conn->setError("Error writing the file", 500);
+	bytes_read += ret;
+	return (IOEvent());
 }
 
 IOEvent PostStaticFile::closed()

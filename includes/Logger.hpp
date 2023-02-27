@@ -1,4 +1,3 @@
-#pragma once
 #ifndef LOGGER_HPP
 # define LOGGER_HPP
 

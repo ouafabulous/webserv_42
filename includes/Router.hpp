@@ -1,4 +1,3 @@
-#pragma once
 #ifndef ROUTER_HPP
 #define ROUTER_HPP
 
@@ -6,11 +5,11 @@
 #include "Type.hpp"
 #include <Utils.hpp>
 #include <arpa/inet.h>
-#include <Ressource.hpp>
+// #include <Ressource.hpp>
 #include <Socket.hpp>
 #include <Route.hpp>
 
-class Ressource;
+// class Ressource;
 class Connexion;
 class Route;
 

@@ -1,6 +1,8 @@
-#include <Route.hpp>
-#include "Router.hpp"
+#include <Router.hpp>
+#include <Ressource.hpp>
 #include "Type.hpp"
+
+class CGI;
 
 Route::Route(const t_attributes attributes)
 	: attributes(attributes)
@@ -118,19 +120,24 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	
 	if (attributes.redirect.length())
 	{
-		
-		conn->setRessource(new RedirectRessource(conn, attributes.redirect + reqLine.path));
+
+		conn->setRessource(new RedirectRessource(conn, attributes.redirect));
 		return (IOEvent());
 	}
 	
-	bool cgi = isCGI(completePath);
+	int cgi = isCGI(completePath);
 	if (cgi > -1)
 	{
-		if (fileExists(extractBeforeChar(completePath, "?")))
+		if (fileExists(extractBeforeChar(completePath, '?').c_str()))
 		{
-			if (check_permissions(completePath, S_IXUSR | S_IXGRP))
+			if (checkPermissions(completePath, S_IXUSR | S_IXGRP))
 			{
-				t_cgi_info cgiInfo(extractBeforeChar(completePath, "?"), extractAfterChar(completePath, "?"), cgiMap[cgi]->second);
+				std::map<std::string, std::string>::const_iterator	cgiMapIter = attributes.cgiMap.begin();
+				//iterating through the CGI paths map in order to find the right path of our executanle;
+				for (int i = 0; i != cgi; i++){
+					cgiMapIter++;
+				}
+				t_cgiInfo cgiInfo(extractBeforeChar(completePath, '?'), extractAfterChar(completePath, '?'), cgiMapIter->second);
 				conn->setRessource(new CGI(conn, cgiInfo));
 				return (IOEvent());
 			}
@@ -140,8 +147,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			}
 		}
 	}
-	if (fileExists(completePath))
-	{
+	if (fileExists(completePath.c_str())){
 		if (reqLine.method & GET)
 		{
 			if (checkPermissions(completePath, S_IRUSR | S_IRGRP))
@@ -156,17 +162,17 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 		}
 		else if (reqLine.method & POST)
 		{
-			conn->setRessource(new PostStaticFile(conn, completePath))
+			conn->setRessource(new PostStaticFile(conn, completePath));
 			return (IOEvent());
 		}
 	}
-	else if (directoryExists(completePath) && reqLine.method & GET)
+	else if (directoryExists(completePath.c_str()) && reqLine.method & GET)
 	{
 		if (checkPermissions(completePath, S_IRUSR | S_IRGRP))
 		{
-			if (fileExists(completePath + "index.html"))
+			if (fileExists((completePath + "index.html").c_str()))
 			{
-				if (checkPermissions(completePath + "index.html", S_IRUSR | s_IRGRP)) {
+				if (checkPermissions(completePath + "index.html", S_IRUSR | S_IRGRP)) {
 					conn->setRessource(new GetStaticFile(conn, completePath));
 					return (IOEvent());
 				}
@@ -184,22 +190,5 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				return (conn->setError("", 403));
 		}
 	}
-}
-
-
-IOEvent GetStaticFile::read()
-{
-	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
-
-	if (ret == -1)
-	{
-		close(fd_read);
-		return conn->setError("Error reading the file", 500);
-	}
-	if (!ret)
-		return closed();
-	if (ret == 0)
-		is_EOF = true;
-	conn->append_response(buffer, ret);
-	return IOEvent();
+	return (conn->setError("", 404));
 }

@@ -1,3 +1,6 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <Utils.hpp>
 #include <Server.hpp>
 
@@ -152,33 +155,35 @@ size_t	matchingLocation(const std::string& path, const std::string& location) {
 }
 
 
-t_methods	methodToEnum(std::string const &method){
-	if (strcmp(http_method, "GET") == -1)
+t_methods	methodToEnum(std::string const &http_method){
+    t_methods   request_method;
+
+	if (!strcmp(http_method.c_str(), "GET"))
     {
         request_method = GET;
     }
-    else if (strcmp(http_method, "POST") == -1)
+    else if (!strcmp(http_method.c_str(), "POST"))
     {
         request_method = POST;
     }
-    else if (strcmp(http_method, "DELETE") == -1)
+    else if (!strcmp(http_method.c_str(), "DELETE"))
     {
         request_method = DELETE;
     }
 	else 
 	{
-		return 10; //throw exception of method is not a valid HTTP method
+		return NO_METHOD; //throw exception of method is not a valid HTTP method
 	}
-	return(t_request_method);
+	return(request_method);
 }
 
-bool endsWithSlash(const std::string& str)
-{
-    if (str.empty()) {
-        return false; // empty string does not end with a slash
-    }
-    return str.back() == '/';
-}
+// bool endsWithSlash(const std::string& str)
+// {
+//     if (str.empty()) {
+//         return false; // empty string does not end with a slash
+//     }
+//     return str.back() == '/';
+// }
 
 bool fileExists(const char* fileName) {
     std::ifstream infile(fileName);

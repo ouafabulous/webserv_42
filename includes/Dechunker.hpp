@@ -1,4 +1,3 @@
-#pragma once
 #ifndef DECHUNKER_HPP
 # define DECHUNKER_HPP
 
