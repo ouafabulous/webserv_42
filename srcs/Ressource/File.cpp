@@ -14,6 +14,11 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource
 		throw std::runtime_error("GetStaticFile::GetStaticFile() Open failed");
 	}
 	set_nonblocking(fd_read);
+	if (!epoll_util(EPOLL_CTL_ADD, fd_read, this, EPOLLIN))
+	{
+		conn->setError("Error adding the file to the epoll", 500);
+		throw std::runtime_error("GetStaticFile::GetStaticFile() epoll_util failed");
+	}
 
 	struct stat st;
 
@@ -26,7 +31,7 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + get_mime(file_path) + CRLF;
 	header += "Content-Length: " + std::to_string(st.st_size) + CRLF;
-	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
+	header += "Connection: closed\r\n\r\n";
 
 	conn->append_response(header.c_str(), header.size());
 }
@@ -60,7 +65,7 @@ IOEvent	GetStaticFile::read()
 
 IOEvent	GetStaticFile::closed()
 {
-	return IOEvent(FAIL, this, "GetStaticFile::closed() called");
+	return conn->setError("Error reading the file", 500);
 }
 
 /**************************************************************************/
@@ -79,6 +84,11 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressour
 		throw std::runtime_error("PostStaticFile::PostStaticFile() Open failed");
 	}
 	set_nonblocking(fd_write);
+	if (!epoll_util(EPOLL_CTL_ADD, fd_write, this, EPOLLOUT))
+	{
+		conn->setError("Error adding the file to the epoll", 500);
+		throw std::runtime_error("PostStaticFile::PostStaticFile() epoll_util failed");
+	}
 
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + get_mime(new_path) + CRLF;
@@ -89,7 +99,7 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressour
 
 PostStaticFile::~PostStaticFile()
 {
-	epoll_util(EPOLL_CTL_DEL, fd_write, this, EPOLLIN);
+	epoll_util(EPOLL_CTL_DEL, fd_write, this, EPOLLOUT);
 	if (close(fd_write) == -1)
 	{
 		conn->setError("Error closing the file", 500);
@@ -99,24 +109,24 @@ PostStaticFile::~PostStaticFile()
 
 IOEvent	PostStaticFile::write()
 {
+	if (conn->getRequest().body.empty())
+		return IOEvent();
+
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
 		conn->getRequest().body.size());
 
-	if (ret <= 0)
+	if (!ret)
 	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return IOEvent();
-		else
-		{
-			close(fd_write);
-			return conn->setError("Error writing the file", 500);
-		}
+		is_EOF = true;
+		return IOEvent();
 	}
+	if (ret < 0)
+		return conn->setError("Error writing the file", 500);
 }
 
 IOEvent	PostStaticFile::closed()
 {
-	return IOEvent(FAIL, this, "PostStaticFile::closed() called");
+	return conn->setError("Error writing the file", 500);
 }
 
 /**************************************************************************/
