@@ -4,3 +4,4 @@ socket_tests/server
 tests/
 .tmp
 webserv
+**/__pycache__

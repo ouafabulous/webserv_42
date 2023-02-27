@@ -1,12 +1,11 @@
 #include <Ressource.hpp>
 
 //	file_path of the CGI script to be defined
-CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressource(conn)
+CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) : Ressource(conn)
 {
-	int		pipe_to_CGI[2];
-	int		pipe_to_host[2];
-	//bytes_read = 0;
-	char	*args[] = {const_cast<char*>(cgi_path.c_str()), const_cast<char*>(file_path.c_str())};
+	int pipe_to_CGI[2];
+	int pipe_to_host[2];
+	char *args[] = {const_cast<char *>(cgi_path.c_str()), const_cast<char *>(file_path.c_str())};
 
 	if (pipe(pipe_to_CGI) == -1)
 		throw std::runtime_error("CGI::CGI() pipe_to_CGI failed.");
@@ -17,7 +16,11 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 		throw std::runtime_error("CGI::CGI() pipe_to_host failed.");
 	}
 
-	pid_t	pid = fork();
+	if (!epoll_util(EPOLL_CTL_ADD, pipe_to_CGI[READ], this, EPOLLIN | EPOLLHUP | EPOLLRDHUP)
+		&& !epoll_util(EPOLL_CTL_ADD, pipe_to_host[WRITE], this, EPOLLOUT | EPOLLRDHUP))
+		throw std::runtime_error("CGI::CGI() epoll_util failed");
+
+	pid_t pid = fork();
 
 	if (pid < 0)
 	{
@@ -50,6 +53,7 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) :	Ressour
 		setenv("QUERY_STRING", conn->getRequest().request_line.path.c_str(), 1);
 
 		execve(cgi_path.c_str(), args, NULL);
+		exit(1);
 	}
 	else
 	{
@@ -66,13 +70,15 @@ CGI::~CGI()
 {
 	epoll_util(EPOLL_CTL_DEL, fd_read, this, EPOLLIN);
 	epoll_util(EPOLL_CTL_DEL, fd_write, this, EPOLLOUT);
-	close(fd_read);
-	close(fd_write);
+	if (close(fd_read) == -1 || close(fd_write) == -1)
+	{
+		conn->setError("Error closing the file", 500);
+		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
+	}
 }
 
-IOEvent	CGI::read()
+IOEvent CGI::read()
 {
-	// not handling chuncked request yet ?
 	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
 	if (ret == -1)
@@ -80,39 +86,35 @@ IOEvent	CGI::read()
 		close(fd_read);
 		return conn->setError("Error while reading CGI response", 500);
 	}
+	if (!ret)
+		return closed();
 	if (ret == 0)
 		is_EOF = true;
-	buffer[ret] = '\0';
 	conn->append_response(buffer, ret);
 	return IOEvent();
 }
 
-IOEvent	CGI::write()
+IOEvent CGI::write()
 {
-	//if (bytes_read > conn->get_route().getMaxBodySize()
-	//	|| bytes_read > MAX_SIZE_ALLOWED)
-	//{
-	//	close(fd_write);
-	//	return conn->setError("File size is too big", 413);
-	//}
+	if (conn->getRequest().body.empty())
+		return IOEvent();
 
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
-		conn->getRequest().body.size());
+					conn->getRequest().body.size());
 
-	if (ret <= 0)
+	// if ret > 0
+
+	if (!ret)
 	{
-		if (errno == EAGAIN || errno == EWOULDBLOCK)
-			return IOEvent();
-		else
-		{
-			close(fd_write);
-			return conn->setError("Error while writing to CGI", 500);
-		}
+		is_EOF = true;
+		return IOEvent();
 	}
-	//bytes_read += ret;
+
+	if (ret < 0)
+		return conn->setError("Error while writing to CGI", 500);
 }
 
-IOEvent	CGI::closed()
+IOEvent CGI::closed()
 {
-	return IOEvent(FAIL, this, "CGI::closed() called");
+	return conn->setError("An error happend while running CGI binary", 500);
 }

@@ -126,7 +126,6 @@ class GetDirectory : public Ressource
 public:
 	GetDirectory(Connexion *conn, std::string dir_path);
 	~GetDirectory();
-	virtual IOEvent		closed();
 	DIR					*get_dir();
 
 protected:
