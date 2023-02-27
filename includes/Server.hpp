@@ -2,17 +2,18 @@
 #ifndef SERVER_HPP
 #define SERVER_HPP
 
+#include <Route.hpp>
+#include <Router.hpp>
 #include <Config.hpp>
 #include <Type.hpp>
 #include <Errors.hpp>
-#include <Router.hpp>
 #include <IO.hpp>
 #include <Socket.hpp>
-
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <set>
 
+class Router;
 class ListenSocket;
 
 class Server
@@ -28,9 +29,8 @@ public:
 	void							routine();
 
 private:
-	typedef std::vector<t_network_address>	listen_list;
-
 	const Router					router;
+	typedef std::vector<t_network_address>	listen_list;
 };
 
 

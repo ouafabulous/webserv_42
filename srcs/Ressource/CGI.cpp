@@ -1,7 +1,7 @@
 #include <Ressource.hpp>
 
 //	file_path of the CGI script to be defined
-CGI::CGI(Connexion *conn, t_cgi_info cgiInfo) :	Ressource(conn)
+CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];

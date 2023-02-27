@@ -2,13 +2,15 @@
 #define RESSOURCE_HPP
 
 #include <Type.hpp>
-#include <Router.hpp>
+// #include <Router.hpp>
 #include <Socket.hpp>
 #include <dirent.h>
 #include <cstring>
 #include <sys/stat.h>
 #include <string.h>
 #include <sys/sendfile.h>
+
+class Router;
 
 #define READ 0
 #define WRITE 1
@@ -138,8 +140,7 @@ protected:
 class CGI : public Ressource
 {
 public:
-	CGI(Connexion *conn, std::string file_path, std::string cgi_path);
-	~CGI();
+	CGI(Connexion *conn, t_cgiInfo cgiInfo); 
 	virtual IOEvent		read();
 	virtual IOEvent		write();
 	virtual IOEvent		closed();

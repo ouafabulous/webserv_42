@@ -1,14 +1,14 @@
-#include "Type.hpp"
 #include <fstream>
 #include <sstream>
 #include <string>
 #include <iostream>
+#include "Router.hpp"
+#include "Type.hpp"
 #include "Lexer.hpp"
 #include "Parser.hpp"
 #include "Server.hpp"
 #include "signal.h"
 #include "stdlib.h"
-#include "Router.hpp"
 
 void handle_sigpipe(int signal) {
 	(void)signal;
