@@ -51,7 +51,7 @@ typedef struct s_attributes
 {
 	t_methods 										allowed_methods;	// could be GET POST DELETE
 	// std::vector<std::string>								server_names;		// defined by header field "Host"
-	std::vector<std::string>						server_name;  
+	std::vector<std::string>						server_name;
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
 	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
@@ -64,13 +64,13 @@ typedef struct s_attributes
 
 typedef enum s_s_tok
 {
-	TOK_WORD,
-	TOK_SP,
-	TOK_RL,
-	TOK_SC,
-	TOK_BR_OP,
-	TOK_BR_CL,
-	TOK_COM,
+	TOK_WORD,				// WORD
+	TOK_SP,					// SPACE
+	TOK_RL,					// RETURN LINE
+	TOK_SC,					// SEMI COLON
+	TOK_BR_OP,				// BRACKET OPEN
+	TOK_BR_CL,				// BRACKET CLOSE
+	TOK_COM,				// COMMENT
 	TOK_S_MAX,
 } t_s_tok;
 
@@ -85,11 +85,11 @@ typedef enum e_chr_class
 {
 	CHR_SP,					// SPACES
 	CHR_WORD,				// WORLD
-	CHR_RL,					// ?
-	CHR_SC,					// SEMICOLONS
-	CHR_BR_OP,
-	CHR_BR_CL,					// BRACKETS
-	CHR_COM,
+	CHR_RL,					// RETURN LINE
+	CHR_SC,					// SEMICOLONS OPEN
+	CHR_BR_OP,				// SEMI COLON CLOSE
+	CHR_BR_CL,				// BRACKETS
+	CHR_COM,				// COMMENT
 	CHR_MAX,
 } t_chr_class;
 

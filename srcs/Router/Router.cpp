@@ -29,7 +29,7 @@ Router::Router(Parser const &confile)
 		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(vserver);
 		curr_vserver = curr_vserver->getSibling();
 	}
-	// printRoutes();
+	printRoutes();
 }
 
 Router::~Router()
@@ -104,6 +104,9 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 		else if (it->getDirectiveName() == "auto-index")
 		{
 			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
+		}
+		else if (it->getDirectiveName() == "cgi_setup") {
+			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
 		}
 	}
 }
