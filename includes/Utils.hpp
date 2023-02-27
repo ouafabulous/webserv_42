@@ -33,6 +33,8 @@ bool            containsSubstring(const std::string& str, const std::string& sub
 std::string     extractBeforeChar(const std::string& inputString, char delimiter);
 bool            checkPermissions(const std::string& file_path, const mode_t& mode);
 std::string     extractAfterChar(const std::string& inputString, char delimiter);
+const MimeMap   &get_mime_map();
+const std::string			get_mime(const std::string &file_path);
 
 
 #endif
