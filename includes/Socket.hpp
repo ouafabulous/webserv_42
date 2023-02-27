@@ -3,16 +3,18 @@
 #define SOCKET_HPP
 
 #include <IO.hpp>
-// #include <Ressource.hpp>
-#include <Router.hpp>
+#include <Ressource.hpp>
+// #include <Router.hpp>
 #include <Errors.hpp>
 #include <Utils.hpp>
 #include <Config.hpp>
-#include <Server.hpp>
+// #include <Server.hpp>
 #include <Dechunker.hpp>
 #include <sys/epoll.h>
 
 class Server;
+class Router;
+class Ressource;
 
 class ListenSocket : public IO
 {
@@ -44,6 +46,7 @@ public:
 	void append_response(std::string message);
 	void append_response(std::string message, size_t n);
 	Route get_route();
+	void	setRessource(Ressource *_ressource);
 
 private:
 	IOEvent readHeader(); // called by read() until header is fully received

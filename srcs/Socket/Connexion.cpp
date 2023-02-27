@@ -240,3 +240,7 @@ IOEvent	Connexion::readBody() {
 	}
 	return IOEvent();
 }
+
+void	Connexion::setRessource(Ressource *_ressource){
+	ressource = _ressource;
+}

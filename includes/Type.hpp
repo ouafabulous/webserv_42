@@ -22,6 +22,14 @@ typedef unsigned int uint;
 
 typedef int t_fd;
 
+typedef enum
+{
+	GET =		0b001,
+	POST = 		0b010,
+	DELETE = 	0b100
+} t_methods;
+
+
 struct t_request_line
 {
 	t_methods 	method;
@@ -42,13 +50,6 @@ typedef std::pair<in_addr_t, in_port_t>				t_network_address;
 
 // ROUTER && ROUTE
 
-typedef enum
-{
-	GET =		0b001,
-	POST = 		0b010,
-	DELETE = 	0b100
-} t_methods;
-
 
 
 typedef struct s_attributes
@@ -60,10 +61,11 @@ typedef struct s_attributes
 	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
 	std::string										redirect;			// uri for redirection,
 	std::string										root;				// path to root directory for serving static files
-	std::map<std::string, std::string>				cgi_path;			// path to CGI locations -- not implemented int the V0 of the parser
+	// std::map<std::string, std::string>				cgi_path;			// path to CGI locations -- not implemented int the V0 of the parser
 	bool											directory_listing;	// autoindex on/off
 	uint											port;
 	std::string										index;
+	std::map<std::string, std::string>				cgiMap;
 } t_attributes;
 
 typedef enum s_s_tok
@@ -140,16 +142,16 @@ typedef struct s_cgiInfo
 	std::string					_filePath;
 	std::string					_queryString;
 	std::string					_executable;
-  	s_cgiInfo(const std::string& filePath = "", const std::string& queryString = "", const std::string& _executable)
-        : _filePath(filePath), _queryString(queryString), _executable(executable)
+  	s_cgiInfo(const std::string& filePath = "", const std::string& queryString = "", const std::string& executable="")
+        : _filePath(filePath), _queryString(queryString), _executable(executable) {};
 }				t_cgiInfo;
 
 
-static const std::map<t_cgi_type, std::string> cgiPath = {
-    {PYTHON, pythonPath},
-    {PHP, phpPath},
-    {PERL, perlPath}
-};
+// static const std::map<t_cgi_type, std::string> cgiPath = {
+//     {PYTHON, pythonPath},
+//     {PHP, phpPath},
+//     {PERL, perlPath}
+// };
 
 
 #endif
