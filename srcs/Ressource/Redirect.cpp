@@ -2,13 +2,13 @@
 
 RedirectRessource::RedirectRessource(Connexion *conn, const std::string url) : Ressource(conn)
 {
-	//append header
+	// append header
 	conn->append_response("HTTP/1.1 301 Moved Permanently\r\n", 0);
 	conn->append_response("Location: " + url + "\r\n", 0);
 	conn->append_response("Content-Type: text/html\r\n", 0);
 	conn->append_response("\r\n", 0);
 
-	//append body
+	// append body
 	conn->append_response("<html>\n", 0);
 	conn->append_response("<head>\n", 0);
 	conn->append_response("<title>301 Moved Permanently</title>\n", 0);

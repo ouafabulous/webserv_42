@@ -30,13 +30,13 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 	{
 		if (entry->d_type == DT_REG)
 			conn->append_response("<li><a href=\"./" + std::string(entry->d_name) +
-						"\">" + std::string(entry->d_name) + "</a></li>\n", 0);
+									"\">" + std::string(entry->d_name) + "</a></li>\n", 0);
 		else if (entry->d_type == DT_DIR)
 		{
 			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 				continue;
 			conn->append_response("<li><a href=\"./" + std::string(entry->d_name) +
-						"/\">" + std::string(entry->d_name) + "/</a></li>\n", 0);
+									"/\">" + std::string(entry->d_name) + "/</a></li>\n", 0);
 		}
 		else
 		{
@@ -61,7 +61,5 @@ GetDirectory::~GetDirectory()
 		}
 	}
 }
-
-IOEvent GetDirectory::closed() {}
 
 DIR	*GetDirectory::get_dir() { return dir; }

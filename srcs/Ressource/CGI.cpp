@@ -16,7 +16,8 @@ CGI::CGI(Connexion *conn, std::string file_path, std::string cgi_path) : Ressour
 		throw std::runtime_error("CGI::CGI() pipe_to_host failed.");
 	}
 
-	if (!epoll_util(EPOLL_CTL_ADD, pipe_to_CGI[READ], this, EPOLLIN | EPOLLHUP | EPOLLRDHUP) && !epoll_util(EPOLL_CTL_ADD, pipe_to_host[WRITE], this, EPOLLOUT | EPOLLRDHUP))
+	if (!epoll_util(EPOLL_CTL_ADD, pipe_to_CGI[READ], this, EPOLLIN | EPOLLHUP | EPOLLRDHUP)
+		&& !epoll_util(EPOLL_CTL_ADD, pipe_to_host[WRITE], this, EPOLLOUT | EPOLLRDHUP))
 		throw std::runtime_error("CGI::CGI() epoll_util failed");
 
 	pid_t pid = fork();
@@ -98,7 +99,8 @@ IOEvent CGI::write()
 	if (conn->getRequest().body.empty())
 		return IOEvent();
 
-	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(), conn->getRequest().body.size());
+	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
+					conn->getRequest().body.size());
 
 	if (!ret)
 	{

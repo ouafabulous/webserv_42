@@ -4,7 +4,7 @@
 /******************************** GET FILE ********************************/
 /**************************************************************************/
 
-GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
+GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
 	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
 
@@ -46,7 +46,7 @@ GetStaticFile::~GetStaticFile()
 	}
 }
 
-IOEvent	GetStaticFile::read()
+IOEvent GetStaticFile::read()
 {
 	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
@@ -63,7 +63,7 @@ IOEvent	GetStaticFile::read()
 	return IOEvent();
 }
 
-IOEvent	GetStaticFile::closed()
+IOEvent GetStaticFile::closed()
 {
 	return conn->setError("Error reading the file", 500);
 }
@@ -72,7 +72,7 @@ IOEvent	GetStaticFile::closed()
 /******************************** POST FILE *******************************/
 /**************************************************************************/
 
-PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
+PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
 	std::string new_path = file_path;
 
@@ -107,13 +107,13 @@ PostStaticFile::~PostStaticFile()
 	}
 }
 
-IOEvent	PostStaticFile::write()
+IOEvent PostStaticFile::write()
 {
 	if (conn->getRequest().body.empty())
 		return IOEvent();
 
 	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
-		conn->getRequest().body.size());
+						 conn->getRequest().body.size());
 
 	if (!ret)
 	{
@@ -124,7 +124,7 @@ IOEvent	PostStaticFile::write()
 		return conn->setError("Error writing the file", 500);
 }
 
-IOEvent	PostStaticFile::closed()
+IOEvent PostStaticFile::closed()
 {
 	return conn->setError("Error writing the file", 500);
 }
@@ -133,15 +133,15 @@ IOEvent	PostStaticFile::closed()
 /******************************* DELETE FILE ******************************/
 /**************************************************************************/
 
-DeleteStaticFile::DeleteStaticFile(Connexion *conn, std::string file_path) :	Ressource(conn)
+DeleteStaticFile::DeleteStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
-	int	rm = remove(file_path.c_str());
+	int rm = remove(file_path.c_str());
 	if (rm != 0)
 		throw std::runtime_error("DeleteStaticFile::DeleteStaticFile() failed");
 }
 
 DeleteStaticFile::~DeleteStaticFile() {}
-IOEvent	DeleteStaticFile::closed()
+IOEvent DeleteStaticFile::closed()
 {
-	return IOEvent(FAIL, this, "DeleteStaticFile::closed() called");
+	return conn->setError("Error deleting the file", 500);
 }
