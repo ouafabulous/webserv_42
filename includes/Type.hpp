@@ -21,6 +21,8 @@ typedef unsigned int uint;
 
 typedef int t_fd;
 
+typedef std::map<std::string, std::string> MimeMap;
+
 typedef enum
 {
 	GET =		0b001,
