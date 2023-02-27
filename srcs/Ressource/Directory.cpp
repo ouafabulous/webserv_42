@@ -62,6 +62,6 @@ GetDirectory::~GetDirectory()
 	}
 }
 
-IOEvent GetDirectory::closed() {}
+// IOEvent GetDirectory::closed() {}
 
 DIR	*GetDirectory::get_dir() { return dir; }

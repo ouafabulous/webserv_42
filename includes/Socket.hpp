@@ -1,9 +1,9 @@
-#pragma once
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
 #include <IO.hpp>
-#include <Ressource.hpp>
+#include <unistd.h>
+// #include <Ressource.hpp>
 // #include <Router.hpp>
 #include <Errors.hpp>
 #include <Utils.hpp>
@@ -41,7 +41,7 @@ public:
 	virtual IOEvent read();
 	virtual IOEvent write();
 	virtual IOEvent closed();
-	t_http_message &getRequest();
+	t_http_message const &getRequest() const;
 	IOEvent setError(std::string log, uint http_error);
 	void append_response(std::string message);
 	void append_response(std::string message, size_t n);

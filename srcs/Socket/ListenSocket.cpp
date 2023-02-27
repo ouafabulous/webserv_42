@@ -1,4 +1,5 @@
 #include <Socket.hpp>
+#include <Server.hpp>
 
 ListenSocket::ListenSocket(const t_network_address netAddr, const Router &router) : l_socket(socket(AF_INET, SOCK_STREAM, 0)),
 																					netAddr(netAddr),

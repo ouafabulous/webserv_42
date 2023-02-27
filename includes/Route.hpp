@@ -5,10 +5,10 @@
 #include "Type.hpp"
 #include <Utils.hpp>
 #include <arpa/inet.h>
-#include <Ressource.hpp>
+// #include <Ressource.hpp>
 #include <Socket.hpp>
 
-class Ressource;
+// class Ressource;
 class Connexion;
 
 class Route

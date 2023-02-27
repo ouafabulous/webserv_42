@@ -1,4 +1,3 @@
-#pragma once
 #ifndef TYPE_HPP
 #define TYPE_HPP
 
@@ -26,7 +25,8 @@ typedef enum
 {
 	GET =		0b001,
 	POST = 		0b010,
-	DELETE = 	0b100
+	DELETE = 	0b100,
+	NO_METHOD
 } t_methods;
 
 

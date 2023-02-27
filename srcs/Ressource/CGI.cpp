@@ -46,10 +46,10 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
-		setenv("REQUEST_METHOD", conn->request.request_line.methodVerbose.c_str(), 1);
+		setenv("REQUEST_METHOD", conn->getRequest().request_line.methodVerbose.c_str(), 1);
 		setenv("QUERY_STRING", cgiInfo._queryString.c_str(), 1);
 
-		execve(cgi_path.c_str(), args, NULL);
+		execve(cgiInfo._executable.c_str(), args, NULL);
 	}
 	else
 	{
@@ -73,7 +73,7 @@ CGI::~CGI()
 IOEvent	CGI::read()
 {
 	// not handling chuncked request yet ?
-	size_t ret = ::read(fd_read, buffer, BUFFER_SIZE);
+	int ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
 	if (ret == -1)
 	{
@@ -109,7 +109,8 @@ IOEvent	CGI::write()
 			return conn->setError("Error while writing to CGI", 500);
 		}
 	}
-	//bytes_read += ret;
+	bytes_read += ret;
+	return IOEvent();
 }
 
 IOEvent	CGI::closed()

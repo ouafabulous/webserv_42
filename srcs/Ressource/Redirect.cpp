@@ -1,6 +1,6 @@
 #include <Ressource.hpp>
 
-RedirectRessource::RedirectRessource(Connexion *conn, const std::string url) : Ressource(conn)
+RedirectRessource::RedirectRessource(Connexion *conn, std::string const &url) : Ressource(conn)
 {
 	//append header
 	conn->append_response("HTTP/1.1 301 Moved Permanently\r\n", 0);
