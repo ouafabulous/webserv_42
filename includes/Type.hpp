@@ -7,13 +7,13 @@
 #include <vector>
 #include <map>
 #include <Errors.hpp>
-// #include <cstdint>
 #include <algorithm>
 #include <climits>
-#include <DirectiveValue.hpp>
+// #include <Directive.hpp>
+// #include <Router.hpp>
+// #include "Router.hpp"
 // IO
 
-class DirectiveValue; 
 
 typedef unsigned int uint;
 
@@ -51,7 +51,7 @@ typedef struct s_attributes
 {
 	t_methods 										allowed_methods;	// could be GET POST DELETE
 	// std::vector<std::string>								server_names;		// defined by header field "Host"
-	std::string										server_name;  //just for testing
+	std::vector<std::string>						server_name;  
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
 	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
@@ -70,6 +70,7 @@ typedef enum s_s_tok
 	TOK_SC,
 	TOK_BR_OP,
 	TOK_BR_CL,
+	TOK_COM,
 	TOK_S_MAX,
 } t_s_tok;
 
@@ -88,6 +89,7 @@ typedef enum e_chr_class
 	CHR_SC,					// SEMICOLONS
 	CHR_BR_OP,
 	CHR_BR_CL,					// BRACKETS
+	CHR_COM,
 	CHR_MAX,
 } t_chr_class;
 
@@ -99,7 +101,7 @@ typedef	enum	e_block_type
 	BL_SERVER,
 	BL_LOCATION,
 	BL_MAX,
-}	t_block_type;
+	}	t_block_type;
 
 // const size_t	size_max_array = SSIZE_MAX/sizeof(char);
 
@@ -113,12 +115,14 @@ typedef	enum	e_block_type
 	// 	// std::string	stringValue;
 	// };
 
-typedef	std::pair<std::string, DirectiveValue> directive;
-
 typedef std::vector<t_token> TokenList;
 
 #define CRLF	"\r\n"
 #define OK		0
 #define NOK		1
+
+class Route;
+
+
 
 #endif

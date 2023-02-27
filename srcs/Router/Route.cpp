@@ -1,4 +1,5 @@
 #include "Router.hpp"
+#include "Type.hpp"
 
 Route::Route(const t_attributes attributes)
 : attributes(attributes) {
@@ -27,7 +28,6 @@ size_t	Route::getMaxBodySize() const {
 void		Route::printAttributes() const {
 	std::cout << "-----Port-----" << std::endl;
 	std::cout << attributes.port << std::endl;
-	std::cout << std::endl;
 	std::cout << "-----Methods allowed-----" << std::endl;
 	if (attributes.allowed_methods & GET) {
 		std::cout << "GET ";
@@ -39,30 +39,20 @@ void		Route::printAttributes() const {
 		std::cout << "DELETE";
 	}
 	std::cout << std::endl;
-	std::cout << std::endl;
 	std::cout << "-----Server Names-----" << std::endl;
-	std::cout << attributes.server_name << std::endl;
-	// std::vector<std::string>::const_iterator	str_iter;
-	// for (str_iter = attributes.server_names.begin(); str_iter != attributes.server_names.end(); ++str_iter){
-		// std::cout << *str_iter << " ";
-	// }
-		// std::cout << std::endl;
+	std::vector<std::string>::const_iterator	str_iter;
+	for (str_iter = attributes.server_name.begin(); str_iter != attributes.server_name.end(); ++str_iter){
+		std::cout << *str_iter << " ";
+	}
 	std::cout << std::endl;
-
 	std::cout << "-----Location-----" << std::endl;
 	std::cout << attributes.location << std::endl;
-	std::cout << std::endl;
 	std::cout << "-----Max body length-----" << std::endl;
 	std::cout << attributes.max_body_length << std::endl;
-	std::cout << std::endl;
 	std::cout << "-----Redirect-----" << std::endl;
 	std::cout << attributes.redirect << std::endl;
-	std::cout << std::endl;
 	std::cout << "-----Root-----" << std::endl;
 	std::cout << attributes.root << std::endl;
-	std::cout << std::endl;
-	std::cout << "-----Directory lising-----" << std::endl;
+	std::cout << "-----Directory listing-----" << std::endl;
 	std::cout << attributes.directory_listing << std::endl;
-	std::cout << std::endl;
-
 }

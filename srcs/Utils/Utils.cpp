@@ -113,7 +113,7 @@ std::string escape_string(const std::string &str) {
 
 std::ostream&	operator<<(std::ostream &out, const t_network_address &netAddr)
 {
-	const static std::string	text[5] = {"TOK_WORD", "TOK_SP\t", "TOK_RL\t", "TOK_SC\t", "TOK_BR\t"};
+	// const static std::string	text[5] = {"TOK_WORD", "TOK_SP\t", "TOK_RL\t", "TOK_SC\t", "TOK_BR\t"};
 
 	if (netAddr.first) {
 		unsigned char *p = (unsigned char *)&netAddr.first;
@@ -124,8 +124,8 @@ std::ostream&	operator<<(std::ostream &out, const t_network_address &netAddr)
 }
 
 int stringToInt(std::string str){
-	// std::cout << "got here with this str: " << str << std::endl; 
-	std::stringstream	number;	
+	// std::cout << "got here with this str: " << str << std::endl;
+	std::stringstream	number;
     number << str;
 	int	res;
 	if (!(number >> res) || res < 0) {
@@ -133,4 +133,20 @@ int stringToInt(std::string str){
 	}
 	// std::cout << "and transformed it to this result: " << res << std::endl;
     return(res);
+}
+
+size_t	matchingLocation(const std::string& path, const std::string& location) {
+	size_t result = 0;
+	std::string::const_iterator it_path = path.begin();
+	std::string::const_iterator it_location = location.begin();
+
+	while (it_path != path.end() && it_location != location.end() && *it_path == *it_location)
+	{
+		it_path++;
+		it_location++;
+		result++;
+	}
+	if (it_location != location.end())
+		return (0);
+	return (result);
 }

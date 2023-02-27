@@ -1,71 +1,59 @@
-#include <Router.hpp>
 
 #include <iostream>
 #include <set>
+#include "Type.hpp"
+#include "Router.hpp"
 
 
 // int i = 0;
-
 Router::Router(Parser const &confile)
 {
-	t_attributes attributes = {};
-	BlockServer *tmp1 = confile.getBlock();
-	while (tmp1)
+	BlockServer 	*curr_vserver = confile.getBlock();
+	while (curr_vserver)
 	{
-		fillAttributes(&attributes, tmp1->getDirectives());
+		t_attributes 	attributes = {};
+		fillAttributes(&attributes, curr_vserver->getDirectives());
 		std::vector<BlockLocation *>::const_iterator it;
-		std::vector<BlockLocation *> const &locations = tmp1->getChilds();
+		std::vector<BlockLocation *> const &locations = curr_vserver->getChilds();
+		t_vserver		vserver(attributes.server_name);
+		// push_back default virtual_server route
+		attributes.location = "/";
+		vserver._routes.push_back(Route(attributes));
+		// push_back each location route
 		for (it = locations.begin(); it != locations.end(); it++)
 		{
 			attributes.location = (*it)->getLocationValue();
 			fillAttributes(&attributes, (*it)->getDirectives());
-			Route	route(attributes);
-			// std::cout <<"address: " << t_network_address(INADDR_ANY, htons(attributes.port)) << std::endl;
-			my_map[t_network_address(INADDR_ANY, htons(attributes.port))][attributes.server_name] = route; // IADDR_ANY consideres that we listen on all ports aka 0.0.0.0
+			vserver._routes.push_back(Route(attributes));
 		}
-
-		tmp1 = tmp1->getSibling();
+		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(vserver);
+		curr_vserver = curr_vserver->getSibling();
 	}
-	printRoutes();
+	// printRoutes();
 }
 
 Router::~Router()
 {
 }
 
-// std::ostream &operator<<(std::ostream &os, const t_network_address &addr)
-// {
-// 	// Convert the IP address to a string
-// 	char ip_str[INET_ADDRSTRLEN];
-// 	inet_ntop(AF_INET, &(addr.first), ip_str, INET_ADDRSTRLEN);
-
-// 	// Print the IP address and port
-// 	os << ip_str << ":" << ntohs(addr.second);
-
-// 	return os;
-// }
-
 void Router::printRoutes() const
 {
-	// std::cout << "size_of_router: " << my_map.size() << std::endl;
-	router_map::const_iterator router_iter;
-	for (router_iter = my_map.begin(); router_iter != my_map.end(); ++router_iter)
+	for (t_network_map::const_iterator it1 = _network_map.begin(); it1 != _network_map.end(); it1++)
 	{
-		// iterate through the elements of the vserver_map for each router address
-		const vserver_map &vserver_map_ref = router_iter->second;
-		for (vserver_map::const_iterator vserver_iter = vserver_map_ref.begin(); vserver_iter != vserver_map_ref.end(); ++vserver_iter)
+		t_vserver_vec::const_iterator	vserverIt;
+		for (vserverIt = it1->second.begin(); vserverIt != it1->second.end(); ++vserverIt)
 		{
-			std::cout << "\n\n\n\n\n------------------------------\n\n\n\n\n" <<  std::endl;
-			// std::cout << "  Virtual server name: " << vserver_iter->first << std::endl;
-			// // print the details of the Route object
-			const Route &route = vserver_iter->second;
-			// std::cout << "    Route properties: " << std::endl;
-			route.printAttributes();
-			// print other properties of the Route object here
-		// std::cout << "i: " << i << std::endl;
-		// i++;
+			for (std::vector<Route>::const_iterator routeIt = vserverIt->_routes.begin(); routeIt != vserverIt->_routes.end(); routeIt++)
+			{
+				std::cout << "------------------------------" <<  std::endl;
+				std::cout << "---Adresse: " << it1->first.second << std::endl;
+				std::cout << std::endl;
+				std::cout << "---Route: ";
+				std::cout << std::endl;
+				routeIt->printAttributes();
+				std::cout << "--------------\n\n" << std::endl;
+			}
 		}
-		std::cout << "--------------" << std::endl;
 	}
 }
 
@@ -74,47 +62,48 @@ t_methods operator|=(t_methods& a, t_methods b)
     return a = static_cast<t_methods>(a | b);
 }
 
-void Router::fillAttributes(t_attributes *attributes, std::vector<directive> const &directives)
+void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> const &directives)
 {
 	std::map<std::string, t_methods> methodsDict;
-
     // Add some entries to the dictionary
     methodsDict["GET"] = GET;
     methodsDict["POST"] = POST;
     methodsDict["DELETE"] = DELETE;
-	std::vector<directive>::const_iterator it;
+	std::vector<Directive>::const_iterator it;
+	std::vector<directiveValueUnion>::const_iterator	directiveValIter;
 	for (it = directives.begin(); it != directives.end(); it++)
 	{
-		if (it->first == "allowed_methods")
+		if (it->getDirectiveName() == "allowed_methods")
 		{
-			attributes->allowed_methods |= methodsDict[it->second.getDirectiveValue()._stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
+			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
+				attributes->allowed_methods |= methodsDict[directiveValIter->_stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
+			}
 		}
-			else if (it->first == "listen")
+		else if (it->getDirectiveName() == "listen")
 		{
-			// attributes->port = 8080;
-			attributes->port = static_cast<uint>(it->second.getDirectiveValue()._intValue);
-			// std::cout << "attributes_port: " << attributes->port << std::endl;
+			attributes->port = static_cast<uint>((it->getDirectiveValues())[0]._intValue);
 		}
-		else if (it->first == "server_name")
+		else if (it->getDirectiveName() == "server_name")
 		{
-			attributes->server_name = it->second.getDirectiveValue()._stringValue;
-			// attributes->server_names.push_back(it->second.getDirectiveValue()._stringValue);
+			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
+				attributes->server_name.push_back(directiveValIter->_stringValue);
+			}
 		}
-		else if (it->first == "client_max_body_size")
+		else if (it->getDirectiveName() == "client_max_body_size")
 		{
-			attributes->max_body_length = static_cast<size_t>(it->second.getDirectiveValue()._intValue);
+			attributes->max_body_length = static_cast<size_t>((it->getDirectiveValues())[0]._intValue);
 		}
-		else if (it->first == "redirect")
+		else if (it->getDirectiveName() == "redirect")
 		{
-			attributes->redirect = it->second.getDirectiveValue()._stringValue;
+			attributes->redirect = (it->getDirectiveValues())[0]._stringValue;
 		}
-		else if (it->first == "root")
+		else if (it->getDirectiveName() == "root")
 		{
-			attributes->root = it->second.getDirectiveValue()._stringValue;
+			attributes->root = (it->getDirectiveValues())[0]._stringValue;
 		}
-		else if (it->first == "auto-index")
+		else if (it->getDirectiveName() == "auto-index")
 		{
-			(it->second.getDirectiveValue()._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
+			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
 		}
 	}
 }
@@ -122,20 +111,53 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<directive> con
 std::vector<t_network_address> Router::getAddr() const
 {
 	std::vector<t_network_address> response;
-	for (router_map::const_iterator it = my_map.begin(); it != my_map.end(); it++)
+	for (t_network_map::const_iterator it = _network_map.begin(); it != _network_map.end(); it++)
 		response.push_back(it->first);
 
 	return (response);
 }
 
+bool	Router::isInServerName(const std::string& host, const std::vector<std::string>	server_names) const {
+	for (std::vector<std::string>::const_iterator servNameIter = server_names.begin(); servNameIter != server_names.end(); servNameIter++){
+		if (*servNameIter == host)
+			return true;
+	}
+	return false;
+}
+
+t_attributes const &Route::getAttributes() const{
+	return(this->attributes);
+}
+
+const t_vserver&	Router::findVserver(const t_network_address addr, const std::string& host) const {
+	const t_vserver_vec&			vserver_vec = _network_map.at(addr);
+
+	for (
+		t_vserver_vec::const_iterator	vserverIt = vserver_vec.begin();
+		vserverIt != vserver_vec.end();
+		vserverIt++)
+	{
+		if (isInServerName(host, vserverIt->_server_names))
+			return *vserverIt;
+	}
+	return *vserver_vec.begin();
+}
+
+
+
 const Route *Router::getRoute(const t_network_address netAddr, const t_http_message &req) const
 {
-	const vserver_map &virtual_server = my_map.at(netAddr);
-	vserver_map::const_iterator route;
+	const t_vserver&				vserver = findVserver(netAddr, req.header_fields.at("Host"));
+	const Route*					response = &(*vserver._routes.begin());
+	size_t 							matching_char_result = 1;
 
-	if (req.header_fields.find("Host") == req.header_fields.end())
-		return &virtual_server.begin()->second;
-	if (virtual_server.find(req.header_fields.at("Host")) == virtual_server.end())
-		return &virtual_server.begin()->second;
-	return &virtual_server.find(req.header_fields.at("Host"))->second;
+
+	for (std::vector<Route>::const_iterator routeIt = vserver._routes.begin(); routeIt != vserver._routes.end(); routeIt++)
+	{
+		if (matchingLocation(req.request_line.path, routeIt->getAttributes().location) > matching_char_result) {
+			response = &(*routeIt);
+			matching_char_result = matchingLocation(req.request_line.path, routeIt->getAttributes().location);
+		}
+	}
+	return (response);
 }
