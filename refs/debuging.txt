@@ -1,0 +1,10 @@
+- Apparently server doesn't handle when a client disconnects suddenly
+- doing a classic GET request on a dir location that doesn't have autoindex: on still goes through
+  GetStaticFile()
+- Apparently, when doing a GET request, in the server routine(), the request is correctly registered
+  and GetStaticFile constructor is called, then header is correctly written down
+- Everything fine until executeRoute() as of now ?
+- executeRoute() sends the setRessource IOEvent correctly ?
+
+- Then I have no idea why, but from executeRoute we should use the Ressource, instead we go back
+  to Connexion::parseHeader()

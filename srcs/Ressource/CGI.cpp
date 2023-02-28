@@ -61,9 +61,17 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 		fd_read = pipe_to_CGI[READ];
-		set_nonblocking(fd_read);
+		if (set_nonblocking(fd_read))
+		{
+			conn->setError("Error setting the file to non-blocking", 500);
+			throw std::runtime_error("CGI::CGI() set_nonblocking failed");
+		}
 		fd_write = pipe_to_host[WRITE];
-		set_nonblocking(fd_write);
+		if (set_nonblocking(fd_write))
+		{
+			conn->setError("Error setting the file to non-blocking", 500);
+			throw std::runtime_error("CGI::CGI() set_nonblocking failed");
+		}
 	}
 }
 

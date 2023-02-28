@@ -13,7 +13,11 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 		conn->setError("Error opening the file" + file_path, 404);
 		throw std::runtime_error("GetStaticFile::GetStaticFile() Open failed");
 	}
-	set_nonblocking(fd_read);
+	if (set_nonblocking(fd_read))
+	{
+		conn->setError("Error setting the file to non-blocking", 500);
+		throw std::runtime_error("GetStaticFile::GetStaticFile() set_nonblocking failed");
+	}
 	if (!epoll_util(EPOLL_CTL_ADD, fd_read, this, EPOLLIN))
 	{
 		conn->setError("Error adding the file to the epoll", 500);
@@ -86,7 +90,11 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 		conn->setError("Error opening the file" + file_path, 404);
 		throw std::runtime_error("PostStaticFile::PostStaticFile() Open failed");
 	}
-	set_nonblocking(fd_write);
+	if (set_nonblocking(fd_write))
+	{
+		conn->setError("Error setting the file to non-blocking", 500);
+		throw std::runtime_error("PostStaticFile::PostStaticFile() set_nonblocking failed");
+	}
 	if (!epoll_util(EPOLL_CTL_ADD, fd_write, this, EPOLLOUT))
 	{
 		conn->setError("Error adding the file to the epoll", 500);
