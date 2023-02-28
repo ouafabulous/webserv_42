@@ -26,7 +26,6 @@ Connexion::Connexion(const t_network_address netAddr,
 																dechunker(request.body),
 																route(NULL),
 																ressource(NULL),
-																response(http_header_formatter(200, 20) + "Placeholder response"),
 																response_start(false)
 {
 }
@@ -203,7 +202,7 @@ IOEvent Connexion::executeRoute()
 	route = router.getRoute(netAddr, request);
 	if (!route)
 		return setError("internal error - route not found", 500);
-	response = http_header_formatter(200, route->getAttributes().location.length()) + route->getAttributes().location;
+
 	IOEvent ioevent_handler = route->setRessource(request, this);
 	if (ioevent_handler.result == FAIL) {
 		return setError(ioevent_handler.log, ioevent_handler.http_error); //setRessource retourne un setError aussi --> redondance
