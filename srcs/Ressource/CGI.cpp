@@ -101,7 +101,7 @@ IOEvent CGI::write()
 	if (conn->getRequest().body.empty())
 		return IOEvent();
 
-	size_t ret = ::write(fd_write, conn->getRequest().body.c_str(),
+	int ret = ::write(fd_write, conn->getRequest().body.c_str(),
 					conn->getRequest().body.size());
 
 	// if ret > 0
