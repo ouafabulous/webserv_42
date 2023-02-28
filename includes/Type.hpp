@@ -63,7 +63,7 @@ typedef struct s_attributes
 	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
 	std::string										redirect;			// uri for redirection,
 	std::string										root;				// path to root directory for serving static files
-	// std::map<std::string, std::string>				cgi_path;			// path to CGI locations -- not implemented int the V0 of the parser
+	std::map<std::string, std::string>				cgi_path;			// path to CGI locations -- not implemented int the V0 of the parser
 	bool											directory_listing;	// autoindex on/off
 	uint											port;
 	std::string										index;

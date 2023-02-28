@@ -107,6 +107,7 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 		}
 		else if (it->getDirectiveName() == "cgi_setup") {
 			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
+		}
 		else if (it->getDirectiveName() == "index")
 		{
 			attributes->index = (it->getDirectiveValues())[0]._stringValue;
