@@ -24,7 +24,6 @@ struct NetworkRoute
 	}
 };
 
-
 class Router
 {
 public:
