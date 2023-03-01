@@ -46,6 +46,7 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 	conn->append_response("</ul>\n");
 	conn->append_response("</body>\n");
 	conn->append_response("</html>\n");
+	this->is_EOF = true;
 }
 
 GetDirectory::~GetDirectory()

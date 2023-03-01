@@ -118,6 +118,8 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	t_request_line	reqLine = req.request_line;
 	std::string		completePath = attributes.root + reqLine.path;
 
+	Logger::debug << completePath << std::endl;
+
 	if (attributes.redirect.length())
 	{
 

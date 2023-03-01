@@ -25,6 +25,9 @@ public:
 	virtual IOEvent		read() = 0;
 	virtual IOEvent		write() = 0;
 	virtual IOEvent		closed() = 0;
+	bool				getIsEOF() {
+		return is_EOF;
+	};
 
 protected:
 	Connexion			*conn;
@@ -85,7 +88,7 @@ protected:
 class CGI : public Ressource
 {
 public:
-	CGI(Connexion *conn, t_cgiInfo cgiInfo); 
+	CGI(Connexion *conn, t_cgiInfo cgiInfo);
 	~CGI();
 	virtual IOEvent		read();
 	virtual IOEvent		write();
@@ -101,7 +104,7 @@ class RedirectRessource : public Ressource
 public:
 	RedirectRessource(Connexion *conn, std::string const &url);
 	~RedirectRessource();
-	
+
 	// virtual IOEvent		read(){return IOEvent();};
 	// virtual IOEvent		write(){return IOEvent();};
 	// virtual IOEvent		closed(){return IOEvent();};

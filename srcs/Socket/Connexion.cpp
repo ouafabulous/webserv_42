@@ -59,9 +59,12 @@ IOEvent Connexion::write()
 	if (response.empty())
 		return IOEvent();
 	Logger::debug << "write to conn" << std::endl;
-	if (send(c_socket, response.c_str(), response.length(), MSG_DONTWAIT) == -1)
+	if (send(c_socket, response.c_str(), BUFFER_SIZE / 100, MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "unable to write to the client socket");
-	return IOEvent(SUCCESS, this, "successfuly send response");
+	response.erase(0, BUFFER_SIZE / 100);
+	if (ressource && ressource->getIsEOF())
+		return IOEvent(SUCCESS, this, "successfuly send response");
+	return IOEvent();
 }
 IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the connexion"); }
 
