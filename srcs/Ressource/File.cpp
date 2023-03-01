@@ -37,9 +37,9 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 	}
 
 	std::string header = http_header_formatter(200, st.st_size, get_mime(file_path));
-	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
-
+	header += "Connection: closed\r\n\r\n";
 	conn->append_response(header);
+
 	std::vector<char>	local_buff;
 	local_buff.reserve(st.st_size);
 
@@ -66,23 +66,6 @@ GetStaticFile::~GetStaticFile()
 		conn->setError("Error closing the file", 500);
 		throw std::runtime_error("GetStaticFile::~GetStaticFile() Close failed");
 	}
-}
-
-IOEvent GetStaticFile::read()
-{
-	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);
-
-	if (ret == -1)
-	{
-		close(fd_read);
-		return conn->setError("Error reading the file", 500);
-	}
-	if (!ret)
-		return closed();
-	if (ret == 0)
-		is_EOF = true;
-	conn->append_response(buffer, ret);
-	return IOEvent();
 }
 
 IOEvent GetStaticFile::closed()
@@ -116,8 +99,7 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 		throw std::runtime_error("PostStaticFile::PostStaticFile() epoll_util failed");
 	}
 
-	std::string header = "HTTP/1.1 200 OK\r\n";
-	header += "Content-Type: " + get_mime(new_path) + CRLF;
+	std::string header = http_header_formatter(200, header.size(), get_mime(file_path));
 	header += "Connection: keep-alive\r\n\r\n";
 
 	conn->append_response(header.c_str(), header.size());
@@ -141,8 +123,6 @@ IOEvent PostStaticFile::write()
 	int	ret = ::write(fd_write, conn->getRequest().body.c_str(),
 							conn->getRequest().body.size());
 
-	// if ret > 0
-
 	if (!ret)
 	{
 		is_EOF = true;
@@ -150,7 +130,6 @@ IOEvent PostStaticFile::write()
 	}
 	if (ret < 0)
 		return conn->setError("Error writing the file", 500);
-	bytes_read += ret;
 	return (IOEvent());
 }
 

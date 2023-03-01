@@ -12,29 +12,23 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 		throw std::runtime_error("GetDirectory::GetDirectory() opendir failed.");
 	}
 
-	// append the header
-	conn->append_response("HTTP/1.1 200 OK\r\n");
-	conn->append_response("Content-Type: text/html\r\n");
-	conn->append_response("\r\n");
-
-	// append the body
-	conn->append_response("<html>\n");
-	conn->append_response("<head>\n");
-	conn->append_response("<title>Directory Listing</title>\n");
-	conn->append_response("</head>\n");
-	conn->append_response("<body>\n");
-	conn->append_response("<h1>Directory Listing</h1>\n");
-	conn->append_response("<ul>\n");
+	std::string body = "<html>\n";
+	body +="<head>\n";
+	body +="<title>Directory Listing</title>\n";
+	body +="</head>\n";
+	body +="<body>\n";
+	body +="<h1>Directory Listing</h1>\n";
+	body +="<ul>\n";
 
 	while ((entry = readdir(dir)) != NULL)
 	{
 		if (entry->d_type == DT_REG)
-			conn->append_response("<li><a href=\"./" + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>\n");
+			body += "<li><a href=\"./" + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>\n";
 		else if (entry->d_type == DT_DIR)
 		{
 			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 				continue;
-			conn->append_response("<li><a href=\"./" + std::string(entry->d_name) + "/\">" + std::string(entry->d_name) + "/</a></li>\n");
+			body += "<li><a href=\"./" + std::string(entry->d_name) + "/\">" + std::string(entry->d_name) + "/</a></li>\n";
 		}
 		else
 		{
@@ -43,9 +37,13 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 		}
 	}
 
-	conn->append_response("</ul>\n");
-	conn->append_response("</body>\n");
-	conn->append_response("</html>\n");
+	body +="</ul>\n";
+	body +="</body>\n";
+	body +="</html>\n";
+
+	conn->append_response(http_header_formatter(200, body.length(), "text/html"));
+	conn->append_response(body);
+
 	this->is_EOF = true;
 }
 
@@ -60,7 +58,5 @@ GetDirectory::~GetDirectory()
 		}
 	}
 }
-
-// IOEvent GetDirectory::closed() {}
 
 DIR	*GetDirectory::get_dir() { return dir; }
