@@ -77,7 +77,7 @@ IOEvent Route::checkRequest(const t_http_message &req, Connexion *conn) const
 		return conn->setError("", 400);
 		// return 1;
 	}
-	return IOEvent(); 
+	return IOEvent();
 }
 
 int Route::isCGI(std::string const &path) const
@@ -95,82 +95,120 @@ int Route::isCGI(std::string const &path) const
 	return (-1);
 }
 
+std::string findCgiExecPath(std::map<std::string, std::string> const &cgiPathMap, int cgiIndex)
+{
+	std::map<std::string, std::string>::const_iterator cgiMapIter = cgiPathMap.begin();
+	// iterating through the CGI paths map in order to find the right path of our executanle;
+	for (int i = 0; i != cgiIndex; i++)
+	{
+		cgiMapIter++;
+	}
+	return (cgiMapIter->second);
+}
+
 IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 {
-	t_request_line	reqLine = req.request_line;
-	std::string		completePath = attributes.root + reqLine.path;
-	
-	if (attributes.redirect.length())
-	{
+	t_request_line reqLine = req.request_line;
+	std::string completePath = attributes.root + reqLine.path;
 
+//1- redirect-handling 
+	if (!attributes.redirect.empty())
+	{
 		conn->setRessource(new RedirectRessource(conn, attributes.redirect));
 		return (IOEvent());
 	}
-	
-	int cgi = isCGI(completePath);
-	if (cgi > -1)
+
+//2- CGI handling
+	const int cgiIndex = isCGI(completePath);
+	if (cgiIndex >= 0)
 	{
-		if (fileExists(extractBeforeChar(completePath, '?').c_str()))
+		const std::string &execPath = findCgiExecPath(attributes.cgiMap, cgiIndex);
+		if (checkPermissions(completePath, S_IXUSR | S_IXGRP))
 		{
-			if (checkPermissions(completePath, S_IXUSR | S_IXGRP))
+			const t_cgiInfo cgiInfo(
+				extractBeforeChar(completePath, '?'),
+				extractAfterChar(completePath, '?'),
+				execPath);
+			try
 			{
-				std::map<std::string, std::string>::const_iterator	cgiMapIter = attributes.cgiMap.begin();
-				//iterating through the CGI paths map in order to find the right path of our executanle;
-				for (int i = 0; i != cgi; i++){
-					cgiMapIter++;
-				}
-				t_cgiInfo cgiInfo(extractBeforeChar(completePath, '?'), extractAfterChar(completePath, '?'), cgiMapIter->second);
 				conn->setRessource(new CGI(conn, cgiInfo));
 				return (IOEvent());
 			}
-			else
+			catch (const std::runtime_error &e)
 			{
-				return (conn->setError("", 403));
-			}
-		}
-	}
-	if (fileExists(completePath.c_str())){
-		if (reqLine.method & GET)
-		{
-			if (checkPermissions(completePath, S_IRUSR | S_IRGRP))
-			{
-				conn->setRessource(new GetStaticFile(conn, completePath));
-				return (IOEvent());
-			}
-			else
-			{
-				return (conn->setError("", 403));
-			}
-		}
-		else if (reqLine.method & POST)
-		{
-			conn->setRessource(new PostStaticFile(conn, completePath));
-			return (IOEvent());
-		}
-	}
-	else if (directoryExists(completePath.c_str()) && reqLine.method & GET)
-	{
-		if (checkPermissions(completePath, S_IRUSR | S_IRGRP))
-		{
-			if (fileExists((completePath + "index.html").c_str()))
-			{
-				if (checkPermissions(completePath + "index.html", S_IRUSR | S_IRGRP)) {
-					conn->setRessource(new GetStaticFile(conn, completePath));
-					return (IOEvent());
-				}
-			}
-			else if (attributes.directory_listing)
-			{
-				if (checkPermissions(completePath, S_IXUSR | S_IXGRP)) {
-					conn->setRessource(new GetDirectory(conn, completePath)); 
-					return (IOEvent());
-				}
+				return IOEvent(FAIL, conn, e.what(), 500);
 			}
 		}
 		else
 		{
-				return (conn->setError("", 403));
+			return conn->setError("", 403);
 		}
 	}
-	return (conn->setError("", 404));
+
+//3- File handling
+	if (fileExists(completePath.c_str()))
+	{
+		switch (reqLine.method)
+		{
+		case GET:
+			conn->setRessource(new GetStaticFile(conn, completePath));
+			break;
+		case POST:
+			conn->setRessource(new PostStaticFile(conn, completePath));
+			break;
+		case DELETE:
+			conn->setRessource(new DeleteStaticFile(conn, completePath));
+			break;
+		default:
+			return conn->setError("", 405);
+		}
+		return (IOEvent());
+	}
+
+//4- Directory handling
+	if (directoryExists(completePath.c_str()))
+	{
+		if (reqLine.method == GET)
+		{
+			const std::string indexPath = completePath + "index.html";
+			if (fileExists(indexPath.c_str()))
+			{
+				if (checkPermissions(indexPath, R_OK))
+				{
+					try
+					{
+						conn->setRessource(new GetStaticFile(conn, indexPath));
+						return (IOEvent());
+					}
+					catch (const std::runtime_error &e)
+					{
+						return IOEvent(FAIL, conn, e.what(), 500);
+					}
+				}
+				else
+				{
+					return conn->setError("", 403);
+				}
+			}
+			else if (attributes.directory_listing && checkPermissions(completePath, X_OK))
+			{
+				try
+				{
+					conn->setRessource(new GetDirectory(conn, completePath));
+					return (IOEvent());
+				}
+				catch (const std::runtime_error &e)
+				{
+					return IOEvent(FAIL, conn, e.what(), 500);
+				}
+			}
+		}
+		else if ((reqLine.method & POST) || (reqLine.method & DELETE))
+		{
+			return conn->setError("", 405);
+		}
+	}
+
+//5- other
+	return conn->setError("", 404);
 }

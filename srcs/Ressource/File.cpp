@@ -10,8 +10,7 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource
 
 	if (fd_read == -1)
 	{
-		conn->setError("Error opening the file" + file_path, 404);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() Open failed");
+		throw std::runtime_error("Error opening the file" + file_path);
 	}
 	set_nonblocking(fd_read);
 
@@ -19,10 +18,8 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource
 
 	if (fstat(fd_read, &st) == -1)
 	{
-		conn->setError("Error getting the file size for " + file_path, 404);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() Fstat failed");
+		throw std::runtime_error("Error getting the file size for " + file_path);
 	}
-
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + get_mime(file_path) + CRLF;
 	std::ostringstream s;
@@ -30,7 +27,6 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) :	Ressource
 	std::string	s_size(s.str());
 	header += "Content-Length: " + s_size + CRLF;
 	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
-
 	conn->append_response(header.c_str(), header.size());
 }
 
@@ -78,8 +74,7 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressour
 
 	if (fd_write == -1)
 	{
-		conn->setError("Error opening the file" + file_path, 404);
-		throw std::runtime_error("PostStaticFile::PostStaticFile() Open failed");
+		throw std::runtime_error("Error opening the file" + file_path);
 	}
 	set_nonblocking(fd_write);
 
@@ -91,13 +86,11 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) :	Ressour
 
 	if (chmod(new_path.c_str(), CH_PERM) == -1)
 	{
-		conn->setError("Error changing the file permissions for " + new_path, 500);
 		if (close(fd_write) == -1)
 		{
-			conn->setError("Error closing the file", 500);
-			throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
+			throw std::runtime_error("Error closing the file" + new_path);
 		}
-		throw std::runtime_error("PostStaticFile::PostStaticFile() Chmod failed");
+		throw std::runtime_error("Error changing the file permissions for " + new_path);
 	}
 }
 
@@ -152,7 +145,7 @@ DeleteStaticFile::DeleteStaticFile(Connexion *conn, std::string file_path) :	Res
 {
 	int	rm = remove(file_path.c_str());
 	if (rm != 0)
-		throw std::runtime_error("DeleteStaticFile::DeleteStaticFile() failed");
+		throw std::runtime_error("DeleteStaticFile::DeleteStaticFile() failed for file " + file_path);
 }
 
 DeleteStaticFile::~DeleteStaticFile() {}

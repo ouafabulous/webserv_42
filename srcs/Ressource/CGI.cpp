@@ -45,10 +45,8 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 		}
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
-
 		setenv("REQUEST_METHOD", conn->getRequest().request_line.methodVerbose.c_str(), 1);
 		setenv("QUERY_STRING", cgiInfo._queryString.c_str(), 1);
-
 		execve(cgiInfo._executable.c_str(), args, NULL);
 	}
 	else
