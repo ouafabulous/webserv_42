@@ -5,7 +5,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];
-	//bytes_read = 0;
+
 	char	*args[] = {const_cast<char*>(cgiInfo._executable.c_str()), const_cast<char*>(cgiInfo._filePath.c_str())};
 
 	if (pipe(pipe_to_CGI) == -1)

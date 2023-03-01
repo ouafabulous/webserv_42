@@ -27,7 +27,7 @@ bool	epoll_util(int action, t_fd fd, IO* io_ptr, int flags) {
 	return SUCCESS;
 }
 
-std::string http_header_formatter(uint status_code, size_t content_length) {
+std::string http_header_formatter(uint status_code, size_t content_length,std::string content_type = "application/octet-stream") {
 	static std::map<uint, std::string>	status_text;
 	std::stringstream 					result;
 
@@ -75,6 +75,7 @@ std::string http_header_formatter(uint status_code, size_t content_length) {
 	}
 
 	result << "HTTP/1.1 " << status_code << " " << status_text[status_code] << CRLF;
+	result << "Content-Type: " << content_type << CRLF;
 	result << "Content-Length: " << content_length << CRLF;
 	result << CRLF;
 
@@ -170,7 +171,7 @@ t_methods	methodToEnum(std::string const &http_method){
     {
         request_method = DELETE;
     }
-	else 
+	else
 	{
 		return NO_METHOD; //throw exception of method is not a valid HTTP method
 	}
@@ -237,9 +238,9 @@ std::string extractAfterChar(const std::string& inputString, char delimiter) {
     return inputString.substr(pos + 1);
 }
 
-bool checkPermissions(const std::string& file_path, const mode_t& mode) 
+bool checkPermissions(const std::string& file_path, const mode_t& mode)
 {
-	if (access(file_path.c_str(), mode) == 0) 
+	if (access(file_path.c_str(), mode) == 0)
 		return true;
 	std::cerr << "Error: " << strerror(errno) << std::endl;
 	return false;
