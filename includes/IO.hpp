@@ -3,6 +3,7 @@
 
 #include <Type.hpp>
 #include <Config.hpp>
+#include <poll.h>
 
 class IO;
 
@@ -28,9 +29,9 @@ class IO
 {
 public:
 	virtual ~IO() {};
-	virtual IOEvent	read() {return IOEvent(FAIL, this, "Unknown error");};		// called when EPOLLIN received
-	virtual IOEvent	write() {return IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLOUT received
-	virtual IOEvent	closed() {return IOEvent(FAIL, this, "Unknown error");};	// called when EPOLLHUP received
+	virtual IOEvent	read() {return IOEvent(FAIL, this, "Unknown error");};		// called when POLLIN received
+	virtual IOEvent	write() {return IOEvent(FAIL, this, "Unknown error");};	// called when POLLOUT received
+	virtual IOEvent	closed() {return IOEvent(FAIL, this, "Unknown error");};	// called when POLLHUP received
 
 protected:
 	char	buffer[BUFFER_SIZE + 1];

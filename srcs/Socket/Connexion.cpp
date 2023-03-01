@@ -26,15 +26,18 @@ Connexion::Connexion(const t_network_address netAddr,
 																dechunker(request.body),
 																route(NULL),
 																ressource(NULL),
-																response_start(false)
+																resp_start(false),
+																resp_end(false)
 {
 }
 Connexion::~Connexion()
 {
 	Logger::debug << c_socket << " was delete" << std::endl;
-	if (epoll_util(EPOLL_CTL_DEL, c_socket, this, EPOLLIN))
-		throw std::runtime_error("epoll_del failed");
+	if (poll_util(POLL_CTL_DEL, c_socket, this, POLLIN))
+		throw std::runtime_error("poll_del failed");
 	close(c_socket);
+	if (ressource)
+		delete ressource;
 }
 
 // IOEvent
@@ -59,10 +62,10 @@ IOEvent Connexion::write()
 	if (response.empty())
 		return IOEvent();
 	Logger::debug << "write to conn" << std::endl;
-	if (send(c_socket, response.c_str(), BUFFER_SIZE / 100, MSG_DONTWAIT) == -1)
+	if (send(c_socket, response.front().c_str(), response.front().size(), MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "unable to write to the client socket");
-	response.erase(0, BUFFER_SIZE / 100);
-	if (ressource && ressource->getIsEOF())
+	response.pop();
+	if (resp_end && response.empty())
 		return IOEvent(SUCCESS, this, "successfuly send response");
 	return IOEvent();
 }
@@ -70,11 +73,14 @@ IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the conn
 
 t_http_message const &Connexion::getRequest() const { return request; }
 
-void Connexion::append_response(std::string message) {
-	response.append(message);
+void Connexion::pushResponse(std::string message) {
+	response.push(message);
 }
-void Connexion::append_response(const char *message, size_t n) {
-	response.append(message, n);
+void Connexion::pushResponse(const char *message, size_t n) {
+	response.push(std::string(message, n));
+}
+void Connexion::setRespEnd() {
+	resp_end = true;
 }
 
 
@@ -87,23 +93,22 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 {
 	std::string body;
 
-	if (response_start)
+	if (resp_start)
 		return IOEvent(FAIL, this, log);
-	response.clear();
+	response =  std::queue<std::string>();
 	Logger::warning << http_error << " " << log << std::endl;
 	if (route)
 		body = route->getError(http_error);
 	else
 		body = Errors::getDefaultError(http_error);
-	response.append(http_header_formatter(http_error, body.length()));
-	response.append(body);
+	response.push(http_header_formatter(http_error, body.length()) + body);
 	if (ressource)
 	{
 		delete ressource;
 		ressource = NULL;
 	}
-	if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
-		return IOEvent(FAIL, this, "unable to epoll_ctl_mod");
+	if (poll_util(POLL_CTL_MOD, c_socket, this, POLLOUT))
+		return IOEvent(FAIL, this, "unable to poll_ctl_mod");
 	return IOEvent();
 }
 
@@ -189,8 +194,8 @@ IOEvent Connexion::executeRoute()
 			Logger::debug << body_readed_size << std::endl;
 			return setError("request contains body but GET Method, no Transfer-Encoding or Content-Length given", 400);
 		}
-		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
-			return setError("unable to set EPOLL_CTL_MOD", 500);
+		if (poll_util(POLL_CTL_MOD, c_socket, this, POLLIN | POLLOUT))
+			return setError("unable to set POLL_CTL_MOD", 500);
 		is_body_parsed = true;
 	}
 	else {
@@ -232,8 +237,8 @@ IOEvent	Connexion::readBody() {
 			return setError(io_resp.log, io_resp.http_error);
 		else if (io_resp.result == SUCCESS)
 		{
-			if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
-				return setError("unable to set EPOLL_CTL_MOD", 500);
+			if (poll_util(POLL_CTL_MOD, c_socket, this, POLLIN | POLLOUT))
+				return setError("unable to set POLL_CTL_MOD", 500);
 			is_body_parsed = true;
 		}
 	}
@@ -241,8 +246,8 @@ IOEvent	Connexion::readBody() {
 		request.body.append(raw_request, 0, request.content_length - request.body.size());
 		raw_request.clear();
 		if (request.body.size() == request.content_length) {
-			if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
-				return setError("unable to set EPOLL_CTL_MOD", 500);
+			if (poll_util(POLL_CTL_MOD, c_socket, this, POLLIN | POLLOUT))
+				return setError("unable to set POLL_CTL_MOD", 500);
 			is_body_parsed = true;
 		}
 	}

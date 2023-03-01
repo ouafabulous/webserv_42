@@ -23,13 +23,13 @@ ListenSocket::ListenSocket(const t_network_address netAddr, const Router &router
 		throw std::runtime_error("set_nonblocking function failed");
 	if (listen(l_socket, CONN_TO_LISTEN))
 		throw std::runtime_error("listen failed");
-	if (epoll_util(EPOLL_CTL_ADD, l_socket, this, EPOLLIN | EPOLLET))
-		throw std::runtime_error("epoll_ctl failed");
+	if (poll_util(POLL_CTL_ADD, l_socket, this, POLLIN))
+		throw std::runtime_error("poll_ctl failed");
 }
 
 ListenSocket::~ListenSocket() {
-	if (epoll_util(EPOLL_CTL_DEL, l_socket, this, EPOLLIN | EPOLLET))
-		throw std::runtime_error("epoll_del failed");
+	if (poll_util(POLL_CTL_DEL, l_socket, this, POLLIN))
+		throw std::runtime_error("poll_del failed");
 	close(l_socket);
 }
 
@@ -43,10 +43,15 @@ IOEvent ListenSocket::read()
 	if (set_nonblocking(client_fd))
 		return(IOEvent(FAIL, this, "set_nonblocking function failed"));
 	new_conn = new Connexion(netAddr, client_fd, router);
-	Server::socks.insert(new_conn);
-	if (epoll_util(EPOLL_CTL_ADD, client_fd, new_conn, EPOLLIN))
-		return IOEvent(FAIL, this, "epoll_ctl failed");
+	if (poll_util(POLL_CTL_ADD, client_fd, new_conn, POLLIN))
+		return IOEvent(FAIL, this, "poll_ctl failed");
 	Logger::info << "new client is now connected: " << client_fd << std::endl;
 	return IOEvent();
 }
+
 IOEvent ListenSocket::closed() { return IOEvent(FAIL, this, "listen socket closed"); }
+
+t_fd ListenSocket::getFd() const {
+	return l_socket;
+}
+

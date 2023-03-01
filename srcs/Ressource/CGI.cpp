@@ -17,9 +17,9 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 		throw std::runtime_error("CGI::CGI() pipe_to_host failed.");
 	}
 
-	if (!epoll_util(EPOLL_CTL_ADD, pipe_to_CGI[READ], this, EPOLLIN | EPOLLHUP | EPOLLRDHUP)
-		&& !epoll_util(EPOLL_CTL_ADD, pipe_to_host[WRITE], this, EPOLLOUT | EPOLLRDHUP))
-		throw std::runtime_error("CGI::CGI() epoll_util failed");
+	if (poll_util(POLL_CTL_ADD, pipe_to_CGI[READ], this, POLLIN | POLLHUP | POLLRDHUP)
+		&& poll_util(POLL_CTL_ADD, pipe_to_host[WRITE], this, POLLOUT | POLLRDHUP))
+		throw std::runtime_error("CGI::CGI() poll_util failed");
 
 	pid_t pid = fork();
 
@@ -77,8 +77,8 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 
 CGI::~CGI()
 {
-	epoll_util(EPOLL_CTL_DEL, fd_read, this, EPOLLIN);
-	epoll_util(EPOLL_CTL_DEL, fd_write, this, EPOLLOUT);
+	poll_util(POLL_CTL_DEL, fd_read, this, POLLIN);
+	poll_util(POLL_CTL_DEL, fd_write, this, POLLOUT);
 	if (close(fd_read) == -1 || close(fd_write) == -1)
 	{
 		conn->setError("Error closing the file", 500);
@@ -99,8 +99,8 @@ IOEvent CGI::read()
 	if (!ret)
 		return closed();
 	if (ret == 0)
-		is_EOF = true;
-	conn->append_response(buffer, ret);
+		conn->setRespEnd();
+	conn->pushResponse(buffer, ret);
 	return IOEvent();
 }
 
@@ -116,7 +116,7 @@ IOEvent CGI::write()
 
 	if (!ret)
 	{
-		is_EOF = true;
+		conn->setRespEnd();
 		return IOEvent();
 	}
 

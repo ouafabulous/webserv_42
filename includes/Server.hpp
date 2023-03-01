@@ -8,26 +8,31 @@
 #include <Errors.hpp>
 #include <IO.hpp>
 #include <Socket.hpp>
-#include <sys/epoll.h>
 #include <unistd.h>
 #include <set>
+#include <poll.h>
 
 class Router;
 class ListenSocket;
 
+typedef struct pollfd	t_pollfd;
+
 class Server
 {
 public:
-	typedef std::set<IO*>	socket_set;
+	typedef std::map<t_fd, IO*>							socket_map;
+	typedef std::vector<t_pollfd>						t_pollfds_vec;
+	typedef t_pollfds_vec::iterator						t_poll_it;
 
 	Server(Parser const &confFile);
 	~Server();
 
-	static t_fd						epollfd;
-	static socket_set				socks;
-	void							routine();
+	static t_pollfds_vec								pollfds;
+	static socket_map									socks;
+	void												routine();
 
 private:
+
 	const Router					router;
 	typedef std::vector<t_network_address>	listen_list;
 };

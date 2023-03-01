@@ -3,14 +3,11 @@
 
 #include <IO.hpp>
 #include <unistd.h>
-// #include <Ressource.hpp>
-// #include <Router.hpp>
 #include <Errors.hpp>
 #include <Utils.hpp>
 #include <Config.hpp>
-// #include <Server.hpp>
 #include <Dechunker.hpp>
-#include <sys/epoll.h>
+#include <queue>
 
 class Server;
 class Router;
@@ -24,6 +21,7 @@ public:
 
 	virtual IOEvent read();
 	virtual IOEvent closed();
+	t_fd getFd() const;
 
 private:
 	const t_fd l_socket;
@@ -43,10 +41,11 @@ public:
 	virtual IOEvent closed();
 	t_http_message const &getRequest() const;
 	IOEvent setError(std::string log, uint http_error);
-	void append_response(std::string message);
-	void append_response(const char *message, size_t n);
 	Route get_route();
-	void	setRessource(Ressource *_ressource);
+	void setRessource(Ressource *_ressource);
+	void pushResponse(std::string message);
+	void pushResponse(const char *message, size_t n);
+	void setRespEnd();
 
 private:
 	IOEvent readHeader(); // called by read() until header is fully received
@@ -75,8 +74,9 @@ private:
 	// DATA RELATED TO THE INTERNAL PART AND RESPONSE PART
 	const Route *route; // const or not
 	Ressource *ressource;
-	std::string response;
-	bool response_start; // true if connexion has started to respond to client
+	std::queue<std::string> response;
+	bool resp_start; // true if connexion has started to respond to client
+	bool resp_end;	 // true if all the response is in the response queue
 };
 
 #endif

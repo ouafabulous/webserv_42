@@ -20,10 +20,10 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 		conn->setError("Error setting the file to non-blocking", 500);
 		throw std::runtime_error("GetStaticFile::GetStaticFile() set_nonblocking failed");
 	}
-	if (!epoll_util(EPOLL_CTL_ADD, fd_read, this, EPOLLIN))
+	if (poll_util(POLL_CTL_ADD, fd_read, this, POLLIN))
 	{
-		conn->setError("Error adding the file to the epoll", 500);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() epoll_util failed");
+		conn->setError("Error adding the file to the poll", 500);
+		throw std::runtime_error("GetStaticFile::GetStaticFile() poll_util failed");
 	}
 
 	struct stat st;
@@ -42,28 +42,12 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 	header += "Content-Length: " + s_size + CRLF;
 	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
 
-	conn->append_response(header);
-	std::vector<char>	local_buff;
-	local_buff.reserve(st.st_size);
-
-	int	ret = ::read(fd_read, &local_buff[0], st.st_size);
-
-	if (ret == -1)
-	{
-		close(fd_read);
-		conn->setError("Error reading the file", 500);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() Fstat failed");
-	}
-	if (ret == 0) {
-		is_EOF = true;
-		closed();
-	}
-	conn->append_response(&local_buff[0], st.st_size);
+	conn->pushResponse(header);
 }
 
 GetStaticFile::~GetStaticFile()
 {
-	epoll_util(EPOLL_CTL_DEL, fd_read, this, EPOLLIN);
+	poll_util(POLL_CTL_DEL, fd_read, this, POLLIN);
 	if (close(fd_read) == -1)
 	{
 		conn->setError("Error closing the file", 500);
@@ -75,16 +59,16 @@ IOEvent GetStaticFile::read()
 {
 	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
+	Logger::debug << "read from file" << std::endl;
+
 	if (ret == -1)
-	{
-		close(fd_read);
 		return conn->setError("Error reading the file", 500);
+	if (ret < BUFFER_SIZE) {
+		conn->setRespEnd();
+		poll_util(POLL_CTL_MOD, fd_read, this, 0);
 	}
-	if (!ret)
-		return closed();
-	if (ret == 0)
-		is_EOF = true;
-	conn->append_response(buffer, ret);
+	if (ret)
+		conn->pushResponse(buffer, ret);
 	return IOEvent();
 }
 
@@ -113,22 +97,22 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 		conn->setError("Error setting the file to non-blocking", 500);
 		throw std::runtime_error("PostStaticFile::PostStaticFile() set_nonblocking failed");
 	}
-	if (!epoll_util(EPOLL_CTL_ADD, fd_write, this, EPOLLOUT))
+	if (poll_util(POLL_CTL_ADD, fd_write, this, POLLOUT))
 	{
-		conn->setError("Error adding the file to the epoll", 500);
-		throw std::runtime_error("PostStaticFile::PostStaticFile() epoll_util failed");
+		conn->setError("Error adding the file to the poll", 500);
+		throw std::runtime_error("PostStaticFile::PostStaticFile() poll_util failed");
 	}
 
 	std::string header = "HTTP/1.1 200 OK\r\n";
 	header += "Content-Type: " + get_mime(new_path) + CRLF;
 	header += "Connection: keep-alive\r\n\r\n";
 
-	conn->append_response(header.c_str(), header.size());
+	conn->pushResponse(header.c_str(), header.size());
 }
 
 PostStaticFile::~PostStaticFile()
 {
-	epoll_util(EPOLL_CTL_DEL, fd_write, this, EPOLLOUT);
+	poll_util(POLL_CTL_DEL, fd_write, this, POLLOUT);
 	if (close(fd_write) == -1)
 	{
 		conn->setError("Error closing the file", 500);
@@ -148,7 +132,7 @@ IOEvent PostStaticFile::write()
 
 	if (!ret)
 	{
-		is_EOF = true;
+		conn->setRespEnd();
 		return IOEvent();
 	}
 	if (ret < 0)

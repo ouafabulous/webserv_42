@@ -10,10 +10,6 @@
 #include "signal.h"
 #include "stdlib.h"
 
-void handle_sigpipe(int signal) {
-	(void)signal;
-	Logger::error << "Caught SIGPIPE signal, ignoring it." << std::endl;
-}
 void handle_sigint(int signal) {
 	(void)signal;
 	std::cout << "\n";
@@ -41,11 +37,7 @@ int main(int ac, char *av[])
 		// lexing
 		Lexer	lex(big_buffer);
 		lex.fillTokens();
-		// lex.printTokens();
 		Parser	parse(lex.getTokens());
-		// parse.printBlocks();
-		// Router	router(parse);
-		// router.printRoutes();
 		Server my_server(parse);
 		my_server.routine();
 	}

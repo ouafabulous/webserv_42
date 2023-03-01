@@ -31,6 +31,11 @@ typedef enum
 	NO_METHOD
 } t_methods;
 
+typedef enum {
+	POLL_CTL_ADD,
+	POLL_CTL_MOD,
+	POLL_CTL_DEL
+}	t_poll_action;
 
 struct t_request_line
 {

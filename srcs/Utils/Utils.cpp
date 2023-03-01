@@ -18,12 +18,33 @@ bool	set_nonblocking(int fd)
 }
 
 
-bool	epoll_util(int action, t_fd fd, IO* io_ptr, int flags) {
-	epoll_event	event;
-	event.data.ptr = io_ptr;
-	event.events = flags;
-	if (epoll_ctl(Server::epollfd, action, fd, &event) == -1)
-		return ERROR;
+bool	poll_util(t_poll_action action, t_fd fd, IO* io_ptr, int flags) {
+	if (action == POLL_CTL_ADD) {
+		t_pollfd	new_pollfd;
+		new_pollfd.events = flags;
+		new_pollfd.fd = fd;
+		new_pollfd.revents = 0;
+
+		Server::pollfds.push_back(new_pollfd);
+		Server::socks[fd] = io_ptr;
+		return OK;
+	}
+
+	Server::t_poll_it		poll_it = Server::pollfds.begin();
+	for (poll_it = Server::pollfds.begin(); poll_it != Server::pollfds.end(); poll_it++)
+	{
+		if (poll_it->fd == fd)
+			break;
+	}
+	if (poll_it == Server::pollfds.end())
+		return NOK;
+
+	if (action == POLL_CTL_MOD)
+		poll_it->events = flags;
+	else if (action == POLL_CTL_DEL) {
+		Server::pollfds.erase(poll_it);
+		Server::socks.erase(fd);
+	}
 	return SUCCESS;
 }
 
@@ -170,7 +191,7 @@ t_methods	methodToEnum(std::string const &http_method){
     {
         request_method = DELETE;
     }
-	else 
+	else
 	{
 		return NO_METHOD; //throw exception of method is not a valid HTTP method
 	}
@@ -237,9 +258,9 @@ std::string extractAfterChar(const std::string& inputString, char delimiter) {
     return inputString.substr(pos + 1);
 }
 
-bool checkPermissions(const std::string& file_path, const mode_t& mode) 
+bool checkPermissions(const std::string& file_path, const mode_t& mode)
 {
-	if (access(file_path.c_str(), mode) == 0) 
+	if (access(file_path.c_str(), mode) == 0)
 		return true;
 	std::cerr << "Error: " << strerror(errno) << std::endl;
 	return false;

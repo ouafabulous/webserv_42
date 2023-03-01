@@ -20,18 +20,14 @@ class Connexion;
 class Ressource : public IO
 {
 public:
-	Ressource(Connexion *conn): conn(conn), is_EOF(false), fd_read(-1), fd_write(-1) {};
+	Ressource(Connexion *conn): conn(conn), fd_read(-1), fd_write(-1) {};
 	virtual ~Ressource() {};
 	virtual IOEvent		read() = 0;
 	virtual IOEvent		write() = 0;
 	virtual IOEvent		closed() = 0;
-	bool				getIsEOF() {
-		return is_EOF;
-	};
 
 protected:
 	Connexion			*conn;
-	bool				is_EOF;
 	t_fd				fd_read;
 	t_fd				fd_write;
 };
