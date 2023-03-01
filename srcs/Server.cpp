@@ -39,7 +39,7 @@ void	Server::routine() {
 	IOEvent			io_event;
 
 	if (socks.empty())
-		throw std::runtime_error("there is no virtual server listening");
+		throw std::runtime_error("there is no virtual server listening\n");
 	while (TRUE)
 	{
 		epoll_wait_return = epoll_wait(epollfd, events, EPOLL_BACKLOG, -1);
