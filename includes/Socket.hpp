@@ -44,7 +44,7 @@ public:
 	t_http_message const &getRequest() const;
 	IOEvent setError(std::string log, uint http_error);
 	void append_response(std::string message);
-	void append_response(std::string message, size_t n);
+	void append_response(const char *message, size_t n);
 	Route get_route();
 	void	setRessource(Ressource *_ressource);
 

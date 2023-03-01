@@ -95,14 +95,14 @@ IOEvent Route::checkRequest(const t_http_message &req, Connexion *conn) const
 		return conn->setError("", 400);
 		// return 1;
 	}
-	return IOEvent(); 
+	return IOEvent();
 }
 
 int Route::isCGI(std::string const &path) const
 {
 	std::map<std::string, std::string>::const_iterator cgiIt;
 	int i = 0;
-	for (cgiIt = attributes.cgiMap.begin(); cgiIt != attributes.cgiMap.end(); cgiIt++)
+	for (cgiIt = attributes.cgi_path.begin(); cgiIt != attributes.cgi_path.end(); cgiIt++)
 	{
 		if (containsSubstring(path, cgiIt->first))
 		{
@@ -118,23 +118,21 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	t_request_line	reqLine = req.request_line;
 	std::string		completePath = attributes.root + reqLine.path;
 
-	Logger::debug << completePath << std::endl;
-	
 	if (attributes.redirect.length())
 	{
 
 		conn->setRessource(new RedirectRessource(conn, attributes.redirect));
 		return (IOEvent());
 	}
-	
+
 	int cgi = isCGI(completePath);
 	if (cgi > -1)
 	{
 		if (fileExists(extractBeforeChar(completePath, '?').c_str()))
 		{
-			if (checkPermissions(completePath, S_IXUSR | S_IXGRP))
+			if (checkPermissions(completePath, R_OK))
 			{
-				std::map<std::string, std::string>::const_iterator	cgiMapIter = attributes.cgiMap.begin();
+				std::map<std::string, std::string>::const_iterator	cgiMapIter = attributes.cgi_path.begin();
 				//iterating through the CGI paths map in order to find the right path of our executanle;
 				for (int i = 0; i != cgi; i++){
 					cgiMapIter++;
@@ -149,7 +147,33 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			}
 		}
 	}
-	if (fileExists(completePath.c_str())){
+	if (directoryExists(completePath.c_str()) && reqLine.method & GET)
+	{
+		if (checkPermissions(completePath, R_OK))
+		{
+			if (fileExists((completePath + "index.html").c_str()))
+			{
+				completePath.append(std::string("index.html"));
+				Logger::debug << "index: " << completePath << std::endl;
+				if (checkPermissions(completePath, R_OK)) {
+					conn->setRessource(new GetStaticFile(conn, completePath));
+					return (IOEvent());
+				}
+			}
+			else if (attributes.directory_listing)
+			{
+				if (checkPermissions(completePath, X_OK)) {
+					conn->setRessource(new GetDirectory(conn, completePath));
+					return (IOEvent());
+				}
+			}
+		}
+		else
+		{
+				return (conn->setError("", 403));
+		}
+	}
+	else if (fileExists(completePath.c_str())){
 		if (reqLine.method & GET)
 		{
 			if (checkPermissions(completePath, R_OK))
@@ -166,30 +190,6 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 		{
 			conn->setRessource(new PostStaticFile(conn, completePath));
 			return (IOEvent());
-		}
-	}
-	else if (directoryExists(completePath.c_str()) && reqLine.method & GET)
-	{
-		if (checkPermissions(completePath, S_IRUSR | S_IRGRP))
-		{
-			if (fileExists((completePath + "index.html").c_str()))
-			{
-				if (checkPermissions(completePath + "index.html", S_IRUSR | S_IRGRP)) {
-					conn->setRessource(new GetStaticFile(conn, completePath));
-					return (IOEvent());
-				}
-			}
-			else if (attributes.directory_listing)
-			{
-				if (checkPermissions(completePath, S_IXUSR | S_IXGRP)) {
-					conn->setRessource(new GetDirectory(conn, completePath)); 
-					return (IOEvent());
-				}
-			}
-		}
-		else
-		{
-				return (conn->setError("", 403));
 		}
 	}
 	return (conn->setError("", 404));

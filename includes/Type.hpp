@@ -57,7 +57,7 @@ typedef std::pair<in_addr_t, in_port_t>				t_network_address;
 typedef struct s_attributes
 {
 	t_methods 										allowed_methods;	// could be GET POST DELETE
-	std::vector<std::string>						server_name; 		// defined by the hesder field "Host:"  
+	std::vector<std::string>						server_name; 		// defined by the hesder field "Host:"
 	std::string										location;			// path requested in the request line
 	size_t											max_body_length;
 	Errors											error_files;		// path to default error pages -- not implemented in the V0 of the parser
@@ -67,7 +67,6 @@ typedef struct s_attributes
 	bool											directory_listing;	// autoindex on/off
 	uint											port;
 	std::string										index;
-	std::map<std::string, std::string>				cgiMap;
 } t_attributes;
 
 typedef enum s_s_tok

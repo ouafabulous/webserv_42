@@ -8,6 +8,8 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 {
 	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
 
+	Logger::debug << file_path << std::endl;
+
 	if (fd_read == -1)
 	{
 		conn->setError("Error opening the file" + file_path, 404);
@@ -40,7 +42,23 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 	header += "Content-Length: " + s_size + CRLF;
 	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
 
-	conn->append_response(header.c_str(), header.size());
+	conn->append_response(header);
+	std::vector<char>	local_buff;
+	local_buff.reserve(st.st_size);
+
+	int	ret = ::read(fd_read, &local_buff[0], st.st_size);
+
+	if (ret == -1)
+	{
+		close(fd_read);
+		conn->setError("Error reading the file", 500);
+		throw std::runtime_error("GetStaticFile::GetStaticFile() Fstat failed");
+	}
+	if (ret == 0) {
+		is_EOF = true;
+		closed();
+	}
+	conn->append_response(&local_buff[0], st.st_size);
 }
 
 GetStaticFile::~GetStaticFile()

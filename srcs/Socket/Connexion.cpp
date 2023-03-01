@@ -67,8 +67,12 @@ IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the conn
 
 t_http_message const &Connexion::getRequest() const { return request; }
 
-void Connexion::append_response(std::string message) { response.append(message); }
-void Connexion::append_response(std::string message, size_t n) { response.append(message, n); }
+void Connexion::append_response(std::string message) {
+	response.append(message);
+}
+void Connexion::append_response(const char *message, size_t n) {
+	response.append(message, n);
+}
 
 
 //
@@ -182,7 +186,7 @@ IOEvent Connexion::executeRoute()
 			Logger::debug << body_readed_size << std::endl;
 			return setError("request contains body but GET Method, no Transfer-Encoding or Content-Length given", 400);
 		}
-		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+		if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
 			return setError("unable to set EPOLL_CTL_MOD", 500);
 		is_body_parsed = true;
 	}
@@ -234,7 +238,7 @@ IOEvent	Connexion::readBody() {
 		request.body.append(raw_request, 0, request.content_length - request.body.size());
 		raw_request.clear();
 		if (request.body.size() == request.content_length) {
-			if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLOUT))
+			if (epoll_util(EPOLL_CTL_MOD, c_socket, this, EPOLLIN | EPOLLOUT))
 				return setError("unable to set EPOLL_CTL_MOD", 500);
 			is_body_parsed = true;
 		}
