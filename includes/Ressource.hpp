@@ -62,6 +62,9 @@ class DeleteStaticFile : public Ressource
 public:
 	DeleteStaticFile(Connexion *conn, std::string file_path);
 	~DeleteStaticFile();
+
+	virtual	IOEvent		read(){return IOEvent();};  //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
+	virtual IOEvent		write(){return IOEvent();}; //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
 	virtual IOEvent		closed();
 };
 
