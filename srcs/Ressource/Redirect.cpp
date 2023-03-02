@@ -3,21 +3,25 @@
 RedirectRessource::RedirectRessource(Connexion *conn, std::string const &url) : Ressource(conn)
 {
 	// append header
-	conn->pushResponse("HTTP/1.1 301 Moved Permanently\r\n");
-	conn->pushResponse("Location: " + url + "\r\n");
-	conn->pushResponse("Content-Type: text/html\r\n");
-	conn->pushResponse("\r\n");
+	std::string body = "<html>\n";
+	body += "HTTP/1.1 301 Moved Permanently\r\n";
+	body += "Location: " + url + "\r\n";
+	body += "Content-Type: text/html\r\n";
+	body += "\r\n";
 
 	// append body
-	conn->pushResponse("<html>\n");
-	conn->pushResponse("<head>\n");
-	conn->pushResponse("<title>301 Moved Permanently</title>\n");
-	conn->pushResponse("</head>\n");
-	conn->pushResponse("<body>\n");
-	conn->pushResponse("<h1>Moved Permanently</h1>\n");
-	conn->pushResponse("<p>The document has moved <a href=\"" + url + "\">here</a>.</p>\n");
-	conn->pushResponse("</body>\n");
-	conn->pushResponse("</html>\n");
+	body += "<html>\n";
+	body += "<head>\n";
+	body += "<title>301 Moved Permanently</title>\n";
+	body += "</head>\n";
+	body += "<body>\n";
+	body += "<h1>Moved Permanently</h1>\n";
+	body += "<p>The document has moved <a href=\"" + url + "\">here</a>.</p>\n";
+	body += "</body>\n";
+	body += "</html>\n";
+
+	conn->pushResponse(body);
+	conn->setRespEnd();
 }
 
 RedirectRessource::~RedirectRessource() {}

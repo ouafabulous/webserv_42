@@ -8,7 +8,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g
 
 ROUTER = $(addprefix Router/, Lexer.cpp Router.cpp Route.cpp Parser.cpp Block.cpp Directive.cpp)
 SOCKET = $(addprefix Socket/, ListenSocket.cpp Connexion.cpp Dechunker.cpp IOEvent.cpp)
-RESSOURCES = $(addprefix Ressource/, CGI.cpp Directory.cpp File.cpp Redirect.cpp)
+RESSOURCES = $(addprefix Ressource/, Ressource.cpp CGI.cpp Directory.cpp File.cpp Redirect.cpp)
 UTILS = $(addprefix Utils/, Utils.cpp Logger.cpp)
 SRCS = $(addprefix srcs/, main.cpp Server.cpp Errors.cpp $(ROUTER) $(SOCKET) $(UTILS) $(RESSOURCES))
 OBJS = $(addprefix $(TMPDIR)/, $(SRCS:%.cpp=%.o))

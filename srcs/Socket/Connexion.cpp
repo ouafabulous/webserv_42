@@ -21,9 +21,9 @@ Connexion::Connexion(const t_network_address netAddr,
 																is_header_parsed(false),
 																is_request_line_parsed(false),
 																is_body_parsed(false),
-																header_readed_size(0),
-																body_readed_size(0),
-																dechunker(request.body),
+																header_read_size(0),
+																body_read_size(0),
+																dechunker(request.body, body_read_size),
 																route(NULL),
 																ressource(NULL),
 																resp_start(false),
@@ -59,6 +59,8 @@ IOEvent Connexion::read()
 }
 IOEvent Connexion::write()
 {
+	if (resp_end && response.empty())
+		return IOEvent(SUCCESS, this, "successfuly send response");
 	if (response.empty())
 		return IOEvent();
 	Logger::debug << "write to conn" << std::endl;
@@ -66,8 +68,6 @@ IOEvent Connexion::write()
 		return IOEvent(FAIL, this, "unable to write to the client socket");
 	response.pop();
 	resp_start = true;
-	if (resp_end && response.empty())
-		return IOEvent(SUCCESS, this, "successfuly send response");
 	return IOEvent();
 }
 IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the connexion"); }
@@ -77,7 +77,7 @@ t_http_message const &Connexion::getRequest() const { return request; }
 void Connexion::pushResponse(std::string message) { response.push(message); }
 void Connexion::pushResponse(const char *message, size_t n) { response.push(std::string(message, n)); }
 void Connexion::setRespEnd() { resp_end = true; }
-
+bool Connexion::getBodyParsed() const { return is_body_parsed; }
 //
 //		Underlying operations
 //
@@ -113,12 +113,12 @@ IOEvent Connexion::readHeader()
 
 	while (pos != std::string::npos && !is_header_parsed)
 	{
-		if (header_readed_size >= MAX_HEADER_SIZE)
+		if (header_read_size >= MAX_HEADER_SIZE)
 			return setError("header exceeds max header size", 413);
 		pos = raw_request.find(CRLF);
 		lines.push_back(raw_request.substr(0, pos));
 		raw_request.erase(0, pos + 2);
-		header_readed_size += pos;
+		header_read_size += pos;
 		if (!pos)
 			is_header_parsed = true;
 	}
@@ -185,11 +185,8 @@ IOEvent Connexion::executeRoute()
 	if (request.request_line.methodVerbose == "GET" ||
 		(request.header_fields["Transfer-Encoding"].empty() && request.header_fields["Content-Length"].empty()))
 	{
-		if (body_readed_size > 0)
-		{
-			Logger::debug << body_readed_size << std::endl;
+		if (body_read_size > 0)
 			return setError("request contains body but GET Method, no Transfer-Encoding or Content-Length given", 400);
-		}
 		if (poll_util(POLL_CTL_MOD, c_socket, this, POLLIN | POLLOUT))
 			return setError("unable to set POLL_CTL_MOD", 500);
 		is_body_parsed = true;
@@ -246,8 +243,9 @@ IOEvent Connexion::readBody()
 	else
 	{
 		request.body.push(std::string(raw_request, 0, request.content_length - request.body.size()));
+		body_read_size += request.body.back().size();
 		raw_request.clear();
-		if (request.body.size() == request.content_length)
+		if (body_read_size == request.content_length)
 		{
 			if (poll_util(POLL_CTL_MOD, c_socket, this, POLLIN | POLLOUT))
 				return setError("unable to set POLL_CTL_MOD", 500);
