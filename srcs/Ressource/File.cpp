@@ -15,6 +15,7 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 		conn->setError("Error opening the file" + file_path, 404);
 		throw std::runtime_error("GetStaticFile::GetStaticFile() Open failed");
 	}
+
 	if (set_nonblocking(fd_read))
 	{
 		conn->setError("Error setting the file to non-blocking", 500);
@@ -34,12 +35,7 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 		throw std::runtime_error("GetStaticFile::GetStaticFile() Fstat failed");
 	}
 
-	std::string header = "HTTP/1.1 200 OK\r\n";
-	header += "Content-Type: " + get_mime(file_path) + CRLF;
-	std::ostringstream s;
-	s << st.st_size;
-	std::string	s_size(s.str());
-	header += "Content-Length: " + s_size + CRLF;
+	std::string header = http_header_formatter(200, st.st_size, get_mime(file_path));
 	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
 
 	conn->pushResponse(header);

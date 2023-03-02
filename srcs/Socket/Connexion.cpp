@@ -102,7 +102,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 		body = route->getError(http_error);
 	else
 		body = Errors::getDefaultError(http_error);
-	response.push(http_header_formatter(http_error, body.length()) + body);
+	response.push(http_header_formatter(http_error, body.length(), "text/html") + body);
 	if (ressource)
 	{
 		delete ressource;

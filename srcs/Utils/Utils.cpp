@@ -48,7 +48,7 @@ bool	poll_util(t_poll_action action, t_fd fd, IO* io_ptr, int flags) {
 	return SUCCESS;
 }
 
-std::string http_header_formatter(uint status_code, size_t content_length) {
+std::string http_header_formatter(uint status_code, size_t content_length,std::string content_type = "application/octet-stream") {
 	static std::map<uint, std::string>	status_text;
 	std::stringstream 					result;
 
@@ -96,6 +96,7 @@ std::string http_header_formatter(uint status_code, size_t content_length) {
 	}
 
 	result << "HTTP/1.1 " << status_code << " " << status_text[status_code] << CRLF;
+	result << "Content-Type: " << content_type << CRLF;
 	result << "Content-Length: " << content_length << CRLF;
 	result << CRLF;
 
