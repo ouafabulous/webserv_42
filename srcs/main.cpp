@@ -13,7 +13,7 @@
 void handle_sigint(int signal) {
 	(void)signal;
 	std::cout << "\n";
-	throw std::runtime_error("Shutdown server");
+	throw std::runtime_error("Shutdown server\n");
 }
 
 int main(int ac, char *av[])

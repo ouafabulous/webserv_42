@@ -139,6 +139,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
             *block = new BlockServer("server_" + oss.str());
             uint i = secondNonSpTokIndex + 1;
             uint clServerBrIndex = closingIndexBracket(tokens, i);
+            std::cout << "Check that out: "<< tokens[clServerBrIndex -1 ].second << std::endl;
             while (i < clServerBrIndex)
             {
                 if (isDirective(tokens[i], directiveNames))
