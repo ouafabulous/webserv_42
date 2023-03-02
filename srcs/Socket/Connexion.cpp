@@ -94,7 +94,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 {
 	std::string body;
 
-	if (resp_start)
+	if (resp_start) // I noticed that there is no moment when it is turned to true?!
 		return IOEvent(FAIL, this, log);
 	response = std::queue<std::string>();
 	Logger::warning << http_error << " " << log << std::endl;

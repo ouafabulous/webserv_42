@@ -289,15 +289,18 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 
 
 //4- File handling
-	if (fileExists(completePath.c_str()))
+//4-1 POST case
+	if (reqLine.method == POST){
+			conn->setRessource(new PostStaticFile(conn, completePath));
+			return (IOEvent());
+	}
+//4-2 GET, DELETE case
+	else if (fileExists(completePath.c_str()))
 	{
 		switch (reqLine.method)
 		{
 		case GET:
 			conn->setRessource(new GetStaticFile(conn, completePath));
-			break;
-		case POST:
-			conn->setRessource(new PostStaticFile(conn, completePath));
 			break;
 		case DELETE:
 			conn->setRessource(new DeleteStaticFile(conn, completePath));

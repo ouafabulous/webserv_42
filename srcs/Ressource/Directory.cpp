@@ -18,6 +18,7 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 	conn->pushResponse("\r\n");
 
 	// append the body
+
 	conn->pushResponse("<html>\n");
 	conn->pushResponse("<head>\n");
 	conn->pushResponse("<title>Directory Listing</title>\n");
