@@ -2,7 +2,7 @@
 #include <sstream>
 #include <Logger.hpp>
 
-Dechunker::Dechunker(std::string &body)
+Dechunker::Dechunker(t_body &body)
 	: body(body),
 	  line_state(CHUNKSIZE),
 	  chunk_size(0) {}
@@ -31,7 +31,7 @@ IOEvent Dechunker::operator()(std::string &raw_request)
 		{
 			if (raw_request.length() < chunk_size)
 				break;
-			body.append(raw_request.substr(0, chunk_size));
+			body.push(raw_request.substr(0, chunk_size));
 			line_state = NL;
 			pos = chunk_size;
 		}

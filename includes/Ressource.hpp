@@ -49,19 +49,9 @@ class PostStaticFile : public Ressource
 public:
 	PostStaticFile(Connexion *conn, std::string file_path);
 	~PostStaticFile();
-<<<<<<< HEAD
 	virtual	IOEvent		read(){return IOEvent();};  //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
 	virtual IOEvent		write();
 	virtual IOEvent		closed();
-=======
-
-	virtual IOEvent read() { return IOEvent(); };
-	virtual IOEvent write();
-	virtual IOEvent closed();
-
-private:
-	size_t bytes_read;
->>>>>>> b8d691ba6fdac58d01e3e445d7d973c1882f7310
 };
 
 class DeleteStaticFile : public Ressource
