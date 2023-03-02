@@ -278,8 +278,9 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 					conn->setRessource(new GetDirectory(conn, completePath));
 					return (IOEvent());
 				}
-				catch (const std::runtime_error &e)
+				catch (const std::runtime_error &e){
 					return IOEvent(FAIL, conn, e.what(), 500);
+				}
 			}
 		}
 		else if ((reqLine.method & POST) || (reqLine.method & DELETE))
