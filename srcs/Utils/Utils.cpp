@@ -325,3 +325,12 @@ const	std::string			get_mime(const std::string &file_path)
 		return "application/octet-stream; charset=utf-8";
 	return it->second;
 }
+
+std::string	queueToStr(std::queue<std::string> q){
+    std::string str;
+    while (!q.empty()) {
+        str += q.front();
+        q.pop();
+    }
+	return (str);
+}

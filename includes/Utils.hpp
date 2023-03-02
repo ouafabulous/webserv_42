@@ -35,6 +35,6 @@ bool            checkPermissions(const std::string& file_path, const mode_t& mod
 std::string     extractAfterChar(const std::string& inputString, char delimiter);
 const MimeMap   &get_mime_map();
 const std::string			get_mime(const std::string &file_path);
-
+std::string	    queueToStr(std::queue<std::string> q);  
 
 #endif
