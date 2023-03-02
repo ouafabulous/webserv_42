@@ -55,6 +55,7 @@ private:
 	bool parseRequestLine(std::string &request_line);
 	IOEvent parseChunkedBody();
 	IOEvent executeRoute();
+	bool decodePercent(std::string &uri);
 
 	const t_fd c_socket;
 	const t_network_address netAddr;

@@ -73,21 +73,22 @@ IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the conn
 
 t_http_message const &Connexion::getRequest() const { return request; }
 
-void Connexion::pushResponse(std::string message) {
+void Connexion::pushResponse(std::string message)
+{
 	response.push(message);
 }
-void Connexion::pushResponse(const char *message, size_t n) {
+void Connexion::pushResponse(const char *message, size_t n)
+{
 	response.push(std::string(message, n));
 }
-void Connexion::setRespEnd() {
+void Connexion::setRespEnd()
+{
 	resp_end = true;
 }
-
 
 //
 //		Underlying operations
 //
-
 
 IOEvent Connexion::setError(std::string log, uint http_error)
 {
@@ -95,7 +96,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 
 	if (resp_start)
 		return IOEvent(FAIL, this, log);
-	response =  std::queue<std::string>();
+	response = std::queue<std::string>();
 	Logger::warning << http_error << " " << log << std::endl;
 	if (route)
 		body = route->getError(http_error);
@@ -114,7 +115,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 
 IOEvent Connexion::readHeader()
 {
-	size_t	pos = 0;
+	size_t pos = 0;
 	std::vector<std::string> lines;
 
 	while (pos != std::string::npos && !is_header_parsed)
@@ -174,9 +175,11 @@ bool Connexion::parseRequestLine(std::string &raw_line)
 	}
 	if (splitted_line.size() != 3 || splitted_line[2] != HTTP_VERSION)
 		return NOK;
-	std::string	methodString = splitted_line[0];
+	std::string methodString = splitted_line[0];
 	request.request_line.methodVerbose = methodString;
 	request.request_line.method = methodToEnum(methodString);
+	if (decodePercent(splitted_line[1]))
+		return NOK;
 	request.request_line.path = splitted_line[1];
 	request.request_line.http_version = splitted_line[2];
 	is_request_line_parsed = true;
@@ -198,9 +201,11 @@ IOEvent Connexion::executeRoute()
 			return setError("unable to set POLL_CTL_MOD", 500);
 		is_body_parsed = true;
 	}
-	else {
-		if (!request.header_fields["Content-Length"].empty()){
-			std::stringstream	content_length_converter;
+	else
+	{
+		if (!request.header_fields["Content-Length"].empty())
+		{
+			std::stringstream content_length_converter;
 			content_length_converter << request.header_fields["Content-Length"];
 			if (!(content_length_converter >> request.content_length))
 				return setError("Content-Length header field is not correct", 400);
@@ -216,8 +221,9 @@ IOEvent Connexion::executeRoute()
 		return setError("internal error - route not found", 500);
 
 	IOEvent ioevent_handler = route->setRessource(request, this);
-	if (ioevent_handler.result == FAIL) {
-		return setError(ioevent_handler.log, ioevent_handler.http_error); //setRessource retourne un setError aussi --> redondance
+	if (ioevent_handler.result == FAIL)
+	{
+		return setError(ioevent_handler.log, ioevent_handler.http_error); // setRessource retourne un setError aussi --> redondance
 	}
 	if (request.content_length > route->getMaxBodySize())
 		return setError("Content-Length header field is bigger than the maximum body size allowed for this route", 413);
@@ -229,10 +235,12 @@ IOEvent Connexion::executeRoute()
 	return IOEvent();
 }
 
-IOEvent	Connexion::readBody() {
+IOEvent Connexion::readBody()
+{
 	// if chunked request
-	if (request.header_fields["Transfer-Encoding"] != "" && request.header_fields["Transfer-Encoding"] != "identity") {
-		IOEvent	io_resp = dechunker(raw_request);
+	if (request.header_fields["Transfer-Encoding"] != "" && request.header_fields["Transfer-Encoding"] != "identity")
+	{
+		IOEvent io_resp = dechunker(raw_request);
 		if (io_resp.result == FAIL)
 			return setError(io_resp.log, io_resp.http_error);
 		else if (io_resp.result == SUCCESS)
@@ -242,10 +250,12 @@ IOEvent	Connexion::readBody() {
 			is_body_parsed = true;
 		}
 	}
-	else {
+	else
+	{
 		request.body.append(raw_request, 0, request.content_length - request.body.size());
 		raw_request.clear();
-		if (request.body.size() == request.content_length) {
+		if (request.body.size() == request.content_length)
+		{
 			if (poll_util(POLL_CTL_MOD, c_socket, this, POLLIN | POLLOUT))
 				return setError("unable to set POLL_CTL_MOD", 500);
 			is_body_parsed = true;
@@ -254,6 +264,25 @@ IOEvent	Connexion::readBody() {
 	return IOEvent();
 }
 
-void	Connexion::setRessource(Ressource *_ressource){
+void Connexion::setRessource(Ressource *_ressource)
+{
 	ressource = _ressource;
+}
+
+bool Connexion::decodePercent(std::string &uri)
+{
+	std::string::size_type pos = 0;
+	while ((pos = uri.find('%', pos)) != std::string::npos)
+	{
+		if (pos + 2 < uri.length())
+		{
+			const char hex[3] = {uri[pos + 1], uri[pos + 2], '\0'};
+			const char decoded = static_cast<char>(std::strtol(hex, NULL, 16));
+			uri.replace(pos, 3, 1, decoded);
+			pos += 1;
+		}
+		else
+			return NOK;
+	}
+	return OK;
 }
