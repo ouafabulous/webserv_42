@@ -13,11 +13,11 @@ typedef enum {
 class Dechunker
 {
 private:
-	std::string&	body;
+	t_body&			body;
 	t_chunk_state	line_state;
 	size_t			chunk_size;
 public:
-	Dechunker(std::string& body);
+	Dechunker(t_body& body);
 	~Dechunker();
 	IOEvent	operator()(std::string& raw_request);
 

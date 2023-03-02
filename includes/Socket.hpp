@@ -41,7 +41,6 @@ public:
 	virtual IOEvent closed();
 	t_http_message const &getRequest() const;
 	IOEvent setError(std::string log, uint http_error);
-	Route get_route();
 	void setRessource(Ressource *_ressource);
 	void pushResponse(std::string message);
 	void pushResponse(const char *message, size_t n);

@@ -65,6 +65,7 @@ IOEvent Connexion::write()
 	if (send(c_socket, response.front().c_str(), response.front().size(), MSG_DONTWAIT) == -1)
 		return IOEvent(FAIL, this, "unable to write to the client socket");
 	response.pop();
+	resp_start = true;
 	if (resp_end && response.empty())
 		return IOEvent(SUCCESS, this, "successfuly send response");
 	return IOEvent();
@@ -73,18 +74,9 @@ IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the conn
 
 t_http_message const &Connexion::getRequest() const { return request; }
 
-void Connexion::pushResponse(std::string message)
-{
-	response.push(message);
-}
-void Connexion::pushResponse(const char *message, size_t n)
-{
-	response.push(std::string(message, n));
-}
-void Connexion::setRespEnd()
-{
-	resp_end = true;
-}
+void Connexion::pushResponse(std::string message) { response.push(message); }
+void Connexion::pushResponse(const char *message, size_t n) { response.push(std::string(message, n)); }
+void Connexion::setRespEnd() { resp_end = true; }
 
 //
 //		Underlying operations
@@ -110,6 +102,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 	}
 	if (poll_util(POLL_CTL_MOD, c_socket, this, POLLOUT))
 		return IOEvent(FAIL, this, "unable to poll_ctl_mod");
+	resp_end = true;
 	return IOEvent();
 }
 
@@ -252,7 +245,7 @@ IOEvent Connexion::readBody()
 	}
 	else
 	{
-		request.body.append(raw_request, 0, request.content_length - request.body.size());
+		request.body.push(std::string(raw_request, 0, request.content_length - request.body.size()));
 		raw_request.clear();
 		if (request.body.size() == request.content_length)
 		{
