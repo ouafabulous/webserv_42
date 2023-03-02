@@ -53,28 +53,6 @@ GetStaticFile::~GetStaticFile()
 	}
 }
 
-IOEvent GetStaticFile::read()
-{
-	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);
-
-	Logger::debug << "read from file" << std::endl;
-
-	if (ret == -1)
-		return conn->setError("Error reading the file", 500);
-	if (ret < BUFFER_SIZE) {
-		conn->setRespEnd();
-		poll_util(POLL_CTL_MOD, fd_read, this, 0);
-	}
-	if (ret)
-		conn->pushResponse(buffer, ret);
-	return IOEvent();
-}
-
-IOEvent GetStaticFile::closed()
-{
-	return conn->setError("Error reading the file", 500);
-}
-
 /**************************************************************************/
 /******************************** POST FILE *******************************/
 /**************************************************************************/
@@ -105,6 +83,7 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 	//header += "Connection: closed\r\n\r\n";
 
 	conn->pushResponse(header);
+	
 
 	Logger::debug << "PostStaticFile::PostStaticFile() OK" << std::endl;
 }
@@ -119,29 +98,6 @@ PostStaticFile::~PostStaticFile()
 	}
 }
 
-IOEvent PostStaticFile::write()
-{
-	if (conn->getRequest().body.empty())
-		return IOEvent();
-
-	int	ret = ::write(fd_write, conn->getRequest().body.c_str(),
-							conn->getRequest().body.size());
-
-	Logger::debug << "write to file" << std::endl;
-
-	if (ret == -1)
-		return conn->setError("Error writing the file", 500);
-
-	return (IOEvent());
-
-	// need to check if we wrote as much as content-length or EOF ?
-}
-
-IOEvent PostStaticFile::closed()
-{
-	return conn->setError("Error writing the file", 500);
-}
-
 /**************************************************************************/
 /******************************* DELETE FILE ******************************/
 /**************************************************************************/
@@ -154,7 +110,3 @@ DeleteStaticFile::DeleteStaticFile(Connexion *conn, std::string file_path) : Res
 }
 
 DeleteStaticFile::~DeleteStaticFile() {}
-IOEvent DeleteStaticFile::closed()
-{
-	return conn->setError("Error deleting the file", 500);
-}

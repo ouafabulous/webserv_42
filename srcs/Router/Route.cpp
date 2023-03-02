@@ -227,7 +227,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	if (cgiIndex >= 0)
 	{
 		const std::string &execPath = findCgiExecPath(attributes.cgi_path, cgiIndex);
-		if (checkPermissions(completePath, S_IXUSR | S_IXGRP))
+		if (checkPermissions(completePath, R_OK) && checkPermissions(execPath, X_OK))
 		{
 			const t_cgiInfo cgiInfo(
 				extractBeforeChar(completePath, '?'),
@@ -296,15 +296,17 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 		case GET:
 			conn->setRessource(new GetStaticFile(conn, completePath));
 			break;
-		case POST:
-			conn->setRessource(new PostStaticFile(conn, completePath));
-			break;
 		case DELETE:
 			conn->setRessource(new DeleteStaticFile(conn, completePath));
 			break;
 		default:
 			return conn->setError("", 405);
 		}
+		return (IOEvent());
+	}
+	else
+	{
+		conn->setRessource(new PostStaticFile(conn, completePath));
 		return (IOEvent());
 	}
 

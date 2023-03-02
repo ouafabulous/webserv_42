@@ -42,17 +42,10 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 	body +="</body>\n";
 	body +="</html>\n";
 
-<<<<<<< HEAD
 	conn->pushResponse(http_header_formatter(200, body.length(), "text/html"));
 	conn->pushResponse(body);
 
 	conn->setRespEnd();
-=======
-	conn->append_response(http_header_formatter(200, body.length(), "text/html"));
-	conn->append_response(body);
-
-	this->is_EOF = true;
->>>>>>> b8d691ba6fdac58d01e3e445d7d973c1882f7310
 }
 
 GetDirectory::~GetDirectory()
