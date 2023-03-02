@@ -110,98 +110,100 @@ TokenList subVectorFrom(TokenList originalTokens, uint index)
     return (toReturn);
 }
 
-// a function that returns the nextNonSp token from a given index.
+// // a function that returns the nextNonSp token from a given index.
 
-void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)
-{
-    if (tokens.size() || !tokensAreNotWords(tokens))
-    {
-        uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0); // the first non space token in the tokens given
-        uint secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
-        if (tokens[firstNonSpTokIndex].second == "server" && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
-        {
-            std::ostringstream oss;
-            oss << serverNumber;
-            *block = new BlockServer("server_" + oss.str());
-            uint i = secondNonSpTokIndex + 1;
-            uint clServerBrIndex = closingIndexBracket(tokens, i);
-            // std::cout << "i value: " << i << ", clServerBrIndex value: " << clServerBrIndex << std::endl;
-            while (i < clServerBrIndex)
-            {
-                if (isDirective(tokens[i], directiveNames))
-                {
-                    std::string directiveName = tokens[i].second;
-                    Directive directive(directiveName);
-                    while (tokens[i].first != TOK_SC)
-                    {
-                        firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
-                        t_token directiveValueTok = tokens[firstNonSpTokIndex];
-                        if (directiveValueTok.first == TOK_WORD)
-                        {
-                            directive.addDirectiveValue(directiveValueTok.second);
-                        }
-                        i = firstNonSpTokIndex;
-                    }
-                    (*block)->addDirective(directive);
-                }
-                else if (tokens[i].second == "location")
-                {
-                    // std::cout << "I entered here 2" << std::endl;
-                    firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
-                    secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
-                    if (tokens[firstNonSpTokIndex].first == TOK_WORD && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
-                    {
-                        oss << static_cast<BlockServer *>(*block)->getNumberChild();
-                        std::string locationName = "Location_" + oss.str();
-                        std::string locationValue = tokens[firstNonSpTokIndex].second;
-                        BlockLocation *locationBlock = new BlockLocation(locationName, locationValue);
-						Directive	locationDirective("location");
-						locationDirective.addDirectiveValue(locationValue);
-						locationBlock->addDirective(locationDirective);
-                        i = secondNonSpTokIndex + 1;
-                        uint clLocationBrIndex = closingIndexBracket(tokens, i);
-                        while (i < clLocationBrIndex)
-                        {
-                            if (isDirective(tokens[i], directiveNames))
-                            {
-                                std::string directiveName = tokens[i].second;
-                                Directive directive(directiveName);
-                                while (tokens[i].first != TOK_SC)
-                                {
-                                    firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
-                                    t_token directiveValueTok = tokens[firstNonSpTokIndex];
-                                    if (directiveValueTok.first == TOK_WORD)
-                                    {
-                                        directive.addDirectiveValue(directiveValueTok.second);
-                                    }
-                                    i = firstNonSpTokIndex + 1;
-                                }
-                                locationBlock->addDirective(directive);
-                            }
-                            else
-                            {
-                                i++; // normalement c'est une erreur pcque what would it be if it is not a directive?
-                            }
-                        }
-                        static_cast<BlockServer *>(*block)->addChild(locationBlock);
-                        i = clLocationBrIndex + 1;
-                    }
-                }
-                else
-                {
-                    // std::cout << "I entered here 3" << std::endl;
-                    i++;
-                }
-            }
-            TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
-            // std::cout << "Here is the subtoken: " << std::endl;
-            // printVector(subToken);
-            // std::cout << "Here is the clServerBrIndex: " << clServerBrIndex << std::endl;
-            parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
-            return;
-        }
-    }
-}
+// void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)
+// {
+//     if (tokens.size() || !tokensAreNotWords(tokens))
+//     {
+//         uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0); // the first non space token in the tokens given
+//         uint secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
+//         if (tokens[firstNonSpTokIndex].second == "server" && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
+//         {
+//             std::ostringstream oss;
+//             oss << serverNumber;
+//             *block = new BlockServer("server_" + oss.str());
+//             uint i = secondNonSpTokIndex + 1;
+//             uint clServerBrIndex = closingIndexBracket(tokens, i);
+//             // std::cout << "i value: " << i << ", clServerBrIndex value: " << clServerBrIndex << std::endl;
+//             while (i < clServerBrIndex)
+//             {
+//                 if (isDirective(tokens[i], directiveNames))
+//                 {
+//                     std::string directiveName = tokens[i].second;
+//                     Directive directive(directiveName);
+//                     while (tokens[i].first != TOK_SC)
+//                     {
+//                         firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
+//                         t_token directiveValueTok = tokens[firstNonSpTokIndex];
+//                         if (directiveValueTok.first == TOK_WORD)
+//                         {
+//                             directive.addDirectiveValue(directiveValueTok.second);
+//                         }
+//                         i = firstNonSpTokIndex;
+//                     }
+//                     (*block)->addDirective(directive);
+//                 }
+//                 else if (tokens[i].second == "location")
+//                 {
+//                     // std::cout << "I entered here 2" << std::endl;
+//                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
+//                     secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
+//                     if (tokens[firstNonSpTokIndex].first == TOK_WORD && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
+//                     {
+//                         oss << static_cast<BlockServer *>(*block)->getNumberChild();
+//                         std::string locationName = "Location_" + oss.str();
+//                         std::string locationValue = tokens[firstNonSpTokIndex].second;
+//                         BlockLocation *locationBlock = new BlockLocation(locationName, locationValue);
+// 						Directive	locationDirective("location");
+// 						locationDirective.addDirectiveValue(locationValue);
+// 						locationBlock->addDirective(locationDirective);
+//                         i = secondNonSpTokIndex + 1;
+//                         uint clLocationBrIndex = closingIndexBracket(tokens, i);
+//                         while (i < clLocationBrIndex)
+//                         {
+//                             if (isDirective(tokens[i], directiveNames))
+//                             {
+//                                 std::string directiveName = tokens[i].second;
+//                                 Directive directive(directiveName);
+//                                 while (tokens[i].first != TOK_SC)
+//                                 {
+//                                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
+//                                     t_token directiveValueTok = tokens[firstNonSpTokIndex];
+//                                     if (directiveValueTok.first == TOK_WORD)
+//                                     {
+//                                         directive.addDirectiveValue(directiveValueTok.second);
+//                                     }
+//                                     i = firstNonSpTokIndex + 1;
+//                                 }
+//                                 locationBlock->addDirective(directive);
+//                             }
+//                             else
+//                             {
+//                                 i++; // normalement c'est une erreur pcque what would it be if it is not a directive?
+//                             }
+//                         }
+//                         static_cast<BlockServer *>(*block)->addChild(locationBlock);
+//                         i = clLocationBrIndex + 1;
+//                     }
+//                 }
+//                 else
+//                 {
+//                     // std::cout << "I entered here 3" << std::endl;
+//                     i++;
+//                 }
+//             }
+//             TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
+//             // std::cout << "Here is the subtoken: " << std::endl;
+//             // printVector(subToken);
+//             // std::cout << "Here is the clServerBrIndex: " << clServerBrIndex << std::endl;
+//             parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
+//             return;
+//         }
+//     }
+// }
+
+
 
 void Parser::printBlocks() const
 {
