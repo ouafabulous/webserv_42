@@ -5,7 +5,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];
-
+	//bytes_read = 0;
 	char	*args[] = {const_cast<char*>(cgiInfo._executable.c_str()), const_cast<char*>(cgiInfo._filePath.c_str())};
 
 	if (pipe(pipe_to_CGI) == -1)
@@ -129,8 +129,6 @@ IOEvent CGI::write()
 	int ret = ::write(fd_write, conn->getRequest().body.c_str(),
 					conn->getRequest().body.size());
 
-	// if ret > 0
-
 	if (!ret)
 	{
 		conn->setRespEnd();
@@ -139,7 +137,6 @@ IOEvent CGI::write()
 
 	if (ret < 0)
 		return conn->setError("Error while writing to CGI", 500);
-	bytes_read += ret;
 	return IOEvent();
 }
 
