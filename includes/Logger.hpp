@@ -77,7 +77,7 @@ private:
 				if (WARNING < min_level)
 					return hide;
 				std::cerr << print_header(WARNING) << message;
-				return std::cout;
+				return std::cerr;
 			}
 	};
 	class Error {
@@ -90,7 +90,7 @@ private:
 				if (ERR < min_level)
 					return hide;
 				std::cerr << print_header(ERR) << message;
-				return std::cout;
+				return std::cerr;
 			}
 	};
 	class Hidden: public std::ostream {

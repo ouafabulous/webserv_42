@@ -72,7 +72,6 @@ uint closingIndexBracket(TokenList const &tokens, uint j)
     uint br = 1;
     for (TokenList::const_iterator it = tokens.begin() + j; it != tokens.end(); it++)
     {
-        i++;
         if (it->first == TOK_BR_OP)
         {
             br++;
@@ -85,6 +84,7 @@ uint closingIndexBracket(TokenList const &tokens, uint j)
                 return (i);
             }
         }
+        i++;
     }
     return (0);
 }
@@ -123,6 +123,7 @@ Directive parseDirective(TokenList const &tokens, uint &i){
                         }
                         i = firstNonSpTokIndex;
                     }
+                    i++;
                     return directive;
 }
 
@@ -132,14 +133,14 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
     {
         uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0); // the first non space token in the tokens given
         uint secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
-        if (tokens[firstNonSpTokIndex].second == "server" && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
+        if (firstNonSpTokIndex < tokens.size() && tokens[firstNonSpTokIndex].second == "server" && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
         {
             std::ostringstream oss;
             oss << serverNumber;
             *block = new BlockServer("server_" + oss.str());
             uint i = secondNonSpTokIndex + 1;
             uint clServerBrIndex = closingIndexBracket(tokens, i);
-            std::cout << "Check that out: "<< tokens[clServerBrIndex -1 ].second << std::endl;
+            std::cout << "Check that out: "<< tokens[clServerBrIndex ].second << std::endl;
             while (i < clServerBrIndex)
             {
                 if (isDirective(tokens[i], directiveNames))
@@ -163,8 +164,14 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                         {
                             if (isDirective(tokens[i], directiveNames))
                                locationBlock->addDirective(parseDirective(tokens, i));
+                            else if (tokens[i].first == TOK_SP || tokens[i].first == TOK_RL)
+                                i++;
                             else
-                                throw std::runtime_error("Error while parsing the conf_file!");
+                            {
+                                std::cout << "value of tekens[i] causing problems: " << tokens[i].second << tokens[i].first << std::endl;
+                                throw std::runtime_error("Error while parsing the conf_file1!");
+
+                            }
                         }
                         static_cast<BlockServer *>(*block)->addChild(locationBlock);
                         i = clLocationBrIndex + 1;
@@ -177,8 +184,10 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
             parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
             return;
         }
-        else 
-            throw std::runtime_error("Error while parsing the conf_file!");
+        else if (firstNonSpTokIndex < tokens.size()){
+            std::cout << "Tokens[]: " << tokens[firstNonSpTokIndex].second << std::endl;
+            throw std::runtime_error("Error while parsing the conf_file2!");
+        }
     }
 }
 

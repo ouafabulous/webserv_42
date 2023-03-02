@@ -17,7 +17,7 @@ Router::Router(Parser const &confile)
 		std::vector<BlockLocation *> const &locations = curr_vserver->getChilds();
 		t_vserver		vserver(attributes.server_name);
 		// push_back default virtual_server route
-		attributes.location = "/";
+		attributes.location = "";
 		vserver._routes.push_back(Route(attributes));
 		// push_back each location route
 		for (it = locations.begin(); it != locations.end(); it++)
