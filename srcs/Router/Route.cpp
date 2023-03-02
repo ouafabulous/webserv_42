@@ -215,7 +215,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	t_request_line reqLine = req.request_line;
 	std::string completePath = attributes.root + reqLine.path;
 
-//1- redirect-handling 
+//1- redirect-handling
 	if (!attributes.redirect.empty())
 	{
 		conn->setRessource(new RedirectRessource(conn, attributes.redirect));
@@ -227,7 +227,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	if (cgiIndex >= 0)
 	{
 		const std::string &execPath = findCgiExecPath(attributes.cgi_path, cgiIndex);
-		if (checkPermissions(completePath, S_IXUSR | S_IXGRP))
+		if (checkPermissions(completePath, R_OK) && checkPermissions(execPath, X_OK))
 		{
 			const t_cgiInfo cgiInfo(
 				extractBeforeChar(completePath, '?'),
@@ -247,7 +247,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			return conn->setError("", 403);
 	}
 
-	
+
 //3- Directory handling
 	if (directoryExists(completePath.c_str()))
 	{
@@ -289,6 +289,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 
 
 //4- File handling
+
 //4-1 POST case
 	if (reqLine.method == POST){
 			conn->setRessource(new PostStaticFile(conn, completePath));
@@ -310,7 +311,6 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 		}
 		return (IOEvent());
 	}
-
 //5- other
 	return conn->setError("", 404);
 }

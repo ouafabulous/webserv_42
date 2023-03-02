@@ -45,6 +45,7 @@ public:
 	void pushResponse(std::string message);
 	void pushResponse(const char *message, size_t n);
 	void setRespEnd();
+	bool getBodyParsed() const;
 
 private:
 	IOEvent readHeader(); // called by read() until header is fully received
@@ -67,8 +68,8 @@ private:
 	bool is_header_parsed;		 // bool to define if we finished to read the header
 	bool is_request_line_parsed; // first line of request has been received
 	bool is_body_parsed;		 // body is fully received
-	size_t header_readed_size;	 // amount of bytes readed from the connexion for the header part
-	size_t body_readed_size;	 // amount of bytes readed fron the connexion for the body part
+	size_t header_read_size;	 // amount of bytes readed from the connexion for the header part
+	size_t body_read_size;	 // amount of bytes readed fron the connexion for the body part
 	Dechunker dechunker;		 // object to dechunk http chunk request to a normal body string
 
 	// DATA RELATED TO THE INTERNAL PART AND RESPONSE PART

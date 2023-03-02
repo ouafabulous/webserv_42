@@ -5,9 +5,9 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 {
 	int		pipe_to_CGI[2];
 	int		pipe_to_host[2];
+	char	*args[] = {const_cast<char*>(cgiInfo._executable.c_str()), const_cast<char*>(cgiInfo._filePath.c_str()), NULL};
 
-	char	*args[] = {const_cast<char*>(cgiInfo._executable.c_str()), const_cast<char*>(cgiInfo._filePath.c_str())};
-
+	Logger::info << "CGI args" << cgiInfo._executable << " " << cgiInfo._filePath << std::endl;
 	if (pipe(pipe_to_CGI) == -1)
 		throw std::runtime_error("CGI::CGI() pipe_to_CGI failed.");
 	if (pipe(pipe_to_host) == -1)
@@ -50,10 +50,14 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
-		setenv("REQUEST_METHOD", conn->getRequest().request_line.methodVerbose.c_str(), 1);
-		setenv("QUERY_STRING", cgiInfo._queryString.c_str(), 1);
+		char *env[] = {
+			//const_cast<char*>("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose),
+			//const_cast<char*>("QUERY_STRING=" + cgiInfo._queryString),
+			NULL
+		};
 
-		execve(cgiInfo._executable.c_str(), args, NULL);
+
+		execve(cgiInfo._executable.c_str(), args, env);
 		exit(1);
 	}
 	else
@@ -84,49 +88,4 @@ CGI::~CGI()
 		conn->setError("Error closing the file", 500);
 		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
 	}
-}
-
-IOEvent CGI::read()
-{
-	// not handling chuncked request yet ?
-	int ret = ::read(fd_read, buffer, BUFFER_SIZE);
-
-	if (ret == -1)
-	{
-		close(fd_read);
-		return conn->setError("Error while reading CGI response", 500);
-	}
-	if (!ret)
-		return closed();
-	if (ret == 0)
-		conn->setRespEnd();
-	conn->pushResponse(buffer, ret);
-	return IOEvent();
-}
-
-IOEvent CGI::write()
-{
-	if (conn->getRequest().body.empty())
-		return IOEvent();
-
-	int ret = ::write(fd_write, queueToStr(conn->getRequest().body).c_str(),
-					conn->getRequest().body.size());
-
-	// if ret > 0
-
-	if (!ret)
-	{
-		conn->setRespEnd();
-		return IOEvent();
-	}
-
-	if (ret < 0)
-		return conn->setError("Error while writing to CGI", 500);
-	bytes_read += ret;
-	return IOEvent();
-}
-
-IOEvent CGI::closed()
-{
-	return conn->setError("An error happend while running CGI binary", 500);
 }

@@ -16,8 +16,9 @@ private:
 	t_body&			body;
 	t_chunk_state	line_state;
 	size_t			chunk_size;
+	size_t&			body_size;
 public:
-	Dechunker(t_body& body);
+	Dechunker(t_body& body, size_t& body_size);
 	~Dechunker();
 	IOEvent	operator()(std::string& raw_request);
 
