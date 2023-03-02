@@ -52,9 +52,6 @@ public:
 	virtual	IOEvent		read(){return IOEvent();};  //added because we are obliged to redefine pure funtions. Doesn't do anything concretely !
 	virtual IOEvent		write();
 	virtual IOEvent		closed();
-
-private:
-	size_t				bytes_read;
 };
 
 class DeleteStaticFile : public Ressource

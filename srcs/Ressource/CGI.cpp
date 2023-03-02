@@ -50,10 +50,14 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
-		setenv("REQUEST_METHOD", conn->getRequest().request_line.methodVerbose.c_str(), 1);
-		setenv("QUERY_STRING", cgiInfo._queryString.c_str(), 1);
+		char *env[] = {
+			//const_cast<char*>("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose),
+			//const_cast<char*>("QUERY_STRING=" + cgiInfo._queryString),
+			NULL
+		};
 
-		execve(cgiInfo._executable.c_str(), args, NULL);
+
+		execve(cgiInfo._executable.c_str(), args, env);
 		exit(1);
 	}
 	else
@@ -88,19 +92,32 @@ CGI::~CGI()
 
 IOEvent CGI::read()
 {
-	// not handling chuncked request yet ?
-	int ret = ::read(fd_read, buffer, BUFFER_SIZE);
+	//// not handling chuncked request yet ?
+	//int ret = ::read(fd_read, buffer, BUFFER_SIZE);
+
+	//if (ret == -1)
+	//{
+	//	close(fd_read);
+	//	return conn->setError("Error while reading CGI response", 500);
+	//}
+	//if (!ret)
+	//	return closed();
+	//if (ret == 0)
+	//	conn->setRespEnd();
+	//conn->pushResponse(buffer, ret);
+	//return IOEvent();
+	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);
+
+	Logger::debug << "read from file" << std::endl;
 
 	if (ret == -1)
-	{
-		close(fd_read);
-		return conn->setError("Error while reading CGI response", 500);
-	}
-	if (!ret)
-		return closed();
-	if (ret == 0)
+		return conn->setError("Error reading the file", 500);
+	if (ret < BUFFER_SIZE) {
 		conn->setRespEnd();
-	conn->pushResponse(buffer, ret);
+		poll_util(POLL_CTL_MOD, fd_read, this, 0);
+	}
+	if (ret)
+		conn->pushResponse(buffer, ret);
 	return IOEvent();
 }
 

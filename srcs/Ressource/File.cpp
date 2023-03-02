@@ -36,9 +36,11 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 	}
 
 	std::string header = http_header_formatter(200, st.st_size, get_mime(file_path));
-	header += "Connection: closed\r\n\r\n"; // or keep-alive ?
+	//header += "Connection: closed\r\n\r\n";
 
 	conn->pushResponse(header);
+
+	Logger::debug << "GetStaticFile::GetStaticFile() OK" << std::endl;
 }
 
 GetStaticFile::~GetStaticFile()
@@ -79,9 +81,9 @@ IOEvent GetStaticFile::closed()
 
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
-	std::string new_path = file_path;
+	Logger::info << "PostStaticFile::PostStaticFile()" << file_path << std::endl;
 
-	fd_write = open(new_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
+	fd_write = open(file_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 
 	if (fd_write == -1)
 	{
@@ -99,11 +101,12 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 		throw std::runtime_error("PostStaticFile::PostStaticFile() poll_util failed");
 	}
 
-	std::string header = "HTTP/1.1 200 OK\r\n";
-	header += "Content-Type: " + get_mime(new_path) + CRLF;
-	header += "Connection: keep-alive\r\n\r\n";
+	std::string header = http_header_formatter(200, 0, get_mime(file_path));
+	//header += "Connection: closed\r\n\r\n";
 
-	conn->pushResponse(header.c_str(), header.size());
+	conn->pushResponse(header);
+
+	Logger::debug << "PostStaticFile::PostStaticFile() OK" << std::endl;
 }
 
 PostStaticFile::~PostStaticFile()
@@ -124,17 +127,14 @@ IOEvent PostStaticFile::write()
 	int	ret = ::write(fd_write, conn->getRequest().body.c_str(),
 							conn->getRequest().body.size());
 
-	// if ret > 0
+	Logger::debug << "write to file" << std::endl;
 
-	if (!ret)
-	{
-		conn->setRespEnd();
-		return IOEvent();
-	}
-	if (ret < 0)
+	if (ret == -1)
 		return conn->setError("Error writing the file", 500);
-	bytes_read += ret;
+
 	return (IOEvent());
+
+	// need to check if we wrote as much as content-length or EOF ?
 }
 
 IOEvent PostStaticFile::closed()

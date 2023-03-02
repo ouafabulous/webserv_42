@@ -12,29 +12,24 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 		throw std::runtime_error("GetDirectory::GetDirectory() opendir failed.");
 	}
 
-	// append the header
-	conn->pushResponse("HTTP/1.1 200 OK\r\n");
-	conn->pushResponse("Content-Type: text/html\r\n");
-	conn->pushResponse("\r\n");
-
-	// append the body
-	conn->pushResponse("<html>\n");
-	conn->pushResponse("<head>\n");
-	conn->pushResponse("<title>Directory Listing</title>\n");
-	conn->pushResponse("</head>\n");
-	conn->pushResponse("<body>\n");
-	conn->pushResponse("<h1>Directory Listing</h1>\n");
-	conn->pushResponse("<ul>\n");
+	std::string body = "<html>\n";
+	body +="<head>\n";
+	body +="<title>Directory Listing</title>\n";
+	body +="</head>\n";
+	body +="<body>\n";
+	body +="<h1>Directory Listing</h1>\n";
+	body +="<ul>\n";
+	body += "<li><a href=\"../\">..</a></li>\n";
 
 	while ((entry = readdir(dir)) != NULL)
 	{
 		if (entry->d_type == DT_REG)
-			conn->pushResponse("<li><a href=\"./" + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>\n");
+			body += "<li><a href=\"./" + std::string(entry->d_name) + "\">" + std::string(entry->d_name) + "</a></li>\n";
 		else if (entry->d_type == DT_DIR)
 		{
 			if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0)
 				continue;
-			conn->pushResponse("<li><a href=\"./" + std::string(entry->d_name) + "/\">" + std::string(entry->d_name) + "/</a></li>\n");
+			body += "<li><a href=\"./" + std::string(entry->d_name) + "/\">" + std::string(entry->d_name) + "/</a></li>\n";
 		}
 		else
 		{
@@ -43,9 +38,13 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 		}
 	}
 
-	conn->pushResponse("</ul>\n");
-	conn->pushResponse("</body>\n");
-	conn->pushResponse("</html>\n");
+	body +="</ul>\n";
+	body +="</body>\n";
+	body +="</html>\n";
+
+	conn->pushResponse(http_header_formatter(200, body.length(), "text/html"));
+	conn->pushResponse(body);
+
 	conn->setRespEnd();
 }
 

@@ -188,11 +188,12 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				return (conn->setError("", 403));
 			}
 		}
-		else if (reqLine.method & POST)
-		{
-			conn->setRessource(new PostStaticFile(conn, completePath));
-			return (IOEvent());
-		}
 	}
+	else if (reqLine.method & POST)
+	{
+		conn->setRessource(new PostStaticFile(conn, completePath));
+		return (IOEvent());
+	}
+
 	return (conn->setError("", 404));
 }
