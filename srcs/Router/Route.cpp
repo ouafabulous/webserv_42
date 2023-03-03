@@ -33,57 +33,32 @@ size_t Route::getMaxBodySize() const
 }
 void Route::printAttributes() const
 {
-	std::cout << "-----Port-----" << std::endl;
-	std::cout << attributes.port << std::endl;
-	std::cout << "-----Methods allowed-----" << std::endl;
-	if (attributes.allowed_methods & GET)
-	{
-		std::cout << "GET ";
-	}
-	else if (attributes.allowed_methods & POST)
-	{
-		std::cout << "POST ";
-	}
-	else if (attributes.allowed_methods & DELETE)
-	{
-		std::cout << "DELETE";
-	}
-	std::cout << std::endl;
-	std::cout << "-----Server Names-----" << std::endl;
+	std::cout << LISTEN << ": \t\t"<< attributes.port << std::endl;
+	std::cout << SERVERNAMES << ": \t\t";
 	std::vector<std::string>::const_iterator str_iter;
 	for (str_iter = attributes.server_name.begin(); str_iter != attributes.server_name.end(); ++str_iter)
-	{
 		std::cout << *str_iter << " ";
-	}
 	std::cout << std::endl;
-
 	std::cout << "Location: \t\t" << attributes.location << std::endl;
-
-	std::cout << "Max body length: \t" << attributes.max_body_length << std::endl;
-
-	std::cout << "Root: \t\t\t" << attributes.root << std::endl;
-
-	std::cout << "Methods allowed: \t";
-	if (attributes.allowed_methods & GET) {
+	std::cout << ALLOWEDMETHODS << ": \t";
+	if (attributes.allowed_methods & GET)
 		std::cout << "GET ";
-	}
-	if (attributes.allowed_methods & POST) {
+	if (attributes.allowed_methods & POST)
 		std::cout << "POST ";
-	}
-	if (attributes.allowed_methods & DELETE){
+	if (attributes.allowed_methods & DELETE)
 		std::cout << "DELETE";
-	}
 	std::cout << std::endl;
-
-	std::cout << "Directory listing: \t" << attributes.directory_listing << std::endl;
-
-	std::cout << "CGI setup: \t\t";
+	std::cout << MAXBODYSIZE << ": \t" << attributes.max_body_length << std::endl;
+	std::cout << REDIRECT << ": \t" << attributes.redirect << std::endl;
+	std::cout << ROOT << ": \t\t\t" << attributes.root << std::endl;
+	std::cout << INDEX << ": \t\t\t" << attributes.index << std::endl;
+	std::cout << AUTOINDEX << ": \t\t" << (attributes.directory_listing ? "on" : "off") << std::endl;
+	std::cout << CGISETUP << ": \t\t";
 	for (std::map<std::string, std::string>::const_iterator it = attributes.cgi_path.begin(); it != attributes.cgi_path.end(); ++it){
 		std::cout << it->first << "->" << it->second << " ";
 	}
 	std::cout << std::endl;
-
-	std::cout << "Redirect: \t" << attributes.redirect << std::endl;
+	std::cout << ERRORFILE << ": \t\t" << attributes.error_files << std::endl;
 }
 
 IOEvent Route::checkRequest(const t_http_message &req, Connexion *conn) const
