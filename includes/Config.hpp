@@ -19,7 +19,7 @@
 #define ROOT "root"
 #define INDEX "index"
 #define AUTOINDEX "autoindex"
-#define CGISETUP "cgi_setupt"
+#define CGISETUP "cgi_setup"
 #define ERRORFILE "error_file"
 
 #define DEFAULT_ALLOWEDMETHODS static_cast<t_methods>(GET | POST | DELETE)

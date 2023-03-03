@@ -17,7 +17,7 @@
 #include <Directive.hpp>
 #include "Type.hpp"
 
-Parser::~Parser()
+void Parser::freeBlocks()
 {
     BlockServer *tmp1 = _blocks;
     BlockServer *tmp2 = _blocks;
@@ -31,7 +31,13 @@ Parser::~Parser()
         tmp2 = tmp1;
         tmp1 = tmp1->getSibling();
         delete (tmp2);
+        tmp2 = NULL;
     }
+}
+
+Parser::~Parser()
+{
+    freeBlocks();
 }
 
 Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
@@ -110,21 +116,22 @@ TokenList subVectorFrom(TokenList originalTokens, uint index)
     return (toReturn);
 }
 
-Directive parseDirective(TokenList const &tokens, uint &i){
-                       std::string directiveName = tokens[i].second;
-                    Directive directive(directiveName);
-                    while (tokens[i].first != TOK_SC)
-                    {
-                        uint    firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
-                        t_token directiveValueTok = tokens[firstNonSpTokIndex];
-                        if (directiveValueTok.first == TOK_WORD)
-                        {
-                            directive.addDirectiveValue(directiveValueTok.second);
-                        }
-                        i = firstNonSpTokIndex;
-                    }
-                    i++;
-                    return directive;
+Directive parseDirective(TokenList const &tokens, uint &i)
+{
+    std::string directiveName = tokens[i].second;
+    Directive directive(directiveName);
+    while (tokens[i].first != TOK_SC)
+    {
+        uint firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
+        t_token directiveValueTok = tokens[firstNonSpTokIndex];
+        if (directiveValueTok.first == TOK_WORD)
+        {
+            directive.addDirectiveValue(directiveValueTok.second);
+        }
+        i = firstNonSpTokIndex;
+    }
+    i++;
+    return directive;
 }
 
 void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)
@@ -143,7 +150,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
             while (i < clServerBrIndex)
             {
                 if (isDirective(tokens[i], directiveNames))
-                   (*block)->addDirective(parseDirective(tokens, i));
+                    (*block)->addDirective(parseDirective(tokens, i));
                 else if (tokens[i].second == "location")
                 {
                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
@@ -154,19 +161,23 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                         std::string locationName = "Location_" + oss.str();
                         std::string locationValue = tokens[firstNonSpTokIndex].second;
                         BlockLocation *locationBlock = new BlockLocation(locationName, locationValue);
-						Directive	locationDirective("location");
-						locationDirective.addDirectiveValue(locationValue);
-						locationBlock->addDirective(locationDirective);
+                        Directive locationDirective("location");
+                        locationDirective.addDirectiveValue(locationValue);
+                        locationBlock->addDirective(locationDirective);
                         i = secondNonSpTokIndex + 1;
                         uint clLocationBrIndex = closingIndexBracket(tokens, i);
                         while (i < clLocationBrIndex)
                         {
                             if (isDirective(tokens[i], directiveNames))
-                               locationBlock->addDirective(parseDirective(tokens, i));
+                                locationBlock->addDirective(parseDirective(tokens, i));
                             else if (tokens[i].first == TOK_SP || tokens[i].first == TOK_RL)
                                 i++;
                             else
+                            {
+                                delete locationBlock;
+                                freeBlocks();
                                 throw std::runtime_error("\"" + tokens[i].second + "\" is not a valid directive name!\n");
+                            }
                         }
                         static_cast<BlockServer *>(*block)->addChild(locationBlock);
                         i = clLocationBrIndex + 1;
@@ -174,8 +185,10 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                 }
                 else if (tokens[i].first == TOK_RL || tokens[i].first == TOK_SP)
                     i++;
-                else
+                else{
+                    freeBlocks();
                     throw std::runtime_error("\"" + tokens[i].second + "\" is not a valid directive name!\n");
+                }
             }
             TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
             parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
