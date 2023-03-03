@@ -6,6 +6,7 @@
 
 class Errors {
 	public:
+		typedef std::map<uint, std::string>	t_error_map;
 		Errors();
 		Errors(const Errors& from);
 		~Errors();
@@ -14,9 +15,12 @@ class Errors {
 		std::string			getError(uint status_code) const;
 		static std::string	getDefaultError(uint status_code);
 		std::string&		operator[](uint http_error);
+		t_error_map			getCustomErrorPath() const;
 
 	private:
-		std::map<uint, std::string>			custom_errors_path;
+		t_error_map			custom_errors_path;
 };
+
+std::ostream&	operator<<(std::ostream &out, const Errors &errors);
 
 #endif

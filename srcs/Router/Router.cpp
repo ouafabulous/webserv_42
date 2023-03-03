@@ -1,7 +1,7 @@
 
 #include <iostream>
 #include <set>
-#include "Type.hpp"
+#include <Type.hpp>
 #include "Router.hpp"
 
 
@@ -11,7 +11,7 @@ Router::Router(Parser const &confile)
 	BlockServer 	*curr_vserver = confile.getBlock();
 	while (curr_vserver)
 	{
-		t_attributes 	attributes = {};
+		t_attributes 	attributes;
 		fillAttributes(&attributes, curr_vserver->getDirectives());
 		std::vector<BlockLocation *>::const_iterator it;
 		std::vector<BlockLocation *> const &locations = curr_vserver->getChilds();
@@ -73,42 +73,42 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 	std::vector<directiveValueUnion>::const_iterator	directiveValIter;
 	for (it = directives.begin(); it != directives.end(); it++)
 	{
-		if (it->getDirectiveName() == "allowed_methods")
+		if (it->getDirectiveName() == ALLOWEDMETHODS)
 		{
 			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
 				attributes->allowed_methods |= methodsDict[directiveValIter->_stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
 			}
 		}
-		else if (it->getDirectiveName() == "listen")
+		else if (it->getDirectiveName() == LISTEN)
 		{
 			attributes->port = static_cast<uint>((it->getDirectiveValues())[0]._intValue);
 		}
-		else if (it->getDirectiveName() == "server_name")
+		else if (it->getDirectiveName() == SERVERNAMES)
 		{
 			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
 				attributes->server_name.push_back(directiveValIter->_stringValue);
 			}
 		}
-		else if (it->getDirectiveName() == "client_max_body_size")
+		else if (it->getDirectiveName() == MAXBODYSIZE)
 		{
 			attributes->max_body_length = static_cast<size_t>((it->getDirectiveValues())[0]._intValue);
 		}
-		else if (it->getDirectiveName() == "redirect")
+		else if (it->getDirectiveName() == REDIRECT)
 		{
 			attributes->redirect = (it->getDirectiveValues())[0]._stringValue;
 		}
-		else if (it->getDirectiveName() == "root")
+		else if (it->getDirectiveName() == ROOT)
 		{
 			attributes->root = (it->getDirectiveValues())[0]._stringValue;
 		}
-		else if (it->getDirectiveName() == "autoindex")
+		else if (it->getDirectiveName() == AUTOINDEX)
 		{
 			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
 		}
-		else if (it->getDirectiveName() == "cgi_setup") {
+		else if (it->getDirectiveName() == CGISETUP) {
 			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
 		}
-		else if (it->getDirectiveName() == "index")
+		else if (it->getDirectiveName() == INDEX)
 		{
 			attributes->index = (it->getDirectiveValues())[0]._stringValue;
 		}
@@ -156,7 +156,7 @@ const Route *Router::getRoute(const t_network_address netAddr, const t_http_mess
 {
 	const t_vserver&				vserver = findVserver(netAddr, req.header_fields.at("Host"));
 	const Route*					response = &(*vserver._routes.begin());
-	size_t 							matching_char_result = 1;
+	size_t 							matching_char_result = 0;
 
 
 	for (std::vector<Route>::const_iterator routeIt = vserver._routes.begin(); routeIt != vserver._routes.end(); routeIt++)

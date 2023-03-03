@@ -6,7 +6,7 @@ Directive::Directive(std::string directiveName) : _directiveName(directiveName),
 {}
 
 void    Directive::addDirectiveValue(std::string directiveValue){
-        if (_directiveName == "listen" || _directiveName == "client_max_body_size" || _directiveName == "error_files") // afterwards error_files should be checked if it respects the required format
+        if (_directiveName == LISTEN || _directiveName == MAXBODYSIZE || _directiveName == ERRORFILE) // afterwards error_files should be checked if it respects the required format
     {
         try
         {
@@ -25,7 +25,7 @@ void    Directive::addDirectiveValue(std::string directiveValue){
             _type = INT;
         }
         catch (const std::exception &e)
-        {     
+        {
             // std::cout << "TEST" <<std::endl;                                                           // specify the exception type
             throw; // re-throw the exception with a modified message
         }
@@ -41,7 +41,7 @@ void    Directive::addDirectiveValue(std::string directiveValue){
 }
 
 std::vector<directiveValueUnion> const &	Directive::getDirectiveValues() const {
-    return(_directiveValues);   
+    return(_directiveValues);
 }
 
 t_type  const &Directive::getType() const {

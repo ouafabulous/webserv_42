@@ -6,11 +6,11 @@ IOEvent	Ressource::read()
 {
 	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);
 
-	Logger::debug << "read from file" << std::endl;
+	Logger::debug << "read from ressource" << std::endl;
 
 	if (ret == -1)
 		return conn->setError("Error reading the file", 500);
-	if (ret < BUFFER_SIZE) {
+	if (ret == 0) {
 		conn->setRespEnd();
 		poll_util(POLL_CTL_MOD, fd_read, this, 0);
 	}
@@ -24,7 +24,7 @@ IOEvent	Ressource::write()
 	if (conn->getRequest().body.empty())
 		return IOEvent();
 
-	Logger::debug << "write to file" << std::endl;
+	Logger::debug << "write to ressource" << std::endl;
 
 	std::string		str = conn->getRequest().body.front();
 

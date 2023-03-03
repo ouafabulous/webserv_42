@@ -8,7 +8,7 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 {
 	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
 
-	Logger::debug << file_path << std::endl;
+	Logger::info << "Get static file " << file_path << std::endl;
 
 	if (fd_read == -1)
 	{
@@ -39,8 +39,6 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 	//header += "Connection: closed\r\n\r\n";
 
 	conn->pushResponse(header);
-
-	Logger::debug << "GetStaticFile::GetStaticFile() OK" << std::endl;
 }
 
 GetStaticFile::~GetStaticFile()

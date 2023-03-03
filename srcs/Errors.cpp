@@ -268,3 +268,16 @@ std::string	Errors::getDefaultError(uint status_code) {
 	}
 	return "";
 }
+
+Errors::t_error_map			Errors::getCustomErrorPath() const {
+	return custom_errors_path;
+}
+
+std::ostream&	operator<<(std::ostream &out, const Errors &errors)
+{
+	Errors::t_error_map	map = errors.getCustomErrorPath();
+
+	for (Errors::t_error_map::iterator it = map.begin(); it != map.end(); it++)
+		out << "(" << it->first << ": " << it->second << ") ";
+    return out;
+}
