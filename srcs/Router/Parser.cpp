@@ -140,7 +140,6 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
             *block = new BlockServer("server_" + oss.str());
             uint i = secondNonSpTokIndex + 1;
             uint clServerBrIndex = closingIndexBracket(tokens, i);
-            std::cout << "Check that out: "<< tokens[clServerBrIndex ].second << std::endl;
             while (i < clServerBrIndex)
             {
                 if (isDirective(tokens[i], directiveNames))
@@ -167,27 +166,23 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                             else if (tokens[i].first == TOK_SP || tokens[i].first == TOK_RL)
                                 i++;
                             else
-                            {
-                                std::cout << "value of tekens[i] causing problems: " << tokens[i].second << tokens[i].first << std::endl;
-                                throw std::runtime_error("Error while parsing the conf_file1!");
-
-                            }
+                                throw std::runtime_error("\"" + tokens[i].second + "\" is not a valid directive name!\n");
                         }
                         static_cast<BlockServer *>(*block)->addChild(locationBlock);
                         i = clLocationBrIndex + 1;
                     }
                 }
-                else
+                else if (tokens[i].first == TOK_RL || tokens[i].first == TOK_SP)
                     i++;
+                else
+                    throw std::runtime_error("\"" + tokens[i].second + "\" is not a valid directive name!\n");
             }
             TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
             parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
             return;
         }
-        else if (firstNonSpTokIndex < tokens.size()){
-            std::cout << "Tokens[]: " << tokens[firstNonSpTokIndex].second << std::endl;
-            throw std::runtime_error("Error while parsing the conf_file2!");
-        }
+        else if (firstNonSpTokIndex < tokens.size())
+            throw std::runtime_error("Error  while parsing the config file!\n");
     }
 }
 

@@ -57,10 +57,9 @@ std::string checkConfigFile(int ac, char *av[])
 	buffer << file.rdbuf();
 	std::string big_buffer = buffer.str();
 	if (!big_buffer.size())
-		throw std::runtime_error("Config file empty!\n"); //5-check if conf file is empty
-	if (containsExtendedChars(big_buffer))
+		throw std::runtime_error("Config file empty!\n"); //6- check if conf file is empty
+	if (containsExtendedChars(big_buffer))				  //7- check if the config file contains extended ascii chars
 		throw std::runtime_error("Extended ascii characters in config file are not supported!\n");
-	Logger::error << "I'm here !";
 	return (big_buffer);
 }
 
