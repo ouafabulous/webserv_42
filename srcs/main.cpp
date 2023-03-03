@@ -48,6 +48,8 @@ std::string checkConfigFile(int ac, char *av[])
 	hasConfExtension(av[1]);			// 3- check if the config file has .conf extension !
 	if (!checkPermissions(av[1], R_OK)) // 4- if the conf file has read permissions !
 		throw std::runtime_error("Read permission is required for the config file!\n");
+	if (containsExtendedChars(av[1]))	// 5- if the conf file contains extended ascii chars !
+		throw std::runtime_error("Ascii extended is not supported in config file!\n");
 
 	// read file
 	std::ifstream file(av[1]);
