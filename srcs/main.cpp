@@ -20,12 +20,33 @@ void handle_sigint(int signal)
 void hasConfExtension(std::string const &filename)
 {
 	std::string extension = ".conf";
-	if (filename.length() >= extension.length()){
+	if (filename.length() >= extension.length())
+	{
 		if (filename.compare(filename.length() - extension.length(), extension.length(), extension))
 			throw std::runtime_error("Configuration file must have .conf extension\n");
 	}
 	else
 		throw std::runtime_error("Configuration file must have .conf extension\n");
+}
+
+std::string checkConfigFile(int ac, char *av[])
+{
+	if (ac != 2) 						// 1- check if more we haven't received one argument !
+		throw std::runtime_error("Usage: ./webserv config_file\n");
+	if (!fileExists(av[1]))				// 2- check if the file exists
+		throw std::runtime_error("Config file not found!\n");
+	hasConfExtension(av[1]);			// 3- check if the config file has .conf extension !
+	if (!checkPermissions(av[1], R_OK)) // 4- if the conf file has read permissions !
+		throw std::runtime_error("Read permission is required for the config file!\n");
+
+	// read file
+	std::ifstream file(av[1]);
+	std::stringstream buffer;
+	buffer << file.rdbuf();
+	std::string big_buffer = buffer.str();
+	if (!big_buffer.size())
+		throw std::runtime_error("Config file empty!\n"); //5-check if conf file is empty
+	return (big_buffer);
 }
 
 int main(int ac, char *av[])
@@ -36,33 +57,23 @@ int main(int ac, char *av[])
 	signal(SIGINT, handle_sigint);
 	try
 	{
-		//basic checkings of the conf file
-		if (ac != 2) 									//1- if more we haven't received one argument !
-			throw std::runtime_error("Usage: ./webserv config_file\n");
-		hasConfExtension(av[1]);						//2- if the config file has .conf extension !
-		if (!checkPermissions(av[1], R_OK))				//3- if the conf file has read permissions !
-			throw std::runtime_error("Read permission is required for the config file!\n");
-		
-		// read file
-		std::ifstream file(av[1]);
-		std::stringstream buffer;
-		buffer << file.rdbuf();
-		std::string big_buffer = buffer.str();
-
-		// lexing
-		Lexer lex(big_buffer);
+		// basic checkings of the conf file + conversion to std::string
+		std::string	confFile = checkConfigFile(ac, av);
+		//  lexing
+		Lexer lex(confFile);
 		lex.fillTokens();
 
 		// parsing
 		Parser parse(lex.getTokens());
-		
-		//server declaration
+
+		// server declaration
 		Server my_server(parse);
-		
-		//routine
+
+		// routine
 		my_server.routine();
 	}
-	catch (const std::exception &e){
+	catch (const std::exception &e)
+	{
 		Logger::error << e.what();
 	}
 }
