@@ -29,6 +29,16 @@ void hasConfExtension(std::string const &filename)
 		throw std::runtime_error("Configuration file must have .conf extension\n");
 }
 
+bool containsExtendedChars(const std::string& str)
+{
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+    {
+        if (*it < 0)
+            return true;
+    }
+    return false;
+}
+
 std::string checkConfigFile(int ac, char *av[])
 {
 	if (ac != 2) 						// 1- check if more we haven't received one argument !
@@ -46,6 +56,9 @@ std::string checkConfigFile(int ac, char *av[])
 	std::string big_buffer = buffer.str();
 	if (!big_buffer.size())
 		throw std::runtime_error("Config file empty!\n"); //5-check if conf file is empty
+	if (containsExtendedChars(big_buffer))
+		throw std::runtime_error("Extended ascii characters in config file are not supported!\n");
+	Logger::error << "I'm here !";
 	return (big_buffer);
 }
 
