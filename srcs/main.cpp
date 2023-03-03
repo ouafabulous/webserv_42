@@ -41,21 +41,28 @@ bool containsExtendedChars(const std::string& str)
 
 std::string checkConfigFile(int ac, char *av[])
 {
-	if (ac != 2) 						// 1- check if more we haven't received one argument !
-		throw std::runtime_error("Usage: ./webserv config_file\n");
-	if (!fileExists(av[1]))				// 2- check if the file exists
+	std::string config_file;
+
+	if (ac == 1)
+		config_file = "./config_file/default.conf";
+	else if (ac == 2)
+		config_file = av[1];
+	else								// 1- check arguments !
+		throw std::runtime_error("Usage: ./webserv or ./webserv config_file\n");
+	if (!fileExists(config_file.c_str()))				// 2- check if the file exists
 		throw std::runtime_error("Config file not found!\n");
-	hasConfExtension(av[1]);			// 3- check if the config file has .conf extension !
-	if (!checkPermissions(av[1], R_OK)) // 4- if the conf file has read permissions !
+	hasConfExtension(config_file);			// 3- check if the config file has .conf extension !
+	if (!checkPermissions(config_file.c_str(), R_OK)) // 4- if the conf file has read permissions !
 		throw std::runtime_error("Read permission is required for the config file!\n");
-	if (containsExtendedChars(av[1]))	// 5- if the conf file contains extended ascii chars !
+	if (containsExtendedChars(config_file.c_str()))	// 5- if the conf file contains extended ascii chars !
 		throw std::runtime_error("Ascii extended is not supported in config file!\n");
 
 	// read file
-	std::ifstream file(av[1]);
+	std::ifstream file(config_file.c_str());
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	std::string big_buffer = buffer.str();
+
 	if (!big_buffer.size())
 		throw std::runtime_error("Config file empty!\n"); //6- check if conf file is empty
 	if (containsExtendedChars(big_buffer))				  //7- check if the config file contains extended ascii chars
