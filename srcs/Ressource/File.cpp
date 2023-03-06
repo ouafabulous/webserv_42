@@ -103,8 +103,24 @@ PostStaticFile::~PostStaticFile()
 DeleteStaticFile::DeleteStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
 	int rm = remove(file_path.c_str());
+
 	if (rm != 0)
+	{
+		conn->setError("Error deleting the file" + file_path, 204);
 		throw std::runtime_error("DeleteStaticFile::DeleteStaticFile() failed");
+	}
+
+	std::string body = "<html>\n";
+	body += "<head>\n";
+	body += "<title>File deleted</title>\n";
+	body += "</head>\n";
+	body += "<body>\n";
+	body += "<h1>File deleted</h1>\n";
+	body += "</body>\n";
+	body += "</html>\n";
+	conn->pushResponse(http_header_formatter(200, body.length(), "text/html"));
+	conn->pushResponse(body);
+	conn->setRespEnd();
 }
 
 DeleteStaticFile::~DeleteStaticFile() {}
