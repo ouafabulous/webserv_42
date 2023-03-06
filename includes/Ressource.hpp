@@ -75,6 +75,8 @@ class CGI : public Ressource
 public:
 	CGI(Connexion *conn, t_cgiInfo cgiInfo);
 	~CGI();
+private:
+	pid_t	pid;
 };
 
 // Redirect Class

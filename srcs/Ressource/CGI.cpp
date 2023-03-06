@@ -20,7 +20,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 	if (poll_util(POLL_CTL_ADD, pipe_to_CGI[READ], this, POLLIN | POLLHUP | POLLRDHUP) && poll_util(POLL_CTL_ADD, pipe_to_host[WRITE], this, POLLOUT | POLLRDHUP))
 		throw std::runtime_error("CGI::CGI() poll_util failed");
 
-	pid_t pid = fork();
+	pid = fork();
 
 	if (pid < 0)
 	{
@@ -49,12 +49,15 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
-		std::string requestMethod = "REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose;
-		std::string queryString = "QUERY_STRING=" + cgiInfo._queryString;
-		char *env[] = {
-			const_cast<char *>(requestMethod.c_str()),
-			const_cast<char *>(queryString.c_str()),
-			NULL};
+		std::vector<std::string>	args_vector;
+		args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
+		args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
+
+		char *env[args_vector.size() + 1];
+		size_t i = 0;
+		for(std::vector<std::string>::iterator it = args_vector.begin(); it != args_vector.end(); it++)
+			env[i++] = const_cast<char*>(it->c_str());
+		env[i] = NULL;
 
 		try
 		{
@@ -91,6 +94,7 @@ CGI::~CGI()
 {
 	poll_util(POLL_CTL_DEL, fd_read, this, POLLIN);
 	poll_util(POLL_CTL_DEL, fd_write, this, POLLOUT);
+	kill(pid, SIGTERM);
 	if (close(fd_read) == -1 || close(fd_write) == -1)
 	{
 		conn->setError("Error closing the file", 500);

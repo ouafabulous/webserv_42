@@ -29,7 +29,7 @@ Router::Router(Parser const &confile)
 		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(vserver);
 		curr_vserver = curr_vserver->getSibling();
 	}
-	printRoutes();
+	// printRoutes();
 }
 
 Router::~Router()
