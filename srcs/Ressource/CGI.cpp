@@ -17,8 +17,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 		throw std::runtime_error("CGI::CGI() pipe_to_host failed.");
 	}
 
-	if (poll_util(POLL_CTL_ADD, pipe_to_CGI[READ], this, POLLIN | POLLHUP | POLLRDHUP)
-		&& poll_util(POLL_CTL_ADD, pipe_to_host[WRITE], this, POLLOUT | POLLRDHUP))
+	if (poll_util(POLL_CTL_ADD, pipe_to_CGI[READ], this, POLLIN | POLLHUP | POLLRDHUP) && poll_util(POLL_CTL_ADD, pipe_to_host[WRITE], this, POLLOUT | POLLRDHUP))
 		throw std::runtime_error("CGI::CGI() poll_util failed");
 
 	pid_t pid = fork();
@@ -50,9 +49,11 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
+		std::string requestMethod = "REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose;
+		std::string queryString = "QUERY_STRING=" + cgiInfo._queryString;
 		char *env[] = {
-			const_cast<char*>(("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose).c_str()),
-			const_cast<char*>(("QUERY_STRING=" + cgiInfo._queryString).c_str()),
+			const_cast<char *>(requestMethod.c_str()),
+			const_cast<char *>(queryString.c_str()),
 			NULL};
 
 		try
