@@ -147,6 +147,8 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			{
 				if (checkPermissions(indexPath, R_OK))
 				{
+					if (!(attributes.allowed_methods & GET))
+						return IOEvent(FAIL, conn, "", 405);
 					try
 					{
 						conn->setRessource(new GetStaticFile(conn, indexPath));
@@ -181,6 +183,8 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 
 //4-1 POST case
 	if (reqLine.method == POST){
+			if (!(attributes.allowed_methods & GET))
+				return IOEvent(FAIL, conn, "", 405);
 			conn->setRessource(new PostStaticFile(conn, completePath));
 			return (IOEvent());
 	}
@@ -190,9 +194,13 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 		switch (reqLine.method)
 		{
 		case GET:
+			if (!(attributes.allowed_methods & GET))
+				return IOEvent(FAIL, conn, "", 405);
 			conn->setRessource(new GetStaticFile(conn, completePath));
 			break;
 		case DELETE:
+			if (!(attributes.allowed_methods & DELETE))
+				return IOEvent(FAIL, conn, "", 405);
 			conn->setRessource(new DeleteStaticFile(conn, completePath));
 			break;
 		default:
