@@ -8,6 +8,8 @@
 #include <sys/stat.h>
 #include <string.h>
 #include <sys/sendfile.h>
+#include <signal.h>
+#include <sys/wait.h>
 
 class Router;
 class Connexion;

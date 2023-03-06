@@ -46,5 +46,5 @@ IOEvent	Ressource::write()
 
 IOEvent	Ressource::closed()
 {
-	return conn->setError("An error happend while running CGI binary", 500);
+	return conn->setError("CGI::closed() called", 500);
 }

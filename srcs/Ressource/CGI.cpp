@@ -1,11 +1,11 @@
 #include <Ressource.hpp>
 
 //	file_path of the CGI script to be defined
-CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
+CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 {
-	int		pipe_to_CGI[2];
-	int		pipe_to_host[2];
-	char	*args[] = {const_cast<char*>(cgiInfo._executable.c_str()), const_cast<char*>(cgiInfo._filePath.c_str()), NULL};
+	int pipe_to_CGI[2];
+	int pipe_to_host[2];
+	char *args[] = {const_cast<char *>(cgiInfo._executable.c_str()), const_cast<char *>(cgiInfo._filePath.c_str()), NULL};
 
 	Logger::info << "CGI args" << cgiInfo._executable << " " << cgiInfo._filePath << std::endl;
 	if (pipe(pipe_to_CGI) == -1)
@@ -51,14 +51,19 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 		close(pipe_to_CGI[WRITE]);
 
 		char *env[] = {
-			//const_cast<char*>("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose),
-			//const_cast<char*>("QUERY_STRING=" + cgiInfo._queryString),
-			NULL
-		};
+			const_cast<char*>(("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose).c_str()),
+			const_cast<char*>(("QUERY_STRING=" + cgiInfo._queryString).c_str()),
+			NULL};
 
-
-		execve(cgiInfo._executable.c_str(), args, env);
-		exit(1);
+		try
+		{
+			execve(cgiInfo._executable.c_str(), args, env);
+		}
+		catch (const std::exception &e)
+		{
+			Logger::error << "CGI::CGI() execve failed: " << e.what() << std::endl;
+			exit(1);
+		}
 	}
 	else
 	{
@@ -76,6 +81,8 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) :	Ressource(conn)
 			conn->setError("Error setting the file to non-blocking", 500);
 			throw std::runtime_error("CGI::CGI() set_nonblocking failed");
 		}
+
+		// placeholder
 	}
 }
 
@@ -89,3 +96,23 @@ CGI::~CGI()
 		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
 	}
 }
+
+//	int status;
+//	pid_t result = waitpid(pid, &status, WNOHANG);
+//	if (result == -1)
+//	{
+//		close(pipe_to_host[WRITE]);
+//		close(pipe_to_CGI[READ]);
+//		throw std::runtime_error("CGI::CGI() waitpid failed");
+//	}
+//	else if (result == 0)
+//		return;
+//	else
+//	{
+//		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+//		{
+//			close(pipe_to_host[WRITE]);
+//			close(pipe_to_CGI[READ]);
+//			throw std::runtime_error("CGI::CGI() execve failed");
+//		}
+//	}
