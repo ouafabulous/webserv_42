@@ -194,7 +194,7 @@ t_methods	methodToEnum(std::string const &http_method){
     }
 	else
 	{
-		return NO_METHOD; //throw exception of method is not a valid HTTP method
+		throw std::runtime_error("valid methods are GET, POST & DELETE!\n");
 	}
 	return(request_method);
 }
