@@ -6,7 +6,7 @@ Directive::Directive(std::string directiveName) : _directiveName(directiveName),
 {}
 
 void    Directive::addDirectiveValue(std::string directiveValue){
-        if (_directiveName == LISTEN || _directiveName == MAXBODYSIZE || _directiveName == ERRORFILE) // afterwards error_files should be checked if it respects the required format
+        if (_directiveName == LISTEN || _directiveName == MAXBODYSIZE ) // afterwards error_files should be checked if it respects the required format
     {
         try
         {

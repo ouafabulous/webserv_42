@@ -8,7 +8,7 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 {
 	fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
 
-	Logger::info << "Get static file " << file_path << std::endl;
+	Logger::info << conn->client_ip_addr << " - get static file " << file_path << std::endl;
 
 	if (fd_read == -1)
 	{
@@ -57,7 +57,7 @@ GetStaticFile::~GetStaticFile()
 
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
-	Logger::info << "PostStaticFile::PostStaticFile()" << file_path << std::endl;
+	Logger::info << conn->client_ip_addr << " - PostStaticFile::PostStaticFile()" << file_path << std::endl;
 
 	fd_write = open(file_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 

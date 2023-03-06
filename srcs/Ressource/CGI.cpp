@@ -7,7 +7,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 	int pipe_to_host[2];
 	char *args[] = {const_cast<char *>(cgiInfo._executable.c_str()), const_cast<char *>(cgiInfo._filePath.c_str()), NULL};
 
-	Logger::info << "CGI args" << cgiInfo._executable << " " << cgiInfo._filePath << std::endl;
+	Logger::info << conn->client_ip_addr << " - CGI args" << cgiInfo._executable << " " << cgiInfo._filePath << std::endl;
 	if (pipe(pipe_to_CGI) == -1)
 		throw std::runtime_error("CGI::CGI() pipe_to_CGI failed.");
 	if (pipe(pipe_to_host) == -1)

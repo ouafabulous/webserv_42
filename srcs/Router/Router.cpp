@@ -112,6 +112,9 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 		else if (it->getDirectiveName() == CGISETUP) {
 			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
 		}
+		else if (it->getDirectiveName() == ERRORFILE) {
+			attributes->error_files.addError(stringToInt((it->getDirectiveValues())[0]._stringValue), (it->getDirectiveValues())[1]._stringValue);
+		}
 		else if (it->getDirectiveName() == INDEX)
 		{
 			attributes->index = (it->getDirectiveValues())[0]._stringValue;
