@@ -1,6 +1,5 @@
 #include <Ressource.hpp>
 
-//	file_path of the CGI script to be defined
 CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 {
 	int pipe_to_CGI[2];
@@ -53,6 +52,25 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 		args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
 		args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
 
+		// https://www.rfc-editor.org/rfc/rfc3875
+
+		// Parse and add these values to env for CGI script
+		// AUTH_TYPE = "" | auth-scheme
+		// CONTENT_LENGTH = "" | 1*DIGIT or NULL
+		// CONTENT_TYPE = "" | media-type
+		// GATEWAY_INTERFACE = CGI/1.1
+		// PATH_INFO = "" | path
+		// PATH_TRANSLATED = ??
+		// REMOTE_ADDR = hostnumber
+		// REMOTE_HOST = "" | hostname | hostnumber
+		// REMOTE_USER = *TEXT
+		// REQUEST_METHOD = method
+		// SCRIPT_NAME = path
+		// SERVER_NAME = hostname
+		// SERVER_PORT = port
+		// SERVER_PROTOCOL = protocol
+		// SERVER_SOFTWARE = servername "/" version
+
 		char *env[args_vector.size() + 1];
 		size_t i = 0;
 		for(std::vector<std::string>::iterator it = args_vector.begin(); it != args_vector.end(); it++)
@@ -85,8 +103,6 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 			conn->setError("Error setting the file to non-blocking", 500);
 			throw std::runtime_error("CGI::CGI() set_nonblocking failed");
 		}
-
-		// placeholder
 	}
 }
 
@@ -101,23 +117,3 @@ CGI::~CGI()
 		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
 	}
 }
-
-//	int status;
-//	pid_t result = waitpid(pid, &status, WNOHANG);
-//	if (result == -1)
-//	{
-//		close(pipe_to_host[WRITE]);
-//		close(pipe_to_CGI[READ]);
-//		throw std::runtime_error("CGI::CGI() waitpid failed");
-//	}
-//	else if (result == 0)
-//		return;
-//	else
-//	{
-//		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
-//		{
-//			close(pipe_to_host[WRITE]);
-//			close(pipe_to_CGI[READ]);
-//			throw std::runtime_error("CGI::CGI() execve failed");
-//		}
-//	}
