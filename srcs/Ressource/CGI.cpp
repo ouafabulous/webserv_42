@@ -52,37 +52,8 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
 
-		std::vector<std::string>	args_vector;
-		args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
-		args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
-
-		// https://www.rfc-editor.org/rfc/rfc3875
-
-		// Parse and add these values to env for CGI script
-		// AUTH_TYPE = "" | auth-scheme
-		// CONTENT_LENGTH = "" | 1*DIGIT or NULL
-		// CONTENT_TYPE = "" | media-type
-		// GATEWAY_INTERFACE = CGI/1.1
-		// PATH_INFO = "" | path
-		// PATH_TRANSLATED = ??
-		// REMOTE_ADDR = hostnumber
-		// REMOTE_HOST = "" | hostname | hostnumber
-		// REMOTE_USER = *TEXT
-		// REQUEST_METHOD = method
-		// SCRIPT_NAME = path
-		// SERVER_NAME = hostname
-		// SERVER_PORT = port
-		// SERVER_PROTOCOL = protocol
-		// SERVER_SOFTWARE = servername "/" version
-
-		char *env[args_vector.size() + 1];
-		size_t i = 0;
-		for(std::vector<std::string>::iterator it = args_vector.begin(); it != args_vector.end(); it++)
-			env[i++] = const_cast<char*>(it->c_str());
-		env[i] = NULL;
-
 		signal(SIGINT, ignore_signal);
-		execve(cgiInfo._executable.c_str(), args, env);
+		execve(cgiInfo._executable.c_str(), args, setCgiEnv(cgiInfo._filePath, cgiInfo._queryString, conn));
 		Logger::error << "CGI::CGI() execve failed" << std::endl;
 		exit(1);
 	}
@@ -115,4 +86,34 @@ CGI::~CGI()
 		conn->setError("Error closing the file", 500);
 		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
 	}
+}
+
+char **CGI::setCgiEnv(std::string filePath, std::string queryString, Connexion *conn)
+{
+	std::vector<std::string> args_vector;
+	args_vector.push_back("AUTH_TYPE=" + conn->getAuthType()); // Authorization header in the HTTP Request Header (only for websites that provide authentication)
+	if (conn->getRequest().request_line.methodVerbose == "POST" && conn->getRequest().content_length > 0)
+		args_vector.push_back("CONTENT_LENGTH=" + std::to_string(conn->getRequest().content_length));
+	args_vector.push_back("CONTENT_TYPE=" + get_mime(filePath));
+	args_vector.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	args_vector.push_back("QUERY_STRING=" + queryString);
+	args_vector.push_back("REMOTE_ADDR=" + conn->client_ip_addr);
+	args_vector.push_back("REMOTE_HOST=" + conn->client_hostname); // either domain name or NULL
+	args_vector.push_back("REMOTE_USER=" + conn->getAuthUser()); // Authorization header in the HTTP Request Header (only for websites that provide authentication)
+	args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
+	args_vector.push_back("SCRIPT_NAME=" + filePath);
+	args_vector.push_back("SERVER_NAME=" + conn->CGIgetRoute()->getAttributes().server_name); // non
+	args_vector.push_back("SERVER_PORT=" + conn->CGIgetRoute()->getAttributes().port);
+	args_vector.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	args_vector.push_back("SERVER_SOFTWARE=webserv/1.0");
+
+	// https://www.rfc-editor.org/rfc/rfc3875
+
+	char *env[args_vector.size() + 1];
+	size_t i = 0;
+	for (std::vector<std::string>::iterator it = args_vector.begin(); it != args_vector.end(); it++)
+		env[i++] = const_cast<char *>(it->c_str());
+	env[i] = NULL;
+
+	return (env);
 }

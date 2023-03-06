@@ -77,6 +77,7 @@ public:
 	~CGI();
 private:
 	pid_t	pid;
+	char	**setCgiEnv(std::string filePath, std::string queryString, Connexion *conn);
 };
 
 // Redirect Class

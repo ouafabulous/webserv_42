@@ -48,6 +48,7 @@ public:
 	bool getRespEnd() const;
 	bool getBodyParsed() const;
 	const std::string client_ip_addr;
+	Route const *CGIgetRoute() const { return route; };
 
 private:
 	IOEvent readHeader(); // called by read() until header is fully received
