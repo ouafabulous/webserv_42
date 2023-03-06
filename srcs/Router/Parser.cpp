@@ -48,6 +48,7 @@ Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
         directiveNames.push_back(dn[i]);
     }
     parse(&_blocks, tokens, 0);
+    // deletePortDupServers(&_blocks); //function that should delete the ServerBlocks having the same port
 }
 
 bool notSpace(t_token token)
@@ -139,7 +140,7 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
     if (tokens.size() || !tokensAreNotWords(tokens))
     {
         uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0); // the first non space token in the tokens given
-        uint secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
+        uint secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1); // the second non space token in the tokens given
         if (firstNonSpTokIndex < tokens.size() && tokens[firstNonSpTokIndex].second == "server" && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
         {
             std::ostringstream oss;
