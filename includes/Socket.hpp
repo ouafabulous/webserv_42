@@ -34,7 +34,7 @@ private:
 class Connexion : public IO
 {
 public:
-	Connexion(const t_network_address netAddr, const t_fd socket, const Router &router);
+	Connexion(const t_network_address netAddr, const t_fd socket, const Router &router, const std::string client_ip_address);
 	virtual ~Connexion();
 	virtual IOEvent read();
 	virtual IOEvent write();
@@ -46,6 +46,7 @@ public:
 	void pushResponse(const char *message, size_t n);
 	void setRespEnd();
 	bool getBodyParsed() const;
+	const std::string client_ip_addr;
 
 private:
 	IOEvent readHeader(); // called by read() until header is fully received
