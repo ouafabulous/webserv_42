@@ -117,11 +117,12 @@ TokenList subVectorFrom(TokenList originalTokens, uint index)
     return (toReturn);
 }
 
+
 Directive parseDirective(TokenList const &tokens, uint &i)
 {
     std::string directiveName = tokens[i].second;
     Directive directive(directiveName);
-    while (tokens[i].first != TOK_SC)
+    while (i < tokens.size() && tokens[i].first != TOK_SC)
     {
         uint firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
         t_token directiveValueTok = tokens[firstNonSpTokIndex];
@@ -135,11 +136,22 @@ Directive parseDirective(TokenList const &tokens, uint &i)
     return directive;
 }
 
+bool portExists(BlockServer *block)
+{
+    std::vector<Directive>::const_iterator it;
+    for (it = block->getDirectives().begin(); it != block->getDirectives().end(); it++)
+    {
+        if (it->getDirectiveName() == "listen")
+            return true;
+    }
+    return false;
+}
+
 void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)
 {
     if (tokens.size() || !tokensAreNotWords(tokens))
     {
-        uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0); // the first non space token in the tokens given
+        uint firstNonSpTokIndex = findNextNonSpTok(tokens, 0);                       // the first non space token in the tokens given
         uint secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1); // the second non space token in the tokens given
         if (firstNonSpTokIndex < tokens.size() && tokens[firstNonSpTokIndex].second == "server" && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
         {
@@ -186,10 +198,16 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                 }
                 else if (tokens[i].first == TOK_RL || tokens[i].first == TOK_SP)
                     i++;
-                else{
+                else
+                {
                     freeBlocks();
                     throw std::runtime_error("\"" + tokens[i].second + "\" is not a valid directive name!\n");
                 }
+            }
+            if (!portExists(*block))
+            {
+                freeBlocks();
+                throw std::runtime_error((*block)->getName() + " is not listening on any port!\n");
             }
             TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
             parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);

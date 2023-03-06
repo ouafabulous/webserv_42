@@ -15,24 +15,17 @@ void    Directive::addDirectiveValue(std::string directiveValue){
             {
                 throw std::runtime_error("Port number should be a positive integer!");
             }
-            // else
-            // {
-            //     _directiveValue._type = INT;
-            // }
-            directiveValueUnion u;
+           directiveValueUnion u;
             u._intValue = intValue;
             _directiveValues.push_back(u);
             _type = INT;
         }
-        catch (const std::exception &e)
-        {
-            // std::cout << "TEST" <<std::endl;                                                           // specify the exception type
+        catch (const std::exception &e){
             throw; // re-throw the exception with a modified message
         }
     }
     else
     {
-        // _directiveValue._type = STRING;
         directiveValueUnion u;
         std::copy(directiveValue.begin(), directiveValue.begin() + DIRECTIVE_NAME_LENGTH, u._stringValue);
         _directiveValues.push_back(u);
