@@ -57,6 +57,8 @@ void Router::printRoutes() const
 	}
 }
 
+
+
 t_methods operator|=(t_methods& a, t_methods b)
 {
     return a = static_cast<t_methods>(a | b);
@@ -75,6 +77,8 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 	{
 		if (it->getDirectiveName() == ALLOWEDMETHODS)
 		{
+			if (it->getDirectiveValues().size())
+				attributes->allowed_methods = NO_METHOD;
 			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
 				attributes->allowed_methods |= methodsDict[directiveValIter->_stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
 			}
