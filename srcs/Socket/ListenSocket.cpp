@@ -42,10 +42,9 @@ IOEvent ListenSocket::read()
 		return(IOEvent(FAIL, this, "couldn't accept new user"));
 	if (set_nonblocking(client_fd))
 		return(IOEvent(FAIL, this, "set_nonblocking function failed"));
-	new_conn = new Connexion(netAddr, client_fd, router);
+	new_conn = new Connexion(netAddr, client_fd, router, address.sin_family == AF_INET ? inet_ntoa(address.sin_addr) : "unreadable address");
 	if (poll_util(POLL_CTL_ADD, client_fd, new_conn, POLLIN))
 		return IOEvent(FAIL, this, "poll_ctl failed");
-	Logger::info << "new client is now connected: " << client_fd << std::endl;
 	return IOEvent();
 }
 

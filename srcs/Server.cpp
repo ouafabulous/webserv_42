@@ -58,7 +58,7 @@ void	Server::routine() {
 				// check result of IO
 				if (io_event.result) {
 					if (io_event.result == SUCCESS)
-						Logger::info << io_event.log << std::endl;
+						Logger::debug << io_event.log << std::endl;
 					else
 						Logger::warning << io_event.log << std::endl;
 					delete io_event.io_elem;

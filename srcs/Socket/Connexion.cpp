@@ -14,25 +14,25 @@ inline bool ends_with(std::string const &value, std::string const &ending)
 // CONSTRUCTORS & DESTRUCTOR
 
 Connexion::Connexion(const t_network_address netAddr,
-					 const t_fd socket, const Router &router) : c_socket(socket),
-																netAddr(netAddr),
-																router(router),
-																request(t_http_message()),
-																is_header_parsed(false),
-																is_request_line_parsed(false),
-																is_body_parsed(false),
-																header_read_size(0),
-																body_read_size(0),
-																dechunker(request.body, body_read_size),
-																route(NULL),
-																ressource(NULL),
-																resp_start(false),
-																resp_end(false)
+					 const t_fd socket, const Router &router, const std::string client_ip_addr) : client_ip_addr(client_ip_addr),
+					 																			  c_socket(socket),
+																								  netAddr(netAddr),
+																								  router(router),
+																								  request(t_http_message()),
+																								  is_header_parsed(false),
+																								  is_request_line_parsed(false),
+																								  is_body_parsed(false),
+																								  header_read_size(0),
+																								  body_read_size(0),
+																								  dechunker(request.body, body_read_size),
+																								  route(NULL),
+																								  ressource(NULL),
+																								  resp_start(false),
+																								  resp_end(false)
 {
 }
 Connexion::~Connexion()
 {
-	Logger::debug << c_socket << " was delete" << std::endl;
 	if (poll_util(POLL_CTL_DEL, c_socket, this, POLLIN))
 		throw std::runtime_error("poll_del failed");
 	close(c_socket);
@@ -47,7 +47,7 @@ IOEvent Connexion::read()
 	ssize_t recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT);
 
 	if (recv_size == -1)
-		return IOEvent(FAIL, this, "Error happened while reading socket");
+		return IOEvent(FAIL, this, client_ip_addr + " - error happened while reading socket");
 	if (!recv_size)
 		return closed();
 	if (is_body_parsed)
@@ -60,17 +60,17 @@ IOEvent Connexion::read()
 IOEvent Connexion::write()
 {
 	if (resp_end && response.empty())
-		return IOEvent(SUCCESS, this, "successfuly send response");
+		return IOEvent(SUCCESS, this, client_ip_addr + " - successfuly send response");
 	if (response.empty())
 		return IOEvent();
 	Logger::debug << "write to conn" << std::endl;
 	if (send(c_socket, response.front().c_str(), response.front().size(), MSG_DONTWAIT) == -1)
-		return IOEvent(FAIL, this, "unable to write to the client socket");
+		return IOEvent(FAIL, this, client_ip_addr + " - unable to write to the client socket");
 	response.pop();
 	resp_start = true;
 	return IOEvent();
 }
-IOEvent Connexion::closed() { return IOEvent(FAIL, this, "client closed the connexion"); }
+IOEvent Connexion::closed() { return IOEvent(FAIL, this, client_ip_addr + " - client closed the connexion"); }
 
 t_http_message const &Connexion::getRequest() const { return request; }
 
@@ -87,9 +87,9 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 	std::string body;
 
 	if (resp_start) // I noticed that there is no moment when it is turned to true?!
-		return IOEvent(FAIL, this, log);
+		return IOEvent(FAIL, this, client_ip_addr + " - " + log);
 	response = std::queue<std::string>();
-	Logger::warning << http_error << " " << log << std::endl;
+	Logger::warning << client_ip_addr << " - " << http_error << " " << log << std::endl;
 	if (route)
 		body = route->getError(http_error);
 	else
@@ -101,7 +101,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 		ressource = NULL;
 	}
 	if (poll_util(POLL_CTL_MOD, c_socket, this, POLLOUT))
-		return IOEvent(FAIL, this, "unable to poll_ctl_mod");
+		return IOEvent(FAIL, this, client_ip_addr + " - " + "unable to poll_ctl_mod");
 	resp_end = true;
 	return IOEvent();
 }
