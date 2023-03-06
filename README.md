@@ -2,6 +2,9 @@ Please find the project's documentation [here](https://forest-jewel-9bb.notion.s
 
 ***
 
+# Usage:
+./webserv *_configuration_file_*
+
 # Configuration files format:
 The format of our configuration files are directly inspired from NGINX.
 
