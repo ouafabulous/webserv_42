@@ -1,4 +1,8 @@
 #include <Ressource.hpp>
+void ignore_signal(int signal)
+{
+	(void)signal;
+}
 
 //	file_path of the CGI script to be defined
 CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
@@ -59,15 +63,10 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 			env[i++] = const_cast<char*>(it->c_str());
 		env[i] = NULL;
 
-		try
-		{
-			execve(cgiInfo._executable.c_str(), args, env);
-		}
-		catch (const std::exception &e)
-		{
-			Logger::error << "CGI::CGI() execve failed: " << e.what() << std::endl;
-			exit(1);
-		}
+		signal(SIGINT, ignore_signal);
+		execve(cgiInfo._executable.c_str(), args, env);
+		Logger::error << "CGI::CGI() execve failed" << std::endl;
+		exit(1);
 	}
 	else
 	{

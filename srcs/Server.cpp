@@ -21,9 +21,10 @@ Server::Server(Parser const &config_file)
 }
 
 Server::~Server() {
-	while (!socks.empty()) {
-		delete socks.begin()->second;
-		socks.erase(socks.begin()->first);
+	for(Server::socket_map::iterator it = socks.begin(); it != socks.end(); it++)
+	{
+		if (it->second)
+			delete it->second;
 	}
 }
 
@@ -49,12 +50,12 @@ void	Server::routine() {
 				io = socks.find(it->fd);
 				if (io == socks.end())
 					continue;
-				if (it->revents & POLLHUP || it->revents & POLLRDHUP)
-					io_event = io->second->closed();
-				else if (it->revents & POLLIN)
+				if (it->revents & POLLIN)
 					io_event = io->second->read();
 				else if (it->revents & POLLOUT)
 					io_event = io->second->write();
+				else if (it->revents & POLLHUP || it->revents & POLLRDHUP)
+					io_event = io->second->closed();
 				// check result of IO
 				if (io_event.result) {
 					if (io_event.result == SUCCESS)

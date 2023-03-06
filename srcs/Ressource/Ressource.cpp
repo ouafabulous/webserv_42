@@ -1,7 +1,7 @@
 #include <Ressource.hpp>
 
 Ressource::Ressource(Connexion *conn): conn(conn), fd_read(-1), fd_write(-1) {}
-Ressource::~Ressource() {}
+Ressource::~Ressource() { }
 IOEvent	Ressource::read()
 {
 	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);
@@ -10,6 +10,7 @@ IOEvent	Ressource::read()
 
 	if (ret == -1)
 		return conn->setError("Error reading the file", 500);
+	// if (ret == 0 || std::string(buffer, ret).find('\0') != std::string::npos) {
 	if (ret == 0) {
 		conn->setRespEnd();
 		poll_util(POLL_CTL_MOD, fd_read, this, 0);
@@ -47,4 +48,5 @@ IOEvent	Ressource::write()
 IOEvent	Ressource::closed()
 {
 	return conn->setError("CGI::closed() called", 500);
+	// return IOEvent();
 }

@@ -43,6 +43,7 @@ IOEvent ListenSocket::read()
 	if (set_nonblocking(client_fd))
 		return(IOEvent(FAIL, this, "set_nonblocking function failed"));
 	new_conn = new Connexion(netAddr, client_fd, router, address.sin_family == AF_INET ? inet_ntoa(address.sin_addr) : "unreadable address");
+	Logger::debug << "new conn" << std::endl;
 	if (poll_util(POLL_CTL_ADD, client_fd, new_conn, POLLIN))
 		return IOEvent(FAIL, this, "poll_ctl failed");
 	return IOEvent();

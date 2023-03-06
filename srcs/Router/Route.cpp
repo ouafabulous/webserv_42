@@ -142,7 +142,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	{
 		if (reqLine.method == GET)
 		{
-			const std::string indexPath = completePath + "index.html";
+			const std::string indexPath = completePath + attributes.index;
 			if (fileExists(indexPath.c_str()))
 			{
 				if (checkPermissions(indexPath, R_OK))

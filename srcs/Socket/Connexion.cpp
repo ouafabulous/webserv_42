@@ -77,6 +77,7 @@ t_http_message const &Connexion::getRequest() const { return request; }
 void Connexion::pushResponse(std::string message) { response.push(message); }
 void Connexion::pushResponse(const char *message, size_t n) { response.push(std::string(message, n)); }
 void Connexion::setRespEnd() { resp_end = true; }
+bool Connexion::getRespEnd() const { return resp_end; }
 bool Connexion::getBodyParsed() const { return is_body_parsed; }
 //
 //		Underlying operations
