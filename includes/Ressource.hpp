@@ -9,7 +9,8 @@
 #include <string.h>
 #include <sys/sendfile.h>
 #include <signal.h>
-#include <sys/wait.h>
+#include <Route.hpp>
+#include <sstream>
 
 class Router;
 class Connexion;
@@ -77,6 +78,7 @@ public:
 	~CGI();
 private:
 	pid_t	pid;
+	char	**setCgiEnv(std::string filePath, std::string queryString, Connexion *conn);
 };
 
 // Redirect Class

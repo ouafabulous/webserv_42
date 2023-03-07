@@ -43,7 +43,8 @@ bool	poll_util(t_poll_action action, t_fd fd, IO* io_ptr, int flags) {
 		poll_it->events = flags;
 	else if (action == POLL_CTL_DEL) {
 		Server::pollfds.erase(poll_it);
-		Server::socks.erase(fd);
+		Server::socks[fd] = NULL;
+		// Server::socks.erase(fd);
 	}
 	return SUCCESS;
 }

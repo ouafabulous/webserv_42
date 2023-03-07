@@ -45,8 +45,10 @@ public:
 	void pushResponse(std::string message);
 	void pushResponse(const char *message, size_t n);
 	void setRespEnd();
+	bool getRespEnd() const;
 	bool getBodyParsed() const;
 	const std::string client_ip_addr;
+	Route const *getRouteCgi() const { return route; };
 
 private:
 	IOEvent readHeader(); // called by read() until header is fully received
