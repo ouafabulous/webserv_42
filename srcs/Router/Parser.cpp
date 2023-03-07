@@ -17,37 +17,37 @@
 #include <Directive.hpp>
 #include "Type.hpp"
 
-void Parser::freeBlocks()
-{
-    BlockServer *tmp1 = _blocks;
-    BlockServer *tmp2 = _blocks;
-    while (tmp1)
-    {
-        std::vector<BlockLocation *> const &childs = tmp1->getChilds();
-        for (std::vector<BlockLocation *>::const_iterator it = childs.begin(); it != childs.end(); it++)
-        {
-            delete (*it);
-        }
-        tmp2 = tmp1;
-        tmp1 = tmp1->getSibling();
-        delete (tmp2);
-        tmp2 = NULL;
-    }
-}
+// void Parser::freeBlocks()
+// {
+//     BlockServer *tmp1 = _blocks;
+//     BlockServer *tmp2 = _blocks;
+//     while (tmp1)
+//     {
+//         std::vector<BlockLocation *> const &childs = tmp1->getChilds();
+//         for (std::vector<BlockLocation *>::const_iterator it = childs.begin(); it != childs.end(); it++)
+//         {
+//             delete (*it);
+//         }
+//         tmp2 = tmp1;
+//         tmp1 = tmp1->getSibling();
+//         delete (tmp2);
+//         tmp2 = NULL;
+//     }
+// }
 
 Parser::~Parser()
 {
-    freeBlocks();
+    // freeBlocks();
 }
 
-Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blocks(NULL)
+Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blockServers()
 {
     std::string dn[11] = {LISTEN, SERVERNAMES, ALLOWEDMETHODS, MAXBODYSIZE, REDIRECT, ROOT, INDEX, AUTOINDEX, CGISETUP, ERRORFILE};
     for (uint i = 0; i != 11; i++)
     {
         directiveNames.push_back(dn[i]);
     }
-    parse(&_blocks, tokens, 0);
+    parse(tokens, 0);
     // deletePortDupServers(&_blocks); //function that should delete the ServerBlocks having the same port
 }
 
@@ -136,10 +136,10 @@ Directive parseDirective(TokenList const &tokens, uint &i)
     return directive;
 }
 
-bool portExists(BlockServer *block)
+bool portExists(BlockServer block)
 {
     std::vector<Directive>::const_iterator it;
-    for (it = block->getDirectives().begin(); it != block->getDirectives().end(); it++)
+    for (it = block.getDirectives().begin(); it != block.getDirectives().end(); it++)
     {
         if (it->getDirectiveName() == "listen")
             return true;
@@ -147,7 +147,7 @@ bool portExists(BlockServer *block)
     return false;
 }
 
-void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumber)
+void Parser::parse(TokenList const &tokens, uint serverNumber)
 {
     if (tokens.size() || !tokensAreNotWords(tokens))
     {
@@ -157,42 +157,40 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
         {
             std::ostringstream oss;
             oss << serverNumber;
-            *block = new BlockServer("server_" + oss.str());
+            BlockServer block("server_" + oss.str());
             uint i = secondNonSpTokIndex + 1;
             uint clServerBrIndex = closingIndexBracket(tokens, i);
             while (i < clServerBrIndex)
             {
                 if (isDirective(tokens[i], directiveNames))
-                    (*block)->addDirective(parseDirective(tokens, i));
+                    block.addDirective(parseDirective(tokens, i));
                 else if (tokens[i].second == "location")
                 {
                     firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
                     secondNonSpTokIndex = findNextNonSpTok(tokens, firstNonSpTokIndex + 1);
                     if (tokens[firstNonSpTokIndex].first == TOK_WORD && tokens[secondNonSpTokIndex].first == TOK_BR_OP)
                     {
-                        oss << static_cast<BlockServer *>(*block)->getNumberChild();
+                        oss << block.getSizeLocations();
                         std::string locationName = "Location_" + oss.str();
                         std::string locationValue = tokens[firstNonSpTokIndex].second;
-                        BlockLocation *locationBlock = new BlockLocation(locationName, locationValue);
+                        BlockLocation   locationBlock(locationName, locationValue);
                         Directive locationDirective("location");
                         locationDirective.addDirectiveValue(locationValue);
-                        locationBlock->addDirective(locationDirective);
+                        locationBlock.addDirective(locationDirective);
                         i = secondNonSpTokIndex + 1;
                         uint clLocationBrIndex = closingIndexBracket(tokens, i);
                         while (i < clLocationBrIndex)
                         {
                             if (isDirective(tokens[i], directiveNames))
-                                locationBlock->addDirective(parseDirective(tokens, i));
+                                locationBlock.addDirective(parseDirective(tokens, i));
                             else if (tokens[i].first == TOK_SP || tokens[i].first == TOK_RL)
                                 i++;
                             else
                             {
-                                delete locationBlock;
-                                freeBlocks();
                                 throw std::runtime_error("\"" + tokens[i].second + "\" is not a valid directive name!\n");
                             }
                         }
-                        static_cast<BlockServer *>(*block)->addChild(locationBlock);
+                        block.addLocation(locationBlock);
                         i = clLocationBrIndex + 1;
                     }
                 }
@@ -200,17 +198,16 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
                     i++;
                 else
                 {
-                    freeBlocks();
                     throw std::runtime_error("\"" + tokens[i].second + "\" is not a valid directive name!\n");
                 }
             }
-            if (!portExists(*block))
+            if (!portExists(block))
             {
-                freeBlocks();
-                throw std::runtime_error((*block)->getName() + " is not listening on any port!\n");
+                // freeBlocks();
+                throw std::runtime_error(block.getName() + " is not listening on any port!\n");
             }
             TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
-            parse((*block)->getSiblingAddress(), subToken, serverNumber + 1);
+            parse(subToken, serverNumber + 1);
             return;
         }
         else if (firstNonSpTokIndex < tokens.size())
@@ -220,15 +217,13 @@ void Parser::parse(BlockServer **block, TokenList const &tokens, uint serverNumb
 
 void Parser::printBlocks() const
 {
-    BlockServer *tmp = _blocks;
-    while (tmp)
+    for (std::vector<BlockServer>::const_iterator   it = _blockServers.begin(); it != _blockServers.end(); it++)
     {
-        tmp->printBlock();
-        tmp = tmp->getSibling();
+     it->printBlock();   
     }
 }
 
-BlockServer *Parser::getBlock() const
+std::vector<BlockServer> const &Parser::getBlockServers() const
 {
-    return (_blocks);
+    return (_blockServers);
 }

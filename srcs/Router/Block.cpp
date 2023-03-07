@@ -1,14 +1,14 @@
 #include "Block.hpp"
 
-void BlockServer::addSibling(BlockServer *sibling)
-{
-	BlockServer *tmp = this;
-	while (tmp->_sibling)
-	{
-		tmp = tmp->_sibling;
-	}
-	tmp->_sibling = sibling;
-}
+// void BlockServer::addSibling(BlockServer *sibling)
+// {
+// 	BlockServer *tmp = this;
+// 	while (tmp->_sibling)
+// 	{
+// 		tmp = tmp->_sibling;
+// 	}
+// 	tmp->_sibling = sibling;
+// }
 
 // std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& vec)
 // {
@@ -20,7 +20,7 @@ void BlockServer::addSibling(BlockServer *sibling)
 //     return os;
 // }
 
-void Block::printBlock()
+void Block::printBlock() const
 {
 	if (_type == BL_SERVER)
 	{
@@ -36,7 +36,8 @@ void Block::printBlock()
 	}
 	else if (_type == BL_LOCATION)
 	{
-		std::cout << "\033[3;100;30m" << getName() << " " << static_cast<BlockLocation *>(this)->getLocationValue() << "\033[0m\n"
+		const BlockLocation *blockLocation = dynamic_cast<const BlockLocation *>(this);
+		std::cout << "\033[3;100;30m" << getName() << " " << blockLocation->getLocationValue() << "\033[0m\n"
 				  << std::endl;
 		// for (std::vector<Directive>::iterator  itDir = _directives.begin(); itDir != _directives.end(); itDir++){
 		// std::cout << "\033[3;100;30m" << itDir->first << " " << itDir->second << "\033[0m\n"  << std::endl;
@@ -44,23 +45,23 @@ void Block::printBlock()
 	}
 }
 
-BlockServer *BlockServer::getSibling() const
+// BlockServer *BlockServer::getSibling() const
+// {
+// 	return (_sibling);
+// }
+// BlockServer **BlockServer::getSiblingAddress()
+// {
+// 	return (&_sibling);
+// }
+
+size_t BlockServer::getSizeLocations() const
 {
-	return (_sibling);
-}
-BlockServer **BlockServer::getSiblingAddress()
-{
-	return (&_sibling);
+	return (_locations.size());
 }
 
-size_t BlockServer::getNumberChild() const
+void BlockServer::addLocation(BlockLocation location)
 {
-	return (_childs.size());
-}
-
-void BlockServer::addChild(BlockLocation *child)
-{
-	_childs.push_back(child);
+	_locations.push_back(location);
 }
 
 std::string Block::getName() const
@@ -73,9 +74,9 @@ std::string BlockLocation::getLocationValue() const
 	return (_locationValue);
 }
 
-std::vector<BlockLocation *> const &BlockServer::getChilds() const
+std::vector<BlockLocation> const &BlockServer::getLocations() const
 {
-	return (_childs);
+	return (_locations);
 }
 
 std::vector<Directive> const &Block::getDirectives() const

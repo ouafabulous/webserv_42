@@ -18,15 +18,15 @@ class Parser {
         ~Parser();
         std::pair<unsigned int, unsigned int>   getBlockLimits() const;
         // void                                    parse(Block *current_block, std::pair<uint, uint> limits, t_block_type type, TokenList	const & tokens);
-        void                                    parse(BlockServer **block, TokenList	const & tokens, uint serverId);
+        void                                    parse(TokenList	const & tokens, uint serverId);
         void                                    freeBlocks();
         uint                                    getNextTokIndex(std::string const &tokens);
         void                                    printBlocks() const;
-        BlockServer                             *getBlock() const;
+        std::vector<BlockServer> const          &getBlockServers() const;
 
     private:
         TokenList	                            _tokens;
-        BlockServer                             *_blocks;
+        std::vector<BlockServer>                _blockServers;
         std::vector<std::string>                directiveNames;
 };
 

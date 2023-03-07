@@ -8,13 +8,15 @@
 // int i = 0;
 Router::Router(Parser const &confile)
 {
-	BlockServer 	*curr_vserver = confile.getBlock();
-	while (curr_vserver)
+	// BlockServer 	*curr_vserver = confile.getBlock();
+	std::vector<BlockServer>::const_iterator curr_vserver;
+	for (curr_vserver = confile.getBlockServers().begin(); curr_vserver != confile.getBlockServers().end(); curr_vserver++)
 	{
+
 		t_attributes 	attributes;
 		fillAttributes(&attributes, curr_vserver->getDirectives());
-		std::vector<BlockLocation *>::const_iterator it;
-		std::vector<BlockLocation *> const &locations = curr_vserver->getChilds();
+		std::vector<BlockLocation>::const_iterator it;
+		std::vector<BlockLocation> const &locations = curr_vserver->getLocations();
 		t_vserver		vserver(attributes.server_name);
 		// push_back default virtual_server route
 		attributes.location = "";
@@ -22,12 +24,11 @@ Router::Router(Parser const &confile)
 		// push_back each location route
 		for (it = locations.begin(); it != locations.end(); it++)
 		{
-			attributes.location = (*it)->getLocationValue();
-			fillAttributes(&attributes, (*it)->getDirectives());
+			attributes.location = it->getLocationValue();
+			fillAttributes(&attributes, it->getDirectives());
 			vserver._routes.push_back(Route(attributes));
 		}
 		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(vserver);
-		curr_vserver = curr_vserver->getSibling();
 	}
 	printRoutes();
 }

@@ -13,7 +13,7 @@ class Block{
         virtual ~Block(){};
 
         void                addDirective(Directive dir) {_directives.push_back(dir);};
-        virtual void        printBlock();
+        virtual void        printBlock() const;
         std::string         getName() const;
         std::vector<Directive> const    &getDirectives() const;
 
@@ -37,20 +37,20 @@ class BlockLocation : public Block {
 
 class BlockServer : public Block {
     public:
-    BlockServer(std::string name) : Block(BL_SERVER, name) {_sibling = NULL;};
+    BlockServer(std::string name) : Block(BL_SERVER, name) {};
     
-    size_t          getNumberChild() const;
-    void            addChild(BlockLocation *child);
+    size_t          getSizeLocations() const;
+    void            addLocation(BlockLocation location);
+
     // void            printBlock();
     BlockServer     **getSiblingAddress();
     void            addSibling(BlockServer *sibling);
     BlockServer     *getSibling() const;
-    std::vector<BlockLocation *> const & getChilds() const;
+    std::vector<BlockLocation> const & getLocations() const;
 
 
     private:
-    std::vector<BlockLocation *>    _childs;
-    BlockServer                     *_sibling;
+    std::vector<BlockLocation>      _locations;
     std::vector<Directive>          _directives;
 };
 
