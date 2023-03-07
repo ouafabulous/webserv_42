@@ -9,7 +9,8 @@
 #include <string.h>
 #include <sys/sendfile.h>
 #include <signal.h>
-#include <sys/wait.h>
+#include <Route.hpp>
+#include <sstream>
 
 class Router;
 class Connexion;
