@@ -206,6 +206,7 @@ void Parser::parse(TokenList const &tokens, uint serverNumber)
                 // freeBlocks();
                 throw std::runtime_error(block.getName() + " is not listening on any port!\n");
             }
+            _blockServers.push_back(block);
             TokenList subToken(tokens.begin() + clServerBrIndex + 1, tokens.end());
             parse(subToken, serverNumber + 1);
             return;
