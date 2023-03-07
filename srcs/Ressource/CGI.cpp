@@ -106,7 +106,9 @@ char **CGI::setCgiEnv(std::string filePath, std::string queryString, Connexion *
 	args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
 	args_vector.push_back("SCRIPT_NAME=" + filePath);
 	args_vector.push_back("SERVER_NAME=" + conn->getRouteCgi()->getAttributes().server_name[0]);
-	args_vector.push_back("SERVER_PORT=" + conn->getRouteCgi()->getAttributes().port);
+	std::stringstream ss;
+	ss << conn->getRouteCgi()->getAttributes().port;
+	args_vector.push_back("SERVER_PORT=" + ss.str());
 	args_vector.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	args_vector.push_back("SERVER_SOFTWARE=webserv/1.0");
 	args_vector.push_back("HTTP_COOKIE=" + conn->getRequest().header_fields.find("Cookie")->second);

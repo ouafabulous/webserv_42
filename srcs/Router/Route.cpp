@@ -187,7 +187,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 
 //4-1 POST case
 	if (reqLine.method == POST){
-			if (!(attributes.allowed_methods & GET))
+			if (!(attributes.allowed_methods & POST))
 				return IOEvent(FAIL, conn, "", 405);
 			conn->setRessource(new PostStaticFile(conn, completePath));
 			return (IOEvent());
