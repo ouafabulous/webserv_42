@@ -73,7 +73,8 @@ typedef struct s_attributes
 		allowed_methods(DEFAULT_ALLOWEDMETHODS),
 		max_body_length(DEFAULT_MAXBODYSIZE),
 		index(DEFAULT_INDEX),
-		directory_listing(DEFAULT_AUTOINDEX) {};
+		directory_listing(DEFAULT_AUTOINDEX),
+		uploadsFolder(DEFAULT_UPLOADS) {};
 } t_attributes;
 
 typedef enum s_s_tok
