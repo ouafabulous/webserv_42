@@ -1,4 +1,39 @@
 #include <Ressource.hpp>
+
+void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::string> &args_vector)
+{
+	// https://www.rfc-editor.org/rfc/rfc3875
+
+	if (conn->getRequest().request_line.methodVerbose == "POST" && conn->getRequest().content_length > 0)
+	{
+		std::stringstream ss;
+		ss << conn->getRequest().content_length;
+		args_vector.push_back("CONTENT_LENGTH=" + ss.str());
+	}
+	args_vector.push_back("CONTENT_TYPE=" + get_mime(cgiInfo._filePath));
+	args_vector.push_back("GATEWAY_INTERFACE=CGI/1.1");
+	args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
+	args_vector.push_back("REMOTE_ADDR=" + conn->client_ip_addr);
+	args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
+	args_vector.push_back("SCRIPT_NAME=" + cgiInfo._filePath);
+	args_vector.push_back("SERVER_NAME=" + conn->getRouteCgi()->getAttributes().server_name[0]); // not good
+
+	std::stringstream ss;
+	ss << conn->getRouteCgi()->getAttributes().port;
+	args_vector.push_back("SERVER_PORT=" + ss.str());
+	args_vector.push_back("SERVER_PROTOCOL=HTTP/1.1");
+	args_vector.push_back("SERVER_SOFTWARE=webserv/1.0");
+
+	std::string cookie;
+	std::map<std::string, std::string>::const_iterator it = conn->getRequest().header_fields.find("Cookie");
+	if (it != conn->getRequest().header_fields.end())
+	{
+		cookie = it->second;
+		args_vector.push_back("HTTP_COOKIE=" + cookie);
+	}
+	// args_vector.push_back("REMOTE_HOST=" + conn->client_hostname); // either domain name or NULL (not mandatory for python)
+}
+
 void ignore_signal(int signal)
 {
 	(void)signal;
@@ -53,7 +88,17 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 		close(pipe_to_CGI[WRITE]);
 
 		signal(SIGINT, ignore_signal);
-		execve(cgiInfo._executable.c_str(), args, setCgiEnv(cgiInfo._filePath, cgiInfo._queryString, conn));
+
+		std::vector<std::string> args_vector;
+		fill_env_variables(conn, cgiInfo, args_vector);
+
+		char *env[args_vector.size() + 1];
+		size_t i = 0;
+		for (std::vector<std::string>::iterator it = args_vector.begin(); it != args_vector.end(); it++)
+			env[i++] = const_cast<char *>(it->c_str());
+		env[i] = NULL;
+
+		execve(cgiInfo._executable.c_str(), args, env);
 		Logger::error << "CGI::CGI() execve failed" << std::endl;
 		exit(1);
 	}
@@ -86,41 +131,4 @@ CGI::~CGI()
 		conn->setError("Error closing the file", 500);
 		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
 	}
-}
-
-char **CGI::setCgiEnv(std::string filePath, std::string queryString, Connexion *conn)
-{
-	std::vector<std::string> args_vector;
-
-	if (conn->getRequest().request_line.methodVerbose == "POST" && conn->getRequest().content_length > 0)
-	{
-		std::stringstream ss;
-		ss << conn->getRequest().content_length;
-		std::string content_length_str = ss.str();
-		args_vector.push_back("CONTENT_LENGTH=" + content_length_str);
-	}
-	args_vector.push_back("CONTENT_TYPE=" + get_mime(filePath));
-	args_vector.push_back("GATEWAY_INTERFACE=CGI/1.1");
-	args_vector.push_back("QUERY_STRING=" + queryString);
-	args_vector.push_back("REMOTE_ADDR=" + conn->client_ip_addr);
-	args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
-	args_vector.push_back("SCRIPT_NAME=" + filePath);
-	args_vector.push_back("SERVER_NAME=" + conn->getRouteCgi()->getAttributes().server_name[0]);
-	std::stringstream ss;
-	ss << conn->getRouteCgi()->getAttributes().port;
-	args_vector.push_back("SERVER_PORT=" + ss.str());
-	args_vector.push_back("SERVER_PROTOCOL=HTTP/1.1");
-	args_vector.push_back("SERVER_SOFTWARE=webserv/1.0");
-	args_vector.push_back("HTTP_COOKIE=" + conn->getRequest().header_fields.find("Cookie")->second);
-	//args_vector.push_back("REMOTE_HOST=" + conn->client_hostname); // either domain name or NULL (not mandatory for python)
-
-	// https://www.rfc-editor.org/rfc/rfc3875
-
-	char **env = new char*[args_vector.size() + 1];
-	size_t i = 0;
-	for (std::vector<std::string>::iterator it = args_vector.begin(); it != args_vector.end(); it++)
-		env[i++] = const_cast<char *>(it->c_str());
-	env[i] = NULL;
-
-	return (env);
 }
