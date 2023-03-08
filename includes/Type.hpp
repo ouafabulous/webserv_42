@@ -67,6 +67,7 @@ typedef struct s_attributes
 	bool directory_listing;						 // autoindex on/off
 	std::map<std::string, std::string> cgi_path; // path to CGI locations -- not implemented int the V0 of the parser
 	Errors error_files;							 // path to default error pages -- not implemented in the V0 of the parser
+	std::string	uploadsFolder;					// path to the uploads folder
 
 	s_attributes() :
 		allowed_methods(DEFAULT_ALLOWEDMETHODS),

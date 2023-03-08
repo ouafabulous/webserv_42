@@ -85,41 +85,27 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 			}
 		}
 		else if (it->getDirectiveName() == LISTEN)
-		{
 			attributes->port = static_cast<uint>((it->getDirectiveValues())[0]._intValue);
-		}
 		else if (it->getDirectiveName() == SERVERNAMES)
-		{
 			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
 				attributes->server_name.push_back(directiveValIter->_stringValue);
 			}
-		}
 		else if (it->getDirectiveName() == MAXBODYSIZE)
-		{
 			attributes->max_body_length = static_cast<size_t>((it->getDirectiveValues())[0]._intValue);
-		}
 		else if (it->getDirectiveName() == REDIRECT)
-		{
 			attributes->redirect = (it->getDirectiveValues())[0]._stringValue;
-		}
 		else if (it->getDirectiveName() == ROOT)
-		{
 			attributes->root = (it->getDirectiveValues())[0]._stringValue;
-		}
 		else if (it->getDirectiveName() == AUTOINDEX)
-		{
 			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
-		}
-		else if (it->getDirectiveName() == CGISETUP) {
+		else if (it->getDirectiveName() == CGISETUP) 
 			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
-		}
-		else if (it->getDirectiveName() == ERRORFILE) {
+		else if (it->getDirectiveName() == ERRORFILE) 
 			attributes->error_files.addError(stringToInt((it->getDirectiveValues())[0]._stringValue), (it->getDirectiveValues())[1]._stringValue);
-		}
 		else if (it->getDirectiveName() == INDEX)
-		{
 			attributes->index = (it->getDirectiveValues())[0]._stringValue;
-		}
+		else if (it->getDirectiveName() == UPLOADS)
+			attributes->uploadsFolder = (it->getDirectiveValues())[0]._stringValue;
 	}
 }
 

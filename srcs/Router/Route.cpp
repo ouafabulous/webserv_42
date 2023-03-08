@@ -58,6 +58,7 @@ void Route::printAttributes() const
 		std::cout << it->first << "->" << it->second << " ";
 	}
 	std::cout << std::endl;
+	std::cout << UPLOADS << ": \t\t" << attributes.uploadsFolder << std::endl; 
 	std::cout << ERRORFILE << ": \t\t" << attributes.error_files << std::endl;
 }
 
@@ -189,7 +190,18 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	if (reqLine.method == POST){
 			if (!(attributes.allowed_methods & POST))
 				return IOEvent(FAIL, conn, "", 405);
-			conn->setRessource(new PostStaticFile(conn, completePath));
+			std::string uploadFolderPath = attributes.root + attributes.uploadsFolder;
+			if (!directoryExists(uploadFolderPath.c_str())) {
+				try
+				{
+					createFolder(uploadFolderPath);
+				}				
+			    catch (const std::exception &e){
+					return IOEvent(FAIL, conn, e.what(), 500);
+				}
+			}
+			std::string completeUploadPath = uploadFolderPath + reqLine.path;
+			conn->setRessource(new PostStaticFile(conn, completeUploadPath));
 			return (IOEvent());
 	}
 //4-2 GET, DELETE case

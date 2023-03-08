@@ -36,5 +36,6 @@ std::string     extractAfterChar(const std::string& inputString, char delimiter)
 const MimeMap   &get_mime_map();
 const std::string			get_mime(const std::string &file_path);
 std::string	    queueToStr(std::queue<std::string> q);  
+void            createFolder(const std::string& folderName); 
 
 #endif
