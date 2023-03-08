@@ -31,6 +31,11 @@ Connexion::Connexion(const t_network_address netAddr,
 																								  resp_end(false)
 {
 }
+
+/**
+ * @brief Destroy the Connexion object and call the destructor of the ressource if it exists
+ *
+ */
 Connexion::~Connexion()
 {
 	if (poll_util(POLL_CTL_DEL, c_socket, this, POLLIN))
@@ -42,6 +47,11 @@ Connexion::~Connexion()
 
 // IOEvent
 
+/**
+ * @brief function called when the socket is ready to be read (notify by poll())
+ *
+ * @return IOEvent
+ */
 IOEvent Connexion::read()
 {
 	ssize_t recv_size = recv(c_socket, buffer, BUFFER_SIZE, MSG_DONTWAIT);
@@ -57,6 +67,12 @@ IOEvent Connexion::read()
 		return readHeader();
 	return readBody();
 }
+
+/**
+ * @brief function called when the socket is ready to be written (notify by poll())
+ *
+ * @return IOEvent
+ */
 IOEvent Connexion::write()
 {
 	if (resp_end && response.empty())
@@ -70,19 +86,75 @@ IOEvent Connexion::write()
 	resp_start = true;
 	return IOEvent();
 }
+
+/**
+ * @brief function called when the socket is closed (notify by poll())
+ *
+ * @return IOEvent
+ */
 IOEvent Connexion::closed() { return IOEvent(FAIL, this, client_ip_addr + " - client closed the connexion"); }
 
+
+/**
+ * @brief return the parsed request received by the Connexion object
+ *
+ * @return t_http_message const&
+ */
 t_http_message const &Connexion::getRequest() const { return request; }
 
+
+/**
+ * @brief push response chunks to the response queue
+ *
+ * @param message std::string to push
+ */
 void Connexion::pushResponse(std::string message) { response.push(message); }
+
+
+/**
+ * @brief push n bytes of response chunks to the response queue
+ *
+ * @param message std::string to push
+ * @param n size_t size of the string
+ */
 void Connexion::pushResponse(const char *message, size_t n) { response.push(std::string(message, n)); }
+
+
+/**
+ * @brief set the response end flag to true, used to know when the response is fully available in the queue
+ *
+ */
 void Connexion::setRespEnd() { resp_end = true; }
+
+
+/**
+ * @brief return the response end flag
+ *
+ * @return true
+ * @return false
+ */
 bool Connexion::getRespEnd() const { return resp_end; }
+
+/**
+ * @brief return true if the body is fully available in the request.body queue
+ *
+ * @return true
+ * @return false
+ */
 bool Connexion::getBodyParsed() const { return is_body_parsed; }
+
+
 //
 //		Underlying operations
 //
 
+/**
+ * @brief helper function to set a response error available to send to the client and log a message to STDERR
+ *
+ * @param log message to log
+ * @param http_error status_code to send to the client
+ * @return IOEvent
+ */
 IOEvent Connexion::setError(std::string log, uint http_error)
 {
 	std::string body;
@@ -107,6 +179,11 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 	return IOEvent();
 }
 
+/**
+ * @brief split header into string vector and call parseHeader if some lines are ready to be processed
+ *
+ * @return IOEvent
+ */
 IOEvent Connexion::readHeader()
 {
 	size_t pos = 0;
@@ -128,6 +205,12 @@ IOEvent Connexion::readHeader()
 	return IOEvent();
 }
 
+/**
+ * @brief use the string vector and save it into t_http_message request
+ *
+ * @param lines lines splitted from raw_request
+ * @return IOEvent
+ */
 IOEvent Connexion::parseHeader(std::vector<std::string> &lines)
 {
 	std::vector<std::string>::iterator it = lines.begin();
@@ -157,6 +240,13 @@ IOEvent Connexion::parseHeader(std::vector<std::string> &lines)
 	return IOEvent();
 }
 
+/**
+ * @brief parse the request line and save it into t_http_message request
+ *
+ * @param raw_line std::string representing the raw request line
+ * @return true
+ * @return false
+ */
 bool Connexion::parseRequestLine(std::string &raw_line)
 {
 	std::vector<std::string> splitted_line;
@@ -180,6 +270,13 @@ bool Connexion::parseRequestLine(std::string &raw_line)
 	return OK;
 }
 
+/**
+ * @brief called when the header is parsed,
+ * it will retreive the matching route to the connexion and call the route->setRessource
+ * if the request contains a body, it will call readBody
+ *
+ * @return IOEvent
+ */
 IOEvent Connexion::executeRoute()
 {
 	// if we are not waiting for a body
@@ -224,6 +321,11 @@ IOEvent Connexion::executeRoute()
 	return IOEvent();
 }
 
+/**
+ * @brief get the body of the request and save it into the request.body queue
+ *
+ * @return IOEvent
+ */
 IOEvent Connexion::readBody()
 {
 	// if chunked request
@@ -259,6 +361,13 @@ void Connexion::setRessource(Ressource *_ressource)
 	ressource = _ressource;
 }
 
+/**
+ * @brief decode the percent encoding in the uri
+ *
+ * @param uri std::string representing the uri
+ * @return true
+ * @return false
+ */
 bool Connexion::decodePercent(std::string &uri)
 {
 	std::string::size_type pos = 0;

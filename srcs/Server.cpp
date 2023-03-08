@@ -48,7 +48,7 @@ void	Server::routine() {
 			io_event.result = CONTINUE;
 			if (it->revents) {
 				io = socks.find(it->fd);
-				if (io == socks.end())
+				if (io == socks.end() || !io->second )
 					continue;
 				if (it->revents & POLLIN)
 					io_event = io->second->read();

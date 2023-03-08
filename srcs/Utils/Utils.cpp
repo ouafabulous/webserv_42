@@ -335,3 +335,9 @@ std::string	queueToStr(std::queue<std::string> q){
     }
 	return (str);
 }
+
+void	createFolder(const std::string& folderName) {
+    int status = mkdir(folderName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+    if (status != 0) 
+		throw std::runtime_error("Couldn't open " + folderName + "!\n");
+}

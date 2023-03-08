@@ -12,18 +12,22 @@ RESSOURCES = $(addprefix Ressource/, Ressource.cpp CGI.cpp Directory.cpp File.cp
 UTILS = $(addprefix Utils/, Utils.cpp Logger.cpp)
 SRCS = $(addprefix srcs/, main.cpp Server.cpp Errors.cpp $(ROUTER) $(SOCKET) $(UTILS) $(RESSOURCES))
 OBJS = $(addprefix $(TMPDIR)/, $(SRCS:%.cpp=%.o))
+# DOCS_DIR = webapp/docs_html
 
 CXX = c++
 RM = rm -rf
 
 all: $(PROGRAM)
 
-$(PROGRAM): $(OBJS) | Makefile
+$(PROGRAM): $(OBJS) | Makefile # $(DOCS_DIR)
 	$(CXX) $(CXXFLAGS) $^ -o $@ -g
 
 $(OBJS): $(TMPDIR)/%.o: %.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c -I$(HDRS) -MMD -MF $(TMPDIR)/$*.d $< -o $@
+
+# $(DOCS_DIR):
+# 	@docs/doxygen docs/Doxyfile
 
 clean:
 	$(RM) $(TMPDIR)

@@ -1,0 +1,10 @@
+<map id="Ressource" name="Ressource">
+<area shape="rect" id="node1" title=" " alt="" coords="351,175,465,340"/>
+<area shape="rect" id="node3" href="$classCGI.html" title=" " alt="" coords="5,395,80,487"/>
+<area shape="rect" id="node4" href="$classDeleteStaticFile.html" title=" " alt="" coords="105,395,247,487"/>
+<area shape="rect" id="node5" href="$classGetDirectory.html" title=" " alt="" coords="271,388,395,495"/>
+<area shape="rect" id="node6" href="$classGetStaticFile.html" title=" " alt="" coords="419,395,546,487"/>
+<area shape="rect" id="node7" href="$classPostStaticFile.html" title=" " alt="" coords="570,395,702,487"/>
+<area shape="rect" id="node8" href="$classRedirectRessource.html" title=" " alt="" coords="727,395,889,487"/>
+<area shape="rect" id="node2" href="$classIO.html" title=" " alt="" coords="368,5,448,127"/>
+</map>

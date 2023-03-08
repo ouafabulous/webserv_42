@@ -5,3 +5,4 @@ tests/
 .tmp
 webserv
 **/__pycache__
+.clangd

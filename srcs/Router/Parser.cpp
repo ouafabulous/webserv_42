@@ -42,7 +42,7 @@ Parser::~Parser()
 
 Parser::Parser(TokenList const &tokens) : _tokens(tokens), _blockServers()
 {
-    std::string dn[11] = {LISTEN, SERVERNAMES, ALLOWEDMETHODS, MAXBODYSIZE, REDIRECT, ROOT, INDEX, AUTOINDEX, CGISETUP, ERRORFILE};
+    std::string dn[12] = {LISTEN, SERVERNAMES, ALLOWEDMETHODS, MAXBODYSIZE, REDIRECT, ROOT, INDEX, AUTOINDEX, CGISETUP, ERRORFILE, UPLOADS};
     for (uint i = 0; i != 11; i++)
     {
         directiveNames.push_back(dn[i]);
@@ -122,13 +122,19 @@ Directive parseDirective(TokenList const &tokens, uint &i)
 {
     std::string directiveName = tokens[i].second;
     Directive directive(directiveName);
+    uint j = 1;
     while (i < tokens.size() && tokens[i].first != TOK_SC)
     {
         uint firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
         t_token directiveValueTok = tokens[firstNonSpTokIndex];
         if (directiveValueTok.first == TOK_WORD)
         {
+            if (j > 1 && directiveName != SERVERNAMES && directiveName != CGISETUP && directiveName != ERRORFILE)
+                throw std::runtime_error(directiveName + " is given more than 1 argument!\n");
+            if (j > 2 && directiveName != SERVERNAMES)
+                throw std::runtime_error(directiveName + " is given more than 2 arguments!\n");
             directive.addDirectiveValue(directiveValueTok.second);
+            j++;
         }
         i = firstNonSpTokIndex;
     }
@@ -203,7 +209,6 @@ void Parser::parse(TokenList const &tokens, uint serverNumber)
             }
             if (!portExists(block))
             {
-                // freeBlocks();
                 throw std::runtime_error(block.getName() + " is not listening on any port!\n");
             }
             _blockServers.push_back(block);
