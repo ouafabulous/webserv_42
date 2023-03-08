@@ -34,6 +34,14 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 	// args_vector.push_back("REMOTE_HOST=" + conn->client_hostname); // either domain name or NULL (not mandatory for python)
 }
 
+void print_env_variables(char **env)
+{
+	for (int i = 0; env[i] != NULL; i++)
+	{
+		Logger::error << "Environment variable: " << env[i] << std::endl;
+	}
+}
+
 void ignore_signal(int signal)
 {
 	(void)signal;
@@ -98,6 +106,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 			env[i++] = const_cast<char *>(it->c_str());
 		env[i] = NULL;
 
+		//print_env_variables(env);
 		execve(cgiInfo._executable.c_str(), args, env);
 		Logger::error << "CGI::CGI() execve failed" << std::endl;
 		exit(1);
