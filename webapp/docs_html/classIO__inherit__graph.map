@@ -1,0 +1,12 @@
+<map id="IO" name="IO">
+<area shape="rect" id="node1" title=" " alt="" coords="224,5,304,127"/>
+<area shape="rect" id="node2" href="$classConnexion.html" title=" " alt="" coords="45,175,176,443"/>
+<area shape="rect" id="node3" href="$classListenSocket.html" title=" " alt="" coords="201,241,327,377"/>
+<area shape="rect" id="node4" href="$classRessource.html" title=" " alt="" coords="351,226,465,391"/>
+<area shape="rect" id="node5" href="$classCGI.html" title=" " alt="" coords="5,498,80,590"/>
+<area shape="rect" id="node6" href="$classDeleteStaticFile.html" title=" " alt="" coords="105,498,247,590"/>
+<area shape="rect" id="node7" href="$classGetDirectory.html" title=" " alt="" coords="271,491,395,597"/>
+<area shape="rect" id="node8" href="$classGetStaticFile.html" title=" " alt="" coords="419,498,546,590"/>
+<area shape="rect" id="node9" href="$classPostStaticFile.html" title=" " alt="" coords="570,498,702,590"/>
+<area shape="rect" id="node10" href="$classRedirectRessource.html" title=" " alt="" coords="727,498,889,590"/>
+</map>
