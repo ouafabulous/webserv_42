@@ -56,7 +56,6 @@ private:
 	// Parsing
 	IOEvent parseHeader(std::vector<std::string> &); // called by read_header() when header is fully received
 	bool parseRequestLine(std::string &request_line);
-	IOEvent parseChunkedBody();
 	IOEvent executeRoute();
 	bool decodePercent(std::string &uri);
 

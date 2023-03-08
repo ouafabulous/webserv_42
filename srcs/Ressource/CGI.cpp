@@ -11,6 +11,13 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 		ss << conn->getRequest().content_length;
 		args_vector.push_back("CONTENT_LENGTH=" + ss.str());
 	}
+
+	//it = conn->getRequest().header_fields.begin();
+	//for (; it != conn->getRequest().header_fields.end(); it++)
+	//{
+	//	Logger::error << it->first << " : " << it->second << std::endl;
+	//}
+
 	args_vector.push_back("CONTENT_TYPE=" + get_mime(cgiInfo._filePath));
 	args_vector.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
@@ -27,13 +34,15 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 	args_vector.push_back("SERVER_PORT=" + ss.str());
 	args_vector.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	args_vector.push_back("SERVER_SOFTWARE=webserv/1.0");
-	std::string cookie;
 	it = conn->getRequest().header_fields.find("Set-Cookie");
 	if (it != conn->getRequest().header_fields.end())
 	{
-		cookie = it->second;
-		args_vector.push_back("HTTP_COOKIE=" + cookie);
+		std::string cookieval = it->second;
+		args_vector.push_back("HTTP_COOKIE=" + cookieval);
 	}
+	it = conn->getRequest().header_fields.find("Cookie");
+	if (it != conn->getRequest().header_fields.end())
+		args_vector.push_back("HTTP_COOKIE=" + it->second);
 }
 
 void print_env_variables(char **env)
@@ -185,7 +194,7 @@ IOEvent CGI::read()
 		{
 			raw_header.append(buffer, ret);
 			if (read_header())
-				conn->setError("fkwe", 500);
+				conn->setError("read_header() failed", 500);
 		}
 		else if (content_length < 0)
 			conn->pushResponse(buffer, ret);
