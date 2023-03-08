@@ -24,14 +24,14 @@ class Ressource : public IO
 public:
 	Ressource(Connexion *conn);
 	virtual ~Ressource();
-	IOEvent		read();
-	IOEvent		write();
-	IOEvent		closed();
+	virtual IOEvent read();
+	IOEvent write();
+	IOEvent closed();
 
 protected:
-	Connexion			*conn;
-	t_fd				fd_read;
-	t_fd				fd_write;
+	Connexion *conn;
+	t_fd fd_read;
+	t_fd fd_write;
 };
 
 // File && Directory Classes
@@ -76,8 +76,15 @@ class CGI : public Ressource
 public:
 	CGI(Connexion *conn, t_cgiInfo cgiInfo);
 	~CGI();
+	IOEvent read();
+
 private:
-	pid_t	pid;
+	pid_t pid;
+	std::string raw_header;
+	std::string	raw_body;
+	int content_length;
+	bool header_received;
+	bool read_header();
 };
 
 // Redirect Class

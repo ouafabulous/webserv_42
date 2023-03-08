@@ -3,6 +3,7 @@
 void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::string> &args_vector)
 {
 	// https://www.rfc-editor.org/rfc/rfc3875
+	std::map<std::string, std::string>::const_iterator it;
 
 	if (conn->getRequest().request_line.methodVerbose == "POST" && conn->getRequest().content_length > 0)
 	{
@@ -16,22 +17,23 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 	args_vector.push_back("REMOTE_ADDR=" + conn->client_ip_addr);
 	args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
 	args_vector.push_back("SCRIPT_NAME=" + cgiInfo._filePath);
-	args_vector.push_back("SERVER_NAME=" + conn->getRouteCgi()->getAttributes().server_name[0]); // not good
-
+	std::string host = conn->getRouteCgi()->getAttributes().server_name[0];
+	it = conn->getRequest().header_fields.find("Host");
+	if (it != conn->getRequest().header_fields.end())
+		host = it->second;
+	args_vector.push_back("SERVER_NAME=" + host);
 	std::stringstream ss;
 	ss << conn->getRouteCgi()->getAttributes().port;
 	args_vector.push_back("SERVER_PORT=" + ss.str());
 	args_vector.push_back("SERVER_PROTOCOL=HTTP/1.1");
 	args_vector.push_back("SERVER_SOFTWARE=webserv/1.0");
-
 	std::string cookie;
-	std::map<std::string, std::string>::const_iterator it = conn->getRequest().header_fields.find("Cookie");
+	it = conn->getRequest().header_fields.find("Set-Cookie");
 	if (it != conn->getRequest().header_fields.end())
 	{
 		cookie = it->second;
 		args_vector.push_back("HTTP_COOKIE=" + cookie);
 	}
-	// args_vector.push_back("REMOTE_HOST=" + conn->client_hostname); // either domain name or NULL (not mandatory for python)
 }
 
 void print_env_variables(char **env)
@@ -47,7 +49,7 @@ void ignore_signal(int signal)
 	(void)signal;
 }
 
-CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
+CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn), content_length(-1), header_received(false)
 {
 	int pipe_to_CGI[2];
 	int pipe_to_host[2];
@@ -106,7 +108,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn)
 			env[i++] = const_cast<char *>(it->c_str());
 		env[i] = NULL;
 
-		//print_env_variables(env);
+		print_env_variables(env);
 		execve(cgiInfo._executable.c_str(), args, env);
 		Logger::error << "CGI::CGI() execve failed" << std::endl;
 		exit(1);
@@ -140,4 +142,62 @@ CGI::~CGI()
 		conn->setError("Error closing the file", 500);
 		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
 	}
+}
+
+bool CGI::read_header()
+{
+	size_t header_end = raw_header.find("\r\n\r\n");
+	if (header_end)
+	{
+		size_t pos = raw_header.find("Content-Length: ");
+		if (pos != std::string::npos)
+		{
+			if (!(std::stringstream(raw_header.substr(pos + 16)) >> content_length))
+				return NOK;
+			conn->pushResponse(raw_header.substr(0, header_end + 4));
+			raw_body.append(raw_header.substr(header_end + 4));
+		}
+		else
+			conn->pushResponse(raw_header);
+		header_received = true;
+	}
+	else if(raw_header.size() > MAX_HEADER_SIZE)
+		return NOK;
+	return OK;
+}
+
+IOEvent CGI::read()
+{
+	int ret = ::read(fd_read, buffer, BUFFER_SIZE);
+
+	Logger::debug << "read from CGI" << std::endl;
+
+	if (ret == -1)
+		return conn->setError("Error reading the file", 500);
+	if (ret == 0 || std::string(buffer, ret).find('\0') != std::string::npos)
+	{
+		conn->setRespEnd();
+		poll_util(POLL_CTL_MOD, fd_read, this, 0);
+	}
+	if (ret > 0)
+	{
+		if (!header_received)
+		{
+			raw_header.append(buffer, ret);
+			if (read_header())
+				conn->setError("fkwe", 500);
+		}
+		else if (content_length < 0)
+			conn->pushResponse(buffer, ret);
+		if (content_length > 0) {
+			raw_body.append(buffer, ret);
+			if (static_cast<int>(raw_body.size()) >= content_length) {
+				conn->pushResponse(raw_body.substr(0, content_length));
+				conn->setRespEnd();
+				poll_util(POLL_CTL_MOD, fd_read, this, 0);
+			}
+		}
+	}
+
+	return IOEvent();
 }
