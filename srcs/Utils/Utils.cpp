@@ -49,7 +49,7 @@ bool	poll_util(t_poll_action action, t_fd fd, IO* io_ptr, int flags) {
 	return SUCCESS;
 }
 
-std::string http_header_formatter(uint status_code, size_t content_length,std::string content_type = "application/octet-stream") {
+std::string http_header_formatter(uint status_code, size_t content_length,std::string content_type) {
 	static std::map<uint, std::string>	status_text;
 	std::stringstream 					result;
 
@@ -264,7 +264,7 @@ bool checkPermissions(const std::string& file_path, const mode_t& mode)
 {
 	if (access(file_path.c_str(), mode) == 0)
 		return true;
-	std::cerr << "Error: " << strerror(errno) << std::endl;
+	Logger::warning << "Error: " << strerror(errno) << std::endl;
 	return false;
 }
 
@@ -338,6 +338,6 @@ std::string	queueToStr(std::queue<std::string> q){
 
 void	createFolder(const std::string& folderName) {
     int status = mkdir(folderName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
-    if (status != 0) 
+    if (status != 0)
 		throw std::runtime_error("Couldn't open " + folderName + "!\n");
 }

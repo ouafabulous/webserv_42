@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <Errors.hpp>
 #include <algorithm>
 #include <climits>
 #include <queue>
@@ -16,6 +15,8 @@ typedef unsigned int uint;
 typedef int t_fd;
 
 typedef std::map<std::string, std::string> MimeMap;
+typedef std::map<uint, std::string> t_errors_map;
+std::ostream&	operator<<(std::ostream &out, const t_errors_map &errors);
 
 typedef enum
 {
@@ -61,20 +62,19 @@ typedef struct s_attributes
 	std::string location;				  // path requested in the request line
 	t_methods allowed_methods;			  // could be GET POST DELETE
 	size_t max_body_length;
-	std::string redirect;						 // uri for redirection,
-	std::string root;							 // path to root directory for serving static files
+	std::string redirect; // uri for redirection,
+	std::string root;	  // path to root directory for serving static files
 	std::string index;
 	bool directory_listing;						 // autoindex on/off
 	std::map<std::string, std::string> cgi_path; // path to CGI locations -- not implemented int the V0 of the parser
-	Errors error_files;							 // path to default error pages -- not implemented in the V0 of the parser
-	std::string	uploadsFolder;					// path to the uploads folder
+	t_errors_map error_files;					 // map of custom error files
+	std::string uploadsFolder;					 // path to the uploads folder
 
-	s_attributes() :
-		allowed_methods(DEFAULT_ALLOWEDMETHODS),
-		max_body_length(DEFAULT_MAXBODYSIZE),
-		index(DEFAULT_INDEX),
-		directory_listing(DEFAULT_AUTOINDEX),
-		uploadsFolder(DEFAULT_UPLOADS) {};
+	s_attributes() : allowed_methods(DEFAULT_ALLOWEDMETHODS),
+					 max_body_length(DEFAULT_MAXBODYSIZE),
+					 index(DEFAULT_INDEX),
+					 directory_listing(DEFAULT_AUTOINDEX),
+					 uploadsFolder(DEFAULT_UPLOADS){};
 } t_attributes;
 
 typedef enum s_s_tok

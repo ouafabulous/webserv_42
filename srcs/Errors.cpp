@@ -2,55 +2,71 @@
 #include <Utils.hpp>
 #include <iostream>
 #include <fstream>
-
-typedef std::map<uint, std::string> errors_map;
-
-Errors::Errors(){};
-Errors::Errors(const Errors& from)
-: custom_errors_path(from.custom_errors_path)  { }
-Errors&	Errors::operator=(const Errors& rhs) {
-	// self-assignment guard
-	if (this == &rhs)
-		return *this;
-
-	custom_errors_path = rhs.custom_errors_path;
-	return *this;
-}
-Errors::~Errors(){};
+#include <Ressource.hpp>
 
 
-std::string&		Errors::operator[](uint http_error) {
-	return custom_errors_path[http_error];
-}
+/**************************************************************************/
+/******************************** GET ERROR *******************************/
+/**************************************************************************/
 
-void	Errors::addError(uint status_code, std::string path) {
-	custom_errors_path[status_code] = path;
-}
+GetError::GetError(Connexion *conn, uint status_code, std::string file_path) : Ressource(conn), is_custom(false)
+{
+	std::string response;
 
-std::string	Errors::getError(uint status_code) const {
-	errors_map::const_iterator	error_it;
-	std::string line;
-	std::ifstream file;
-	std::stringstream	result;
+	if (!file_path.empty() && access(file_path.c_str(), R_OK) == 0)
+		is_custom = true;
 
-	error_it = custom_errors_path.find(status_code);
-	if (error_it != custom_errors_path.end())
-	{
-		file.open(error_it->second.c_str());
-		if (!file.is_open())
-			return getDefaultError(status_code);
-		while (getline(file, line)) {  // read a line from the file
-			result << line << std::endl;  // print the line to the console
+	Logger::info << conn->client_ip_addr << " - getError " << status_code << (is_custom ? " (" + file_path + ")": "") << std::endl;
+
+	if (is_custom) {
+		fd_read = open(file_path.c_str(), O_RDONLY | O_NONBLOCK);
+
+		if (fd_read == -1) {
+			conn->setError("Error opening the file" + file_path, 404);
+			throw std::runtime_error("GetError::GetError() Open failed");
 		}
-		file.close();  // close the file
-		return result.str();
+
+		if (set_nonblocking(fd_read)) {
+			conn->setError("Error setting the file to non-blocking", 500);
+			throw std::runtime_error("GetError::GetError() set_nonblocking failed");
+		}
+		if (poll_util(POLL_CTL_ADD, fd_read, this, POLLIN)) {
+			conn->setError("Error adding the file to the poll", 500);
+			throw std::runtime_error("GetError::GetError() poll_util failed");
+		}
+
+		struct stat st;
+
+		if (fstat(fd_read, &st) == -1) {
+			conn->setError("Error getting the file size for " + file_path, 404);
+			throw std::runtime_error("GetError::GetError() Fstat failed");
+		}
+		response = http_header_formatter(status_code, st.st_size, get_mime(file_path));
+		conn->pushResponse(response);
 	}
-	return getDefaultError(status_code);
+	else {
+		response = http_header_formatter(status_code, getDefaultError(status_code).size(), "text/html") + getDefaultError(status_code);
+		conn->pushResponse(response);
+	}
+
+
 }
 
-std::string	Errors::getDefaultError(uint status_code) {
-	errors_map::const_iterator	error_it;
-	static errors_map			default_errors;
+GetError::~GetError()
+{
+	if (is_custom) {
+		poll_util(POLL_CTL_DEL, fd_read, this, POLLIN);
+		if (close(fd_read) == -1)
+		{
+			conn->setError("Error closing the file", 500);
+			throw std::runtime_error("GetError::~GetError() Close failed");
+		}
+	}
+}
+
+const std::string&	GetError::getDefaultError(uint status_code) {
+	t_errors_map::const_iterator	error_it;
+	static t_errors_map			default_errors;
 
 	if (default_errors.empty()) {
 		default_errors[301] =
@@ -266,18 +282,12 @@ std::string	Errors::getDefaultError(uint status_code) {
 	if (error_it != default_errors.end()) {
 		return error_it->second;
 	}
-	return "";
+	return default_errors[500];
 }
 
-Errors::t_error_map			Errors::getCustomErrorPath() const {
-	return custom_errors_path;
-}
-
-std::ostream&	operator<<(std::ostream &out, const Errors &errors)
+std::ostream&	operator<<(std::ostream &out, const t_errors_map &errors)
 {
-	Errors::t_error_map	map = errors.getCustomErrorPath();
-
-	for (Errors::t_error_map::iterator it = map.begin(); it != map.end(); it++)
+	for (t_errors_map::const_iterator it = errors.begin(); it != errors.end(); it++)
 		out << "(" << it->first << ": " << it->second << ") ";
     return out;
 }

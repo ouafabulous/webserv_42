@@ -104,10 +104,10 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 					throw std::runtime_error("auto-index can only have \"on\" or \"off\" as arguments\n");
 			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
 		}
-		else if (it->getDirectiveName() == CGISETUP) 
+		else if (it->getDirectiveName() == CGISETUP)
 			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
-		else if (it->getDirectiveName() == ERRORFILE) 
-			attributes->error_files.addError(stringToInt((it->getDirectiveValues())[0]._stringValue), (it->getDirectiveValues())[1]._stringValue);
+		else if (it->getDirectiveName() == ERRORFILE)
+			attributes->error_files[stringToInt((it->getDirectiveValues())[0]._stringValue)] = (it->getDirectiveValues())[1]._stringValue;
 		else if (it->getDirectiveName() == INDEX)
 			attributes->index = (it->getDirectiveValues())[0]._stringValue;
 		else if (it->getDirectiveName() == UPLOADS)

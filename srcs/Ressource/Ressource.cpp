@@ -1,7 +1,9 @@
 #include <Ressource.hpp>
 
 Ressource::Ressource(Connexion *conn): conn(conn), fd_read(-1), fd_write(-1) {}
-Ressource::~Ressource() { }
+Ressource::~Ressource() {
+	Logger::debug << conn->client_ip_addr << " - Ressource is delete" << std::endl;
+}
 IOEvent	Ressource::read()
 {
 	int	ret = ::read(fd_read, buffer, BUFFER_SIZE);

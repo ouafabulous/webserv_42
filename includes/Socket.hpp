@@ -3,7 +3,6 @@
 
 #include <IO.hpp>
 #include <unistd.h>
-#include <Errors.hpp>
 #include <Utils.hpp>
 #include <Config.hpp>
 #include <Dechunker.hpp>

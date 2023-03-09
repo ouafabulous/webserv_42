@@ -5,7 +5,6 @@
 #include <Router.hpp>
 #include <Config.hpp>
 #include <Type.hpp>
-#include <Errors.hpp>
 #include <IO.hpp>
 #include <Socket.hpp>
 #include <unistd.h>

@@ -22,11 +22,6 @@ Route::~Route()
 {
 }
 
-std::string Route::getError(uint http_error) const
-{
-	return attributes.error_files.getError(http_error);
-}
-
 size_t Route::getMaxBodySize() const
 {
 	return attributes.max_body_length;
@@ -129,7 +124,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				conn->setRessource(new CGI(conn, cgiInfo));
 				return (IOEvent());
 			}
-			catch (const std::runtime_error &e)
+			catch (const std::exception &e)
 			{
 				return IOEvent(FAIL, conn, e.what(), 500);
 			}

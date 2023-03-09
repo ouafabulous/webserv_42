@@ -96,4 +96,14 @@ public:
 	~RedirectRessource();
 };
 
+class GetError : public Ressource
+{
+public:
+	GetError(Connexion *conn, uint error_no, std::string file_path);
+	~GetError();
+private:
+	bool	is_custom;
+	static const std::string&	getDefaultError(uint status_code);
+};
+
 #endif

@@ -38,6 +38,7 @@ Connexion::Connexion(const t_network_address netAddr,
  */
 Connexion::~Connexion()
 {
+	Logger::debug << client_ip_addr << " - Connexion is delete" << std::endl;
 	if (poll_util(POLL_CTL_DEL, c_socket, this, POLLIN))
 		throw std::runtime_error("poll_del failed");
 	close(c_socket);
@@ -157,17 +158,17 @@ bool Connexion::getBodyParsed() const { return is_body_parsed; }
  */
 IOEvent Connexion::setError(std::string log, uint http_error)
 {
-	std::string body;
+	std::string error_path;
 
 	if (resp_start) // I noticed that there is no moment when it is turned to true?!
 		return IOEvent(FAIL, this, client_ip_addr + " - " + log);
 	response = std::queue<std::string>();
 	Logger::warning << client_ip_addr << " - " << http_error << " " << log << std::endl;
-	if (route)
-		body = route->getError(http_error);
-	else
-		body = Errors::getDefaultError(http_error);
-	response.push(http_header_formatter(http_error, body.length(), "text/html") + body);
+	if (route) {
+		t_errors_map::const_iterator it = route->getAttributes().error_files.find(http_error);
+		if (it != route->getAttributes().error_files.end())
+			error_path = it->second;
+	}
 	if (ressource)
 	{
 		delete ressource;
@@ -175,6 +176,15 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 	}
 	if (poll_util(POLL_CTL_MOD, c_socket, this, POLLOUT))
 		return IOEvent(FAIL, this, client_ip_addr + " - " + "unable to poll_ctl_mod");
+	try
+	{
+		ressource = new GetError(this, http_error, error_path);
+	}
+	catch (const std::runtime_error &e)
+	{
+		ressource = new GetError(this, http_error, "");
+	}
+
 	resp_end = true;
 	return IOEvent();
 }

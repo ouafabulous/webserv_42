@@ -7,7 +7,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <Errors.hpp>
 // #include <cstdint>
 #include <algorithm>
 #include <climits>
@@ -227,7 +226,7 @@ void Parser::printBlocks() const
 {
     for (std::vector<BlockServer>::const_iterator   it = _blockServers.begin(); it != _blockServers.end(); it++)
     {
-     it->printBlock();   
+     it->printBlock();
     }
 }
 
