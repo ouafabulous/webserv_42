@@ -9,8 +9,7 @@ c['second_cookie'] = 'second_value'
 response_body = 'Cookie set!'
 response_headers = [
     ('Content-type', 'text/plain'),
-    ('Set-Cookie', c['my_cookie'].OutputString())
-    ()
+    ('Set-Cookie', c['second_cookie'].OutputString())
 ]
 
 response = 'HTTP/1.1 200 OK\r\n'
