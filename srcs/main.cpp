@@ -80,6 +80,7 @@ int main(int ac, char *av[])
 	{
 		// basic checkings of the conf file + conversion to std::string
 		std::string	confFile = checkConfigFile(ac, av);
+
 		//  lexing
 		Lexer lex(confFile);
 		lex.fillTokens();
