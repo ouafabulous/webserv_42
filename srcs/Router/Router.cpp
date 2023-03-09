@@ -99,7 +99,11 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 		else if (it->getDirectiveName() == ROOT)
 			attributes->root = (it->getDirectiveValues())[0]._stringValue;
 		else if (it->getDirectiveName() == AUTOINDEX)
+		{
+			if (strcmp((it->getDirectiveValues()[0])._stringValue,"on") && strcmp((it->getDirectiveValues()[0])._stringValue,"off"))
+					throw std::runtime_error("auto-index can only have \"on\" or \"off\" as arguments\n");
 			((it->getDirectiveValues())[0]._stringValue == std::string("on")) ? attributes->directory_listing = true : attributes->directory_listing = false;
+		}
 		else if (it->getDirectiveName() == CGISETUP) 
 			attributes->cgi_path[(it->getDirectiveValues())[0]._stringValue] = (it->getDirectiveValues())[1]._stringValue;
 		else if (it->getDirectiveName() == ERRORFILE) 
