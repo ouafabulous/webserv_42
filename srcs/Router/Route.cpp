@@ -179,7 +179,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				return IOEvent(FAIL, conn, "", 403);
 			}
 		}
-		else ((reqLine.method & POST) || (reqLine.method & DELETE))
+		else
 			return conn->setError("", 405);
 	}
 
