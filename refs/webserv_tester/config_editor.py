@@ -6,44 +6,34 @@ from config_generator import ConfigGenerator
 #    ports=[8080],
 #    client_max_body_size='10m',
 #    root='/var/www/html',
-#    methods_allowed='GET, POST, DELETE',
+#    allowed_methods='GET, POST, DELETE',
 #    index='index',
 #    locations={
-#        'A/': {'root': 'html1', 'index': 'index1.html index1.htm', 'methods_allowed': {'GET', 'POST', 'DELETE'},
+#        'A/': {'root': 'html1', 'index': 'index1.html index1.htm', 'allowed_methods': {'GET', 'POST', 'DELETE'},
 #                'autoindex': 'on', 'cgi_index': 'index.php', 'cgi_param': 'SCRIPT_FILENAME'}
 #    }
 # )
 
 servers = [
      ConfigGenerator(
-         server_name='localhost',
-         ports=[8080],
-         client_max_body_size='10m',
-         root='/var/www/html',
-         index='indexmain.html indexmain.htm',
+         server_names='localhost',
+         port=8080,
+         client_max_body_size='1000000',
+         root='../../webapp/www/',
+         index='indexmain.html',
          locations={
-             'A/': {'root': 'html1', 'index': 'index1.html index1.htm', 'methods_allowed': 'POST', 'autoindex': 'on'},
-             'B/': {'root': 'html2', 'index': 'index2.html index2.htm index2'}
+             'A/': {'root': 'html1', 'index': 'index1.html', 'allowed_methods': 'POST', 'autoindex': 'on'},
+             'B/': {'root': 'html2', 'index': 'index2.html'}
          }
      ),
     ConfigGenerator(
-        server_name='localhost2',
-        ports=[8090],
-        client_max_body_size='20m',
-        methods_allowed='GET DELETE',
-        root='/var/www/php/',
+        server_names='localhost2',
+        port=8090,
+        client_max_body_size='2000000',
+        allowed_methods='GET',
+        root='../../webapp/basic_cgi',
         locations={
-            'cgi-bin/': {'cgi_index': 'index.php', 'cgi_param': 'SCRIPT_FILENAME '}
+            'cgi-bin/': {'cgi_setup': '.py    /bin/python'}
         }
     ),
-    ConfigGenerator(
-        server_name='localhost2',
-        ports=[8091],
-        client_max_body_size='10m',
-        methods_allowed='DELETE',
-        root='/var/www/',
-        locations={
-            'cgi-bin/': {'cgi_index': 'index.php', 'cgi_param': 'SCRIPT_FILENAME '}
-        }
-    )
 ]
