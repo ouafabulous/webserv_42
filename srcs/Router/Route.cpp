@@ -33,7 +33,7 @@ size_t Route::getMaxBodySize() const
 }
 void Route::printAttributes() const
 {
-	std::cout << LISTEN << ": \t\t"<< attributes.port << std::endl;
+	std::cout << LISTEN << ": \t\t" << attributes.port << std::endl;
 	std::cout << SERVERNAMES << ": \t\t";
 	std::vector<std::string>::const_iterator str_iter;
 	for (str_iter = attributes.server_name.begin(); str_iter != attributes.server_name.end(); ++str_iter)
@@ -54,11 +54,12 @@ void Route::printAttributes() const
 	std::cout << INDEX << ": \t\t\t" << attributes.index << std::endl;
 	std::cout << AUTOINDEX << ": \t\t" << (attributes.directory_listing ? "on" : "off") << std::endl;
 	std::cout << CGISETUP << ": \t\t";
-	for (std::map<std::string, std::string>::const_iterator it = attributes.cgi_path.begin(); it != attributes.cgi_path.end(); ++it){
+	for (std::map<std::string, std::string>::const_iterator it = attributes.cgi_path.begin(); it != attributes.cgi_path.end(); ++it)
+	{
 		std::cout << it->first << "->" << it->second << " ";
 	}
 	std::cout << std::endl;
-	std::cout << UPLOADS << ": \t\t" << attributes.uploadsFolder << std::endl; 
+	std::cout << UPLOADS << ": \t\t" << attributes.uploadsFolder << std::endl;
 	std::cout << ERRORFILE << ": \t\t" << attributes.error_files << std::endl;
 }
 
@@ -105,14 +106,14 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	t_request_line reqLine = req.request_line;
 	std::string completePath = attributes.root + reqLine.path;
 
-//1- redirect-handling
+	// 1- redirect-handling
 	if (!attributes.redirect.empty())
 	{
 		conn->setRessource(new RedirectRessource(conn, attributes.redirect));
 		return (IOEvent());
 	}
 
-//2- CGI handling
+	// 2- CGI handling
 	const int cgiIndex = isCGI(completePath);
 	if (cgiIndex >= 0)
 	{
@@ -137,8 +138,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			return conn->setError("", 403);
 	}
 
-
-//3- Directory handling
+	// 3- Directory handling
 	if (directoryExists(completePath.c_str()))
 	{
 		if (reqLine.method == GET && (attributes.allowed_methods & GET))
@@ -170,7 +170,8 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 					conn->setRessource(new GetDirectory(conn, completePath));
 					return (IOEvent());
 				}
-				catch (const std::runtime_error &e){
+				catch (const std::runtime_error &e)
+				{
 					return IOEvent(FAIL, conn, e.what(), 500);
 				}
 			}
@@ -183,47 +184,64 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			return conn->setError("", 405);
 	}
 
+	// 4- File handling
 
-//4- File handling
-
-//4-1 POST case
-	if (reqLine.method == POST){
-			if (!(attributes.allowed_methods & POST))
-				return IOEvent(FAIL, conn, "", 405);
-			std::string uploadFolderPath = attributes.root + attributes.uploadsFolder;
-			if (!directoryExists(uploadFolderPath.c_str())) {
-				try
-				{
-					createFolder(uploadFolderPath);
-				}				
-			    catch (const std::exception &e){
-					return IOEvent(FAIL, conn, e.what(), 500);
-				}
+	// 4-1 POST case
+	if (reqLine.method == POST)
+	{
+		if (!(attributes.allowed_methods & POST))
+			return IOEvent(FAIL, conn, "", 405);
+		std::string uploadFolderPath = attributes.root + attributes.uploadsFolder;
+		if (!directoryExists(uploadFolderPath.c_str()))
+		{
+			try
+			{
+				createFolder(uploadFolderPath);
 			}
-			std::string completeUploadPath = uploadFolderPath + reqLine.path;
+			catch (const std::exception &e)
+			{
+				return IOEvent(FAIL, conn, e.what(), 500);
+			}
+		}
+		std::string completeUploadPath = uploadFolderPath + reqLine.path;
+		try
+		{
 			conn->setRessource(new PostStaticFile(conn, completeUploadPath));
-			return (IOEvent());
+		}
+		catch (const std::exception &e)
+		{
+			return IOEvent(FAIL, conn, e.what(), 500);
+		}
+
+		return (IOEvent());
 	}
-//4-2 GET, DELETE case
+	// 4-2 GET, DELETE case
 	else if (fileExists(completePath.c_str()))
 	{
-		switch (reqLine.method)
+		try
 		{
-		case GET:
-			if (!(attributes.allowed_methods & GET))
-				return IOEvent(FAIL, conn, "", 405);
-			conn->setRessource(new GetStaticFile(conn, completePath));
-			break;
-		case DELETE:
-			if (!(attributes.allowed_methods & DELETE))
-				return IOEvent(FAIL, conn, "", 405);
-			conn->setRessource(new DeleteStaticFile(conn, completePath));
-			break;
-		default:
-			return conn->setError("", 405);
+			switch (reqLine.method)
+			{
+			case GET:
+				if (!(attributes.allowed_methods & GET))
+					return IOEvent(FAIL, conn, "", 405);
+				conn->setRessource(new GetStaticFile(conn, completePath));
+				break;
+			case DELETE:
+				if (!(attributes.allowed_methods & DELETE))
+					return IOEvent(FAIL, conn, "", 405);
+				conn->setRessource(new DeleteStaticFile(conn, completePath));
+				break;
+			default:
+				return conn->setError("", 405);
+			}
+		}
+		catch (const std::exception &e)
+		{
+			return IOEvent(FAIL, conn, e.what(), 500);
 		}
 		return (IOEvent());
 	}
-//5- other
+	// 5- other
 	return conn->setError("", 404);
 }
