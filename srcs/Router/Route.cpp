@@ -141,7 +141,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 //3- Directory handling
 	if (directoryExists(completePath.c_str()))
 	{
-		if (reqLine.method == GET)
+		if (reqLine.method == GET && (attributes.allowed_methods & GET))
 		{
 			const std::string indexPath = completePath + attributes.index;
 			if (fileExists(indexPath.c_str()))
@@ -179,7 +179,7 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				return IOEvent(FAIL, conn, "", 403);
 			}
 		}
-		else if ((reqLine.method & POST) || (reqLine.method & DELETE))
+		else ((reqLine.method & POST) || (reqLine.method & DELETE))
 			return conn->setError("", 405);
 	}
 
