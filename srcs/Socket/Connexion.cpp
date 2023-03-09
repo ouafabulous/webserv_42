@@ -159,7 +159,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 {
 	std::string body;
 
-	if (resp_start) // I noticed that there is no moment when it is turned to true?!
+	if (resp_start) 
 		return IOEvent(FAIL, this, client_ip_addr + " - " + log);
 	response = std::queue<std::string>();
 	Logger::warning << client_ip_addr << " - " << http_error << " " << log << std::endl;
@@ -261,7 +261,12 @@ bool Connexion::parseRequestLine(std::string &raw_line)
 		return NOK;
 	std::string methodString = splitted_line[0];
 	request.request_line.methodVerbose = methodString;
-	request.request_line.method = methodToEnum(methodString);
+	try{
+		request.request_line.method = methodToEnum(methodString);
+	}
+	catch(std::exception& e){
+		return NOK;
+	}
 	if (decodePercent(splitted_line[1]))
 		return NOK;
 	request.request_line.path = splitted_line[1];

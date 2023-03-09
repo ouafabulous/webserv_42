@@ -34,7 +34,6 @@ void	Server::routine() {
 	IOEvent						io_event;
 	t_pollfds_vec				curr_fds;
 
-
 	if (socks.empty())
 		throw std::runtime_error("there is no virtual server listening\n");
 	while (TRUE)
