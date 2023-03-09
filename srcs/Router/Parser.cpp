@@ -129,10 +129,12 @@ Directive parseDirective(TokenList const &tokens, uint &i)
         t_token directiveValueTok = tokens[firstNonSpTokIndex];
         if (directiveValueTok.first == TOK_WORD)
         {
-            if (j > 1 && directiveName != SERVERNAMES && directiveName != CGISETUP && directiveName != ERRORFILE)
+            if (j > 1 && directiveName != SERVERNAMES && directiveName != CGISETUP && directiveName != ERRORFILE && directiveName != ALLOWEDMETHODS)
                 throw std::runtime_error(directiveName + " is given more than 1 argument!\n");
-            if (j > 2 && directiveName != SERVERNAMES)
+            if (j > 2 && directiveName != SERVERNAMES && directiveName != ALLOWEDMETHODS)
                 throw std::runtime_error(directiveName + " is given more than 2 arguments!\n");
+            if (j > 3 && directiveName != SERVERNAMES)
+                throw std::runtime_error(directiveName + " is given more than s arguments!\n");
             directive.addDirectiveValue(directiveValueTok.second);
             j++;
         }

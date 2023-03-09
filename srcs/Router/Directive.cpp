@@ -27,7 +27,7 @@ void Directive::addDirectiveValue(std::string directiveValue)
         }
     }
     else
-    {
+    {        
         directiveValueUnion u;
         size_t len = directiveValue.length() < DIRECTIVE_NAME_LENGTH ? directiveValue.length() : DIRECTIVE_NAME_LENGTH;
         for (size_t i = 0; i < len; ++i)

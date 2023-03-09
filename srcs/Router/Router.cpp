@@ -81,6 +81,8 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 			if (it->getDirectiveValues().size())
 				attributes->allowed_methods = NO_METHOD;
 			for (directiveValIter = (it->getDirectiveValues()).begin(); directiveValIter != (it->getDirectiveValues()).end(); directiveValIter++){
+				if (strcmp(directiveValIter->_stringValue, "GET") && strcmp(directiveValIter->_stringValue, "POST") && strcmp(directiveValIter->_stringValue, "DELETE"))
+					throw std::runtime_error("Methods allowed are GET POST DELETE\n");
 				attributes->allowed_methods |= methodsDict[directiveValIter->_stringValue]; //we are supposing here that we can get only one allowed_method at once, while in reality we can have up to 3 and then I gotta iterate all over them
 			}
 		}

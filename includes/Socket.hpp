@@ -61,7 +61,7 @@ private:
 
 	const t_fd c_socket;
 	const t_network_address netAddr;
-	const ListenSocket *listen_socket;
+	// const ListenSocket *listen_socket;
 	const Router &router;
 
 	// DATA RELATED TO REQUEST PARSING
