@@ -49,5 +49,4 @@ IOEvent	Ressource::write()
 IOEvent	Ressource::closed()
 {
 	return conn->setError("CGI::closed() called", 500);
-	// return IOEvent();
 }

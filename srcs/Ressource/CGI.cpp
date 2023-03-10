@@ -12,12 +12,6 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 		args_vector.push_back("CONTENT_LENGTH=" + ss.str());
 	}
 
-	//it = conn->getRequest().header_fields.begin();
-	//for (; it != conn->getRequest().header_fields.end(); it++)
-	//{
-	//	Logger::error << it->first << " : " << it->second << std::endl;
-	//}
-
 	args_vector.push_back("CONTENT_TYPE=" + get_mime(cgiInfo._filePath));
 	args_vector.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
@@ -45,14 +39,6 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 		args_vector.push_back("HTTP_COOKIE=" + it->second);
 }
 
-void print_env_variables(char **env)
-{
-	for (int i = 0; env[i] != NULL; i++)
-	{
-		Logger::error << "Environment variable: " << env[i] << std::endl;
-	}
-}
-
 void ignore_signal(int signal)
 {
 	(void)signal;
@@ -66,16 +52,16 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn), content_length(-
 
 	Logger::info << conn->client_ip_addr << " - CGI args" << cgiInfo._executable << " " << cgiInfo._filePath << std::endl;
 	if (pipe(pipe_to_CGI) == -1)
-		throw std::runtime_error("CGI::CGI() pipe_to_CGI failed.");
+		throw IOExcept("CGI::CGI() pipe_to_CGI failed.", 500);
 	if (pipe(pipe_to_host) == -1)
 	{
 		close(pipe_to_CGI[READ]);
 		close(pipe_to_CGI[WRITE]);
-		throw std::runtime_error("CGI::CGI() pipe_to_host failed.");
+		throw IOExcept("CGI::CGI() pipe_to_host failed.", 500);
 	}
 
 	if (poll_util(POLL_CTL_ADD, pipe_to_CGI[READ], this, POLLIN | POLLHUP | POLLRDHUP) && poll_util(POLL_CTL_ADD, pipe_to_host[WRITE], this, POLLOUT | POLLRDHUP))
-		throw std::runtime_error("CGI::CGI() poll_util failed");
+		throw IOExcept("CGI::CGI() poll_util failed", 500);
 
 	pid = fork();
 
@@ -85,7 +71,7 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn), content_length(-
 		close(pipe_to_CGI[WRITE]);
 		close(pipe_to_host[READ]);
 		close(pipe_to_host[WRITE]);
-		throw std::runtime_error("CGI::CGI() Fork failed");
+		throw IOExcept("CGI::CGI() Fork failed", 500);
 	}
 	else if (pid == 0)
 	{
@@ -95,13 +81,13 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn), content_length(-
 		{
 			close(pipe_to_host[READ]);
 			close(pipe_to_CGI[WRITE]);
-			throw std::runtime_error("CGI::CGI() dup2 for pipe_to_host failed");
+			throw IOExcept("CGI::CGI() dup2 for pipe_to_host failed", 500);
 		}
 		if (dup2(pipe_to_CGI[WRITE], STDOUT_FILENO) == -1)
 		{
 			close(pipe_to_host[READ]);
 			close(pipe_to_CGI[WRITE]);
-			throw std::runtime_error("CGI::CGI() dup2 for pipe_to_CGI failed");
+			throw IOExcept("CGI::CGI() dup2 for pipe_to_CGI failed", 500);
 		}
 		close(pipe_to_host[READ]);
 		close(pipe_to_CGI[WRITE]);
@@ -117,7 +103,6 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn), content_length(-
 			env[i++] = const_cast<char *>(it->c_str());
 		env[i] = NULL;
 
-		print_env_variables(env);
 		execve(cgiInfo._executable.c_str(), args, env);
 		Logger::error << "CGI::CGI() execve failed" << std::endl;
 		exit(1);
@@ -128,16 +113,10 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn), content_length(-
 		close(pipe_to_CGI[WRITE]);
 		fd_read = pipe_to_CGI[READ];
 		if (set_nonblocking(fd_read))
-		{
-			conn->setError("Error setting the file to non-blocking", 500);
-			throw std::runtime_error("CGI::CGI() set_nonblocking failed");
-		}
+			throw IOExcept("Error setting the file to non-blocking", 500);
 		fd_write = pipe_to_host[WRITE];
 		if (set_nonblocking(fd_write))
-		{
-			conn->setError("Error setting the file to non-blocking", 500);
-			throw std::runtime_error("CGI::CGI() set_nonblocking failed");
-		}
+			throw IOExcept("Error setting the file to non-blocking", 500);
 	}
 }
 
@@ -147,10 +126,7 @@ CGI::~CGI()
 	poll_util(POLL_CTL_DEL, fd_write, this, POLLOUT);
 	kill(pid, SIGTERM);
 	if (close(fd_read) == -1 || close(fd_write) == -1)
-	{
-		conn->setError("Error closing the file", 500);
-		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
-	}
+		throw IOExcept("Error closing the file", 500);
 }
 
 bool CGI::read_header()

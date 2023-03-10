@@ -9,10 +9,7 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 
 	dir = opendir(dir_path.c_str());
 	if (dir == NULL)
-	{
-		conn->setError("Error opening the directory " + dir_path, 404);
-		throw std::runtime_error("GetDirectory::GetDirectory() opendir failed.");
-	}
+		throw IOExcept("Error opening the directory " + dir_path, 404);
 
 	std::string body = "<html>\n";
 	body +="<head>\n";
@@ -34,10 +31,7 @@ GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(co
 			body += "<li><a href=\"./" + std::string(entry->d_name) + "/\">" + std::string(entry->d_name) + "/</a></li>\n";
 		}
 		else
-		{
-			conn->setError("Error reading the directory " + dir_path, 500);
-			throw std::runtime_error("GetDirectory::GetDirectory() readdir failed.");
-		}
+			throw IOExcept("Error reading the directory " + dir_path, 500);
 	}
 
 	body +="</ul>\n";
@@ -55,10 +49,7 @@ GetDirectory::~GetDirectory()
 	if (dir)
 	{
 		if (closedir(dir) == -1)
-		{
-			conn->setError("Error closing the directory ", 500);
-			throw std::runtime_error("GetDirectory::GetDirectory() closedir failed.");
-		}
+			throw IOExcept("Error closing the directory ", 500);
 	}
 }
 
