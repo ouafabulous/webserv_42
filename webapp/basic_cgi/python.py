@@ -21,16 +21,19 @@
 
 #!/usr/bin/env python3
 import cgi
+import http.cookies as cookies
+
+c = cookies.SimpleCookie()
+c['myCookie'] = "hello"
 
 form = cgi.FieldStorage()
 
-if "name" in form:
-    name = form["name"].value
+print("HTTP/1.1 200 OK")
+print("Content-Type: text/html")
+print('set-Cookie', c['myCookie'].OutputString())
+print()
 
-    print("Content-Type: text/html")
-    print()
-    print(f"<h1>Hello, {name}!</h1>")
-else:
-    print("Content-Type: text/html")
-    print()
-    print("<h1>Error: Missing name field in POST request</h1>")
+if "myVariable" in form:
+    name = form["myVariable"].value
+    c['myCookie'] = name
+print(f"<h1>Hello, {c['myCookie'].OutputString()}!</h1>")

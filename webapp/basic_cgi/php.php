@@ -21,7 +21,7 @@ if (isset($_POST['myVariable'])) {
 			if (isset($cookieValue)) { ?>
 			<h1>Bonjour <?php echo $cookieValue; ?></h1>
 		<?php } ?>
-    <form method="POST" action="">
+    <form method="POST" action="python.py">
         <label for="myVariable">Enter a value:</label>
         <input type="text" name="myVariable" id="myVariable">
         <button type="submit">Submit</button>
