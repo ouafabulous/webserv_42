@@ -12,8 +12,7 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 
 	if (fd_read == -1)
 	{
-		conn->setError("Error opening the file" + file_path, 404);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() Open failed");
+		throw IOExcept("Error opening the file" + file_path, 404);
 	}
 
 	if (set_nonblocking(fd_read))
@@ -63,10 +62,7 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 	fd_write = open(file_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 
 	if (fd_write == -1)
-	{
-		conn->setError("Error opening the file" + file_path, 404);
-		throw std::runtime_error("PostStaticFile::PostStaticFile() Open failed");
-	}
+		throw IOExcept("Error opening the file" + file_path, 404);
 	if (set_nonblocking(fd_write))
 	{
 		conn->setError("Error setting the file to non-blocking", 500);

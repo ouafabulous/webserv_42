@@ -203,9 +203,9 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 		{
 			conn->setRessource(new PostStaticFile(conn, completeUploadPath));
 		}
-		catch (const std::exception &e)
+		catch (const IOExcept &e)
 		{
-			return IOEvent(FAIL, conn, e.what(), 500);
+			return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
 		}
 
 		return (IOEvent());

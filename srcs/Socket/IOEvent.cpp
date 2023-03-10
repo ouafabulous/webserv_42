@@ -21,3 +21,10 @@ IOEvent &IOEvent::operator=(const IOEvent &rhs)
 	http_error = rhs.http_error;
 	return *this;
 }
+
+// IOEvent exception
+IOExcept::IOExcept(std::string log, uint http_error): std::runtime_error(log) {
+	error.http_error = http_error;
+	error.log = log;
+	error.result = FAIL;
+}

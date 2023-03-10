@@ -4,6 +4,7 @@
 #include <Type.hpp>
 #include <Config.hpp>
 #include <poll.h>
+#include <stdexcept>
 
 class IO;
 
@@ -35,6 +36,16 @@ public:
 
 protected:
 	char	buffer[BUFFER_SIZE + 1];
+};
+
+class IOExcept: public std::runtime_error {
+public:
+	IOExcept(std::string log, uint http_error);
+    virtual ~IOExcept() throw() {};
+	IOEvent const IOwhat() const throw() { return error; };
+
+private:
+	IOEvent	error;
 };
 
 #endif
