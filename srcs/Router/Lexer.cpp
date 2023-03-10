@@ -54,7 +54,7 @@ void removeComSubvector(TokenList& tokens) {
         if (it->first == TOK_COM) {
             // Find the next occurrence of RL_TOKEN
             TokenList::iterator end_it = it;
-            while (end_it != tokens.end() && end_it->first != TOK_RL && end_it->first != EOF) {
+            while (end_it != tokens.end() && end_it->first != TOK_RL && (end_it->second)[0] != EOF) {
                 ++end_it;
             }
             // Erase the subvector between COM_TOKEN and RL_TOKEN
