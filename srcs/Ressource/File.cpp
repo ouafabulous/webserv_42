@@ -11,31 +11,20 @@ GetStaticFile::GetStaticFile(Connexion *conn, std::string file_path) : Ressource
 	Logger::info << conn->client_ip_addr << " - get static file " << file_path << std::endl;
 
 	if (fd_read == -1)
-	{
 		throw IOExcept("Error opening the file" + file_path, 404);
-	}
 
 	if (set_nonblocking(fd_read))
-	{
-		conn->setError("Error setting the file to non-blocking", 500);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() set_nonblocking failed");
-	}
+		throw IOExcept("Error setting the file to non-blocking" + file_path, 500);
+
 	if (poll_util(POLL_CTL_ADD, fd_read, this, POLLIN))
-	{
-		conn->setError("Error adding the file to the poll", 500);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() poll_util failed");
-	}
+		throw IOExcept("Error adding the file to the poll", 500);
 
 	struct stat st;
 
 	if (fstat(fd_read, &st) == -1)
-	{
-		conn->setError("Error getting the file size for " + file_path, 404);
-		throw std::runtime_error("GetStaticFile::GetStaticFile() Fstat failed");
-	}
+		throw IOExcept("Error getting the file size for " + file_path, 404);
 
 	std::string header = http_header_formatter(200, st.st_size, get_mime(file_path));
-	//header += "Connection: closed\r\n\r\n";
 
 	conn->pushResponse(header);
 }
@@ -44,10 +33,7 @@ GetStaticFile::~GetStaticFile()
 {
 	poll_util(POLL_CTL_DEL, fd_read, this, POLLIN);
 	if (close(fd_read) == -1)
-	{
-		conn->setError("Error closing the file", 500);
-		throw std::runtime_error("GetStaticFile::~GetStaticFile() Close failed");
-	}
+		throw IOExcept("Error closing the file", 500);
 }
 
 /**************************************************************************/
@@ -64,18 +50,12 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 	if (fd_write == -1)
 		throw IOExcept("Error opening the file" + file_path, 404);
 	if (set_nonblocking(fd_write))
-	{
-		conn->setError("Error setting the file to non-blocking", 500);
-		throw std::runtime_error("PostStaticFile::PostStaticFile() set_nonblocking failed");
-	}
+		throw IOExcept("Error setting the file to non-blocking" + file_path, 500);
+
 	if (!file_empty && poll_util(POLL_CTL_ADD, fd_write, this, POLLOUT))
-	{
-		conn->setError("Error adding the file to the poll", 500);
-		throw std::runtime_error("PostStaticFile::PostStaticFile() poll_util failed");
-	}
+		throw IOExcept("Error adding the file to the poll", 500);
 
 	std::string header = http_header_formatter(200, 0, get_mime(file_path));
-	//header += "Connection: closed\r\n\r\n";
 
 	conn->pushResponse(header);
 
@@ -89,10 +69,7 @@ PostStaticFile::~PostStaticFile()
 {
 	poll_util(POLL_CTL_DEL, fd_write, this, POLLOUT);
 	if (close(fd_write) == -1)
-	{
-		conn->setError("Error closing the file", 500);
-		throw std::runtime_error("PostStaticFile::~PostStaticFile() Close failed");
-	}
+		throw IOExcept("Error closing the file", 500);
 }
 
 /**************************************************************************/
@@ -106,10 +83,7 @@ DeleteStaticFile::DeleteStaticFile(Connexion *conn, std::string file_path) : Res
 	int rm = remove(file_path.c_str());
 
 	if (rm != 0)
-	{
-		conn->setError("Error deleting the file" + file_path, 204);
-		throw std::runtime_error("DeleteStaticFile::DeleteStaticFile() failed");
-	}
+		throw IOExcept("Error deleting the file" + file_path, 204);
 
 	std::string body = "<html>\n";
 	body += "<head>\n";
