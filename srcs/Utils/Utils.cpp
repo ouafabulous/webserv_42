@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <Utils.hpp>
 #include <Server.hpp>
+#include <fstream>
 
 #define SUCCESS 0
 #define ERROR 1
@@ -211,6 +212,13 @@ t_methods	methodToEnum(std::string const &http_method){
 // }
 
 bool fileExists(const char* fileName) {
+    struct stat fileInfo;
+    if (stat(fileName, &fileInfo) != 0) {
+        return false;
+    }
+    if (!S_ISREG(fileInfo.st_mode)) {
+        return false;
+    }
     std::ifstream infile(fileName);
     return infile.good();
 }

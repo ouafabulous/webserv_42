@@ -124,13 +124,13 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				conn->setRessource(new CGI(conn, cgiInfo));
 				return (IOEvent());
 			}
-			catch (const std::exception &e)
+			catch (const IOExcept &e)
 			{
-				return IOEvent(FAIL, conn, e.what(), 500);
+				return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
 			}
 		}
 		else
-			return conn->setError("", 403);
+			return conn->setError("", 404);
 	}
 
 	// 3- Directory handling
@@ -145,14 +145,19 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				{
 					if (!(attributes.allowed_methods & GET))
 						return IOEvent(FAIL, conn, "", 405);
+					if (isCGI(indexPath) >= 0)
+					{
+						reqLine.path = attributes.index;
+						return (setRessource(req, conn));
+					}
 					try
 					{
 						conn->setRessource(new GetStaticFile(conn, indexPath));
 						return (IOEvent());
 					}
-					catch (const std::runtime_error &e)
+					catch (const IOExcept &e)
 					{
-						return IOEvent(FAIL, conn, e.what(), 500);
+						return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
 					}
 				}
 				else
@@ -165,9 +170,9 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 					conn->setRessource(new GetDirectory(conn, completePath));
 					return (IOEvent());
 				}
-				catch (const std::runtime_error &e)
+				catch (const IOExcept &e)
 				{
-					return IOEvent(FAIL, conn, e.what(), 500);
+					return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
 				}
 			}
 			else
@@ -193,9 +198,9 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			{
 				createFolder(uploadFolderPath);
 			}
-			catch (const std::exception &e)
+			catch (const IOExcept &e)
 			{
-				return IOEvent(FAIL, conn, e.what(), 500);
+				return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
 			}
 		}
 		std::string completeUploadPath = uploadFolderPath + reqLine.path;
@@ -231,9 +236,9 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				return conn->setError("", 405);
 			}
 		}
-		catch (const std::exception &e)
+		catch (const IOExcept &e)
 		{
-			return IOEvent(FAIL, conn, e.what(), 500);
+			return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
 		}
 		return (IOEvent());
 	}
