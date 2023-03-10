@@ -57,7 +57,8 @@ GetStaticFile::~GetStaticFile()
 
 PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
-	Logger::info << conn->client_ip_addr << " - PostStaticFile::PostStaticFile()" << file_path << std::endl;
+	bool	file_empty = !conn->getRequest().content_length;
+	Logger::info << conn->client_ip_addr << " - post static file " << file_path << std::endl;
 
 	fd_write = open(file_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 
@@ -71,7 +72,7 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 		conn->setError("Error setting the file to non-blocking", 500);
 		throw std::runtime_error("PostStaticFile::PostStaticFile() set_nonblocking failed");
 	}
-	if (poll_util(POLL_CTL_ADD, fd_write, this, POLLOUT))
+	if (!file_empty && poll_util(POLL_CTL_ADD, fd_write, this, POLLOUT))
 	{
 		conn->setError("Error adding the file to the poll", 500);
 		throw std::runtime_error("PostStaticFile::PostStaticFile() poll_util failed");
@@ -82,6 +83,8 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 
 	conn->pushResponse(header);
 
+	if (file_empty)
+		conn->setRespEnd();
 
 	Logger::debug << "PostStaticFile::PostStaticFile() OK" << std::endl;
 }
@@ -102,6 +105,8 @@ PostStaticFile::~PostStaticFile()
 
 DeleteStaticFile::DeleteStaticFile(Connexion *conn, std::string file_path) : Ressource(conn)
 {
+	Logger::info << conn->client_ip_addr << " - delete static file " << file_path << std::endl;
+
 	int rm = remove(file_path.c_str());
 
 	if (rm != 0)

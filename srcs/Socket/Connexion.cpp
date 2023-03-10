@@ -160,7 +160,7 @@ IOEvent Connexion::setError(std::string log, uint http_error)
 {
 	std::string error_path;
 
-	if (resp_start) 
+	if (resp_start)
 		return IOEvent(FAIL, this, client_ip_addr + " - " + log);
 	response = std::queue<std::string>();
 	Logger::warning << client_ip_addr << " - " << http_error << " " << log << std::endl;
@@ -312,6 +312,8 @@ IOEvent Connexion::executeRoute()
 			content_length_converter << request.header_fields["Content-Length"];
 			if (!(content_length_converter >> request.content_length))
 				return setError("Content-Length header field is not correct", 400);
+			if (!request.content_length && poll_util(POLL_CTL_MOD, c_socket, this, POLLIN | POLLOUT))
+				return setError("unable to set POLL_CTL_MOD", 500);
 		}
 	}
 

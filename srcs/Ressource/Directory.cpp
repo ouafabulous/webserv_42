@@ -3,6 +3,8 @@
 GetDirectory::GetDirectory(Connexion *conn, std::string dir_path) : Ressource(conn),
 																	dir(NULL)
 {
+	Logger::info << conn->client_ip_addr << " - list directory " << dir_path << std::endl;
+
 	struct dirent *entry;
 
 	dir = opendir(dir_path.c_str());

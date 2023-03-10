@@ -12,7 +12,6 @@ IOEvent	Ressource::read()
 
 	if (ret == -1)
 		return conn->setError("Error reading the file", 500);
-	// if (ret == 0 || std::string(buffer, ret).find('\0') != std::string::npos) {
 	if (ret == 0) {
 		conn->setRespEnd();
 		poll_util(POLL_CTL_MOD, fd_read, this, 0);

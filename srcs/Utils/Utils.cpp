@@ -49,7 +49,7 @@ bool	poll_util(t_poll_action action, t_fd fd, IO* io_ptr, int flags) {
 	return SUCCESS;
 }
 
-std::string http_header_formatter(uint status_code, size_t content_length,std::string content_type) {
+std::string http_header_formatter(uint status_code, size_t content_length,std::string content_type, t_headers custom_headers) {
 	static std::map<uint, std::string>	status_text;
 	std::stringstream 					result;
 
@@ -99,6 +99,8 @@ std::string http_header_formatter(uint status_code, size_t content_length,std::s
 	result << "HTTP/1.1 " << status_code << " " << status_text[status_code] << CRLF;
 	result << "Content-Type: " << content_type << CRLF;
 	result << "Content-Length: " << content_length << CRLF;
+	for (t_headers::iterator it = custom_headers.begin(); it != custom_headers.end(); it++)
+		result << it->first << ": " << it->second << CRLF;
 	result << CRLF;
 
 	return result.str();
