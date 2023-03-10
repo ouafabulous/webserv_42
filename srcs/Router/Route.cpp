@@ -145,6 +145,11 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				{
 					if (!(attributes.allowed_methods & GET))
 						return IOEvent(FAIL, conn, "", 405);
+					if (isCGI(completePath) >= 0)
+					{
+						reqLine.path = indexPath;
+						return (setRessource(req, conn));
+					}
 					try
 					{
 						conn->setRessource(new GetStaticFile(conn, indexPath));
