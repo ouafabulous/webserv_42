@@ -1,7 +1,5 @@
-HTTP/1.1 200 OK
-Content-type: text/html
-
 <?php
+header('HTTP/1.1 404 Not Found');
 $cookieValue = '';
 
 if (isset($_COOKIE['myCookie'])) {
@@ -14,15 +12,18 @@ if (isset($_POST['myVariable'])) {
     $cookieValue = $_POST['myVariable'];
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 	<head>
 	</head>
 	<body>
+		<?php
+			if (isset($cookieValue)) { ?>
+			<h1>Bonjour <?php echo $cookieValue; ?></h1>
+		<?php } ?>
     <form method="POST" action="">
         <label for="myVariable">Enter a value:</label>
-        <input type="text" name="myVariable" id="myVariable" value="<?php echo htmlspecialchars($cookieValue); ?>">
+        <input type="text" name="myVariable" id="myVariable">
         <button type="submit">Submit</button>
     </form>
 </body>

@@ -212,6 +212,7 @@ t_methods	methodToEnum(std::string const &http_method){
 // }
 
 bool fileExists(const char* fileName) {
+	Logger::debug << fileName << std::endl;
     struct stat fileInfo;
     if (stat(fileName, &fileInfo) != 0) {
         return false;

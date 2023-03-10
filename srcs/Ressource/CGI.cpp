@@ -5,19 +5,32 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 	// https://www.rfc-editor.org/rfc/rfc3875
 	std::map<std::string, std::string>::const_iterator it;
 
+	std::string script_full_path(realpath(cgiInfo._filePath.c_str(), NULL));
+
 	if (conn->getRequest().request_line.methodVerbose == "POST" && conn->getRequest().content_length > 0)
 	{
 		std::stringstream ss;
 		ss << conn->getRequest().content_length;
 		args_vector.push_back("CONTENT_LENGTH=" + ss.str());
+		Logger::error << args_vector.back() << std::endl;
 	}
 
-	args_vector.push_back("CONTENT_TYPE=" + get_mime(cgiInfo._filePath));
+	// args_vector.push_back("CONTENT_TYPE=" + get_mime(cgiInfo._filePath));
+	std::string content_type = "text/plain";
+	it = conn->getRequest().header_fields.find("Content-Type");
+	if (it != conn->getRequest().header_fields.end())
+		content_type = it->second;
+	args_vector.push_back("CONTENT_TYPE=" + content_type);
+	Logger::error << args_vector.back() << std::endl;
+	args_vector.push_back("REDIRECT_STATUS=200");
+	args_vector.push_back("PATH_INFO=" + script_full_path);
+	args_vector.push_back("SCRIPT_NAME=" + script_full_path);
+	args_vector.push_back("SCRIPT_FILENAME=" + script_full_path);
+	Logger::error << args_vector.back() << std::endl;
 	args_vector.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
 	args_vector.push_back("REMOTE_ADDR=" + conn->client_ip_addr);
 	args_vector.push_back("REQUEST_METHOD=" + conn->getRequest().request_line.methodVerbose);
-	args_vector.push_back("SCRIPT_NAME=" + cgiInfo._filePath);
 	std::string host = conn->getRouteCgi()->getAttributes().server_name[0];
 	it = conn->getRequest().header_fields.find("Host");
 	if (it != conn->getRequest().header_fields.end())
@@ -136,7 +149,14 @@ bool CGI::read_header()
 	size_t header_end = raw_header.find("\r\n\r\n");
 	if (header_end)
 	{
-		size_t pos = raw_header.find("Content-Length: ");
+		size_t pos = raw_header.find("Status: ");
+		if (pos != std::string::npos)
+		{
+			std::stringstream response;
+			response << "HTTP/1.1 " << raw_header.substr(pos + 8, raw_header.find("\r", pos));
+			conn->pushResponse(response.str());
+		}
+		pos = raw_header.find("Content-Length: ");
 		if (pos != std::string::npos)
 		{
 			if (!(std::stringstream(raw_header.substr(pos + 16)) >> content_length))
@@ -196,7 +216,13 @@ IOEvent CGI::write()
 
 	Logger::debug << "write to CGI" << std::endl;
 
+	if (conn->getBodyParsed() == true && conn->getRequest().body.empty()) {
+		::write(fd_write, "", 0);
+		poll_util(POLL_CTL_MOD, fd_write, this, 0);
+	}
+
 	std::string		str = conn->getRequest().body.front();
+	Logger::debug << str << std::endl;
 
 	int ret = ::write(fd_write, str.c_str(), str.size());
 
@@ -206,9 +232,6 @@ IOEvent CGI::write()
 		conn->getRequest().body.front() = str.substr(ret);
 	else if (ret == static_cast<int>(str.size())) {
 		conn->getRequest().body.pop();
-		if (conn->getBodyParsed() == true && conn->getRequest().body.empty()) {
-			poll_util(POLL_CTL_MOD, fd_write, this, 0);
-		}
 	}
 	return IOEvent();
 }
