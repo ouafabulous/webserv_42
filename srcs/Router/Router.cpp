@@ -76,6 +76,8 @@ void Router::fillAttributes(t_attributes *attributes, std::vector<Directive> con
 	std::vector<directiveValueUnion>::const_iterator	directiveValIter;
 	for (it = directives.begin(); it != directives.end(); it++)
 	{
+		if (it->getDirectiveValues().empty())
+			throw std::runtime_error(it->getDirectiveName() + " is empty\n");
 		if (it->getDirectiveName() == ALLOWEDMETHODS)
 		{
 			if (it->getDirectiveValues().size())
