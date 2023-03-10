@@ -145,9 +145,9 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 				{
 					if (!(attributes.allowed_methods & GET))
 						return IOEvent(FAIL, conn, "", 405);
-					if (isCGI(completePath) >= 0)
+					if (isCGI(indexPath) >= 0)
 					{
-						reqLine.path = indexPath;
+						reqLine.path = attributes.index;
 						return (setRessource(req, conn));
 					}
 					try
