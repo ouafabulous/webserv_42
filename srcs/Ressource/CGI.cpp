@@ -60,7 +60,9 @@ CGI::CGI(Connexion *conn, t_cgiInfo cgiInfo) : Ressource(conn), content_length(-
 		throw IOExcept("CGI::CGI() pipe_to_host failed.", 500);
 	}
 
-	if (poll_util(POLL_CTL_ADD, pipe_to_CGI[READ], this, POLLIN | POLLHUP | POLLRDHUP) && poll_util(POLL_CTL_ADD, pipe_to_host[WRITE], this, POLLOUT | POLLRDHUP))
+	if (poll_util(POLL_CTL_ADD, pipe_to_CGI[READ], this, POLLIN | POLLHUP | POLLRDHUP))
+		throw IOExcept("CGI::CGI() poll_util failed", 500);
+	if (poll_util(POLL_CTL_ADD, pipe_to_host[WRITE], this, POLLOUT | POLLRDHUP))
 		throw IOExcept("CGI::CGI() poll_util failed", 500);
 
 	pid = fork();
@@ -184,5 +186,29 @@ IOEvent CGI::read()
 		}
 	}
 
+	return IOEvent();
+}
+
+IOEvent CGI::write()
+{
+	if (conn->getRequest().body.empty())
+		return IOEvent();
+
+	Logger::debug << "write to CGI" << std::endl;
+
+	std::string		str = conn->getRequest().body.front();
+
+	int ret = ::write(fd_write, str.c_str(), str.size());
+
+	if (ret <= 0)
+		return conn->setError("Error while writing to CGI", 500);
+	if (ret < static_cast<int>(str.size()))
+		conn->getRequest().body.front() = str.substr(ret);
+	else if (ret == static_cast<int>(str.size())) {
+		conn->getRequest().body.pop();
+		if (conn->getBodyParsed() == true && conn->getRequest().body.empty()) {
+			poll_util(POLL_CTL_MOD, fd_write, this, 0);
+		}
+	}
 	return IOEvent();
 }

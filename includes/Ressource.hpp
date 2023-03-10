@@ -25,7 +25,7 @@ public:
 	Ressource(Connexion *conn);
 	virtual ~Ressource();
 	virtual IOEvent read();
-	IOEvent write();
+	virtual IOEvent write();
 	IOEvent closed();
 
 protected:
@@ -77,6 +77,7 @@ public:
 	CGI(Connexion *conn, t_cgiInfo cgiInfo);
 	~CGI();
 	IOEvent read();
+	IOEvent write();
 
 private:
 	pid_t pid;

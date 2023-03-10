@@ -33,7 +33,7 @@ IOEvent	Ressource::write()
 	int ret = ::write(fd_write, str.c_str(), str.size());
 
 	if (ret <= 0)
-		return conn->setError("Error while writing to CGI", 500);
+		return conn->setError("Error while writing to Ressource", 500);
 	if (ret < static_cast<int>(str.size()))
 		conn->getRequest().body.front() = str.substr(ret);
 	else if (ret == static_cast<int>(str.size())) {
