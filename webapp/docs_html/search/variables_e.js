@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['warning_0',['warning',['../classLogger.html#a7bc25851e2e430d6ccd24130d9580720',1,'Logger']]]
+  ['uploadsfolder_0',['uploadsFolder',['../structs__attributes.html#a8e6e1e4bd7c3381e85358624777cc43d',1,'s_attributes']]]
 ];

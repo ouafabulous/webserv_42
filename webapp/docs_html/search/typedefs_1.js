@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['mimemap_0',['MimeMap',['../Type_8hpp.html#a47c612c8bbf1b6100b48c18acd41f064',1,'Type.hpp']]]
+  ['socket_5fmap_0',['socket_map',['../classServer.html#a3d937d56372ed06528218d21e7c33322',1,'Server']]]
 ];

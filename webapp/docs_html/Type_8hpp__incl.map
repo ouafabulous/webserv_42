@@ -1,13 +1,11 @@
 <map id="includes/Type.hpp" name="includes/Type.hpp">
-<area shape="rect" id="node1" title=" " alt="" coords="328,5,455,31"/>
-<area shape="rect" id="node2" title=" " alt="" coords="5,79,92,104"/>
-<area shape="rect" id="node3" title=" " alt="" coords="116,79,171,104"/>
-<area shape="rect" id="node4" title=" " alt="" coords="195,79,254,104"/>
-<area shape="rect" id="node5" title=" " alt="" coords="279,79,325,104"/>
-<area shape="rect" id="node6" href="$Errors_8hpp.html" title=" " alt="" coords="350,79,433,104"/>
-<area shape="rect" id="node8" title=" " alt="" coords="457,79,531,104"/>
-<area shape="rect" id="node9" title=" " alt="" coords="556,79,616,104"/>
-<area shape="rect" id="node10" title=" " alt="" coords="640,79,697,104"/>
-<area shape="rect" id="node11" href="$Config_8hpp.html" title=" " alt="" coords="722,79,807,104"/>
-<area shape="rect" id="node7" title=" " alt="" coords="355,152,427,177"/>
+<area shape="rect" id="node1" title=" " alt="" coords="297,5,436,31"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,79,101,104"/>
+<area shape="rect" id="node3" title=" " alt="" coords="125,79,184,104"/>
+<area shape="rect" id="node4" title=" " alt="" coords="209,79,271,104"/>
+<area shape="rect" id="node5" title=" " alt="" coords="296,79,347,104"/>
+<area shape="rect" id="node6" title=" " alt="" coords="371,79,456,104"/>
+<area shape="rect" id="node7" title=" " alt="" coords="480,79,547,104"/>
+<area shape="rect" id="node8" title=" " alt="" coords="571,79,634,104"/>
+<area shape="rect" id="node9" href="$Config_8hpp.html" title=" " alt="" coords="659,79,749,104"/>
 </map>

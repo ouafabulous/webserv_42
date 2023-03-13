@@ -48,7 +48,7 @@ PostStaticFile::PostStaticFile(Connexion *conn, std::string file_path) : Ressour
 	fd_write = open(file_path.c_str(), O_WRONLY | O_EXCL | O_CREAT | O_NONBLOCK, CH_PERM);
 
 	if (fd_write == -1)
-		throw IOExcept("Error opening the file" + file_path, 404);
+		throw IOExcept("Error opening the file" + file_path, 403);
 	if (set_nonblocking(fd_write))
 		throw IOExcept("Error setting the file to non-blocking" + file_path, 500);
 

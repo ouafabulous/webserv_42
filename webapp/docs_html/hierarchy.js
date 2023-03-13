@@ -8,7 +8,11 @@ var hierarchy =
     [ "Dechunker", "classDechunker.html", null ],
     [ "Directive", "classDirective.html", null ],
     [ "directiveValueUnion", "uniondirectiveValueUnion.html", null ],
-    [ "Errors", "classErrors.html", null ],
+    [ "std::exception", null, [
+      [ "std::runtime_error", null, [
+        [ "IOExcept", "classIOExcept.html", null ]
+      ] ]
+    ] ],
     [ "IO", "classIO.html", [
       [ "Connexion", "classConnexion.html", null ],
       [ "ListenSocket", "classListenSocket.html", null ],
@@ -16,6 +20,7 @@ var hierarchy =
         [ "CGI", "classCGI.html", null ],
         [ "DeleteStaticFile", "classDeleteStaticFile.html", null ],
         [ "GetDirectory", "classGetDirectory.html", null ],
+        [ "GetError", "classGetError.html", null ],
         [ "GetStaticFile", "classGetStaticFile.html", null ],
         [ "PostStaticFile", "classPostStaticFile.html", null ],
         [ "RedirectRessource", "classRedirectRessource.html", null ]

@@ -32,6 +32,7 @@ var searchData=
   ['containssubstring_29',['containsSubstring',['../Utils_8hpp.html#a372a5b289d5fce7e1ed9dad660ddad7a',1,'containsSubstring(const std::string &amp;str, const std::string &amp;substr):&#160;Utils.cpp'],['../Utils_8cpp.html#a372a5b289d5fce7e1ed9dad660ddad7a',1,'containsSubstring(const std::string &amp;str, const std::string &amp;substr):&#160;Utils.cpp']]],
   ['content_5flength_30',['content_length',['../structt__http__message.html#a6f9a362a280e26f939e458c7c349c404',1,'t_http_message']]],
   ['continue_31',['CONTINUE',['../IO_8hpp.html#a20f49808037648b2ae6b22c16989140ca49959dd441dcda75d6898cf2c68fb374',1,'IO.hpp']]],
-  ['crlf_32',['CRLF',['../Type_8hpp.html#a6cb23a858b0a21bdaa644b9181dc415f',1,'Type.hpp']]],
-  ['cyan_33',['CYAN',['../Logger_8hpp.html#ad243f93c16bc4c1d3e0a13b84421d760',1,'Logger.hpp']]]
+  ['createfolder_32',['createFolder',['../Utils_8hpp.html#a6c2be12f1aa24a7b54c595f255ac9c3d',1,'createFolder(const std::string &amp;folderName):&#160;Utils.cpp'],['../Utils_8cpp.html#a6c2be12f1aa24a7b54c595f255ac9c3d',1,'createFolder(const std::string &amp;folderName):&#160;Utils.cpp']]],
+  ['crlf_33',['CRLF',['../Type_8hpp.html#a6cb23a858b0a21bdaa644b9181dc415f',1,'Type.hpp']]],
+  ['cyan_34',['CYAN',['../Logger_8hpp.html#ad243f93c16bc4c1d3e0a13b84421d760',1,'Logger.hpp']]]
 ];

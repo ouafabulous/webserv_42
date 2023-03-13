@@ -48,8 +48,8 @@ void Router::printRoutes() const
 			for (std::vector<Route>::const_iterator routeIt = vserverIt->_routes.begin(); routeIt != vserverIt->_routes.end(); routeIt++)
 			{
 				std::cout << "------------------------------" <<  std::endl;
-				std::cout << "---Adresse: " << it1->first.second << std::endl;
-				std::cout << std::endl;
+				// std::cout << "---Adresse: " << it1->first.second << std::endl;
+				// std::cout << std::endl;
 				std::cout << "---Route: ";
 				std::cout << std::endl;
 				routeIt->printAttributes();

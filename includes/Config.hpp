@@ -27,6 +27,6 @@
 #define DEFAULT_MAXBODYSIZE	1000
 #define DEFAULT_INDEX "index.html"
 #define DEFAULT_AUTOINDEX true
-#define DEFAULT_UPLOADS "/uploads"
+#define DEFAULT_UPLOADS "uploads/"
 
 #endif

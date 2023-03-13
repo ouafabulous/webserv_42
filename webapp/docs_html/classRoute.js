@@ -5,7 +5,6 @@ var classRoute =
     [ "~Route", "classRoute.html#a41212532f2bce3298d8f9468f82c62ab", null ],
     [ "checkRequest", "classRoute.html#aeaeacf6681bbb9affcf696b78aa584e8", null ],
     [ "getAttributes", "classRoute.html#a0af947008d5c2181b05fdafe5e198ae0", null ],
-    [ "getError", "classRoute.html#a628254ad9dd07d9c793befa190988219", null ],
     [ "getMaxBodySize", "classRoute.html#adfe0afddc15de7e5231ee7786286cbc5", null ],
     [ "isCGI", "classRoute.html#a1e759b3aa591f4fb2ed119f815ea50d1", null ],
     [ "operator=", "classRoute.html#a81b30705c69da0531dc616dbdceb783e", null ],

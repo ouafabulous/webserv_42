@@ -125,6 +125,8 @@ Directive parseDirective(TokenList const &tokens, uint &i)
     while (i < tokens.size() && tokens[i].first != TOK_SC)
     {
         uint firstNonSpTokIndex = findNextNonSpTok(tokens, i + 1);
+		if (firstNonSpTokIndex >= tokens.size())
+			throw std::runtime_error(directiveName + " directive never end\n");
         t_token directiveValueTok = tokens[firstNonSpTokIndex];
         if (directiveValueTok.first == TOK_WORD)
         {
@@ -133,7 +135,7 @@ Directive parseDirective(TokenList const &tokens, uint &i)
             if (j > 2 && directiveName != SERVERNAMES && directiveName != ALLOWEDMETHODS)
                 throw std::runtime_error(directiveName + " is given more than 2 arguments!\n");
             if (j > 3 && directiveName != SERVERNAMES)
-                throw std::runtime_error(directiveName + " is given more than s arguments!\n");
+                throw std::runtime_error(directiveName + " is given more than 3 arguments!\n");
             directive.addDirectiveValue(directiveValueTok.second);
             j++;
         }

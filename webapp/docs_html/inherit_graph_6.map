@@ -1,12 +1,3 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classIO.html" title=" " alt="" coords="5,80,44,105"/>
-<area shape="rect" id="node2" href="$classConnexion.html" title=" " alt="" coords="99,31,183,56"/>
-<area shape="rect" id="node3" href="$classListenSocket.html" title=" " alt="" coords="92,80,191,105"/>
-<area shape="rect" id="node4" href="$classRessource.html" title=" " alt="" coords="99,129,184,155"/>
-<area shape="rect" id="node5" href="$classCGI.html" title=" " alt="" coords="283,5,329,31"/>
-<area shape="rect" id="node6" href="$classDeleteStaticFile.html" title=" " alt="" coords="249,55,363,80"/>
-<area shape="rect" id="node7" href="$classGetDirectory.html" title=" " alt="" coords="258,104,354,129"/>
-<area shape="rect" id="node8" href="$classGetStaticFile.html" title=" " alt="" coords="257,153,355,179"/>
-<area shape="rect" id="node9" href="$classPostStaticFile.html" title=" " alt="" coords="254,203,358,228"/>
-<area shape="rect" id="node10" href="$classRedirectRessource.html" title=" " alt="" coords="239,252,373,277"/>
+<area shape="rect" id="node1" href="$structIOEvent.html" title=" " alt="" coords="5,5,79,31"/>
 </map>

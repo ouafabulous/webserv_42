@@ -217,25 +217,31 @@ bool fileExists(const char* fileName) {
     if (stat(fileName, &fileInfo) != 0) {
         return false;
     }
-    if (!S_ISREG(fileInfo.st_mode)) {
-        return false;
-    }
-    std::ifstream infile(fileName);
-    return infile.good();
+    return S_ISREG(fileInfo.st_mode);
+    // std::ifstream infile(fileName);
+    // return infile.good();
 }
 
 bool directoryExists(const char* path)
 {
-    DIR* dir = opendir(path);
-    if (dir == NULL)
-    {
-        return false;
-    }
-    else
-    {
-        closedir(dir);
-        return true;
-    }
+	std::string	str_path(path);
+
+	if (*str_path.rbegin() != '/')
+		return false;
+	struct stat statbuf;
+	if (stat(path, &statbuf) != 0)
+		return 0;
+	return S_ISDIR(statbuf.st_mode);
+	// DIR* dir = opendir(path);
+    // if (dir == NULL)
+    // {
+    //     return false;
+    // }
+    // else
+    // {
+    //     closedir(dir);
+    //     return true;
+    // }
 }
 
 
@@ -350,5 +356,5 @@ std::string	queueToStr(std::queue<std::string> q){
 void	createFolder(const std::string& folderName) {
     int status = mkdir(folderName.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
     if (status != 0)
-		throw std::runtime_error("Couldn't open " + folderName + "!\n");
+		throw std::runtime_error("Couldn't create " + folderName);
 }

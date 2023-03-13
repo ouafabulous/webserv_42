@@ -1,7 +1,7 @@
 var searchData=
 [
-  ['redirectressource_0',['RedirectRessource',['../classRedirectRessource.html',1,'']]],
-  ['ressource_1',['Ressource',['../classRessource.html',1,'']]],
-  ['route_2',['Route',['../classRoute.html',1,'']]],
-  ['router_3',['Router',['../classRouter.html',1,'']]]
+  ['s_5fattributes_0',['s_attributes',['../structs__attributes.html',1,'']]],
+  ['s_5fcgiinfo_1',['s_cgiInfo',['../structs__cgiInfo.html',1,'']]],
+  ['s_5fvserver_2',['s_vserver',['../structs__vserver.html',1,'']]],
+  ['server_3',['Server',['../classServer.html',1,'']]]
 ];

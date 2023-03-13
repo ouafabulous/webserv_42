@@ -14,7 +14,9 @@ var Type_8hpp =
     [ "t_body", "Type_8hpp.html#a991aa491538d579a234d5598f8f51497", null ],
     [ "t_cgiInfo", "Type_8hpp.html#a23f846cbfb25cb2b9fa82617752c1691", null ],
     [ "t_chr_class", "Type_8hpp.html#aabfeb2d178a1c9f1f501a998659695a6", null ],
+    [ "t_errors_map", "Type_8hpp.html#abb2811293f21d388a7cace352adcc142", null ],
     [ "t_fd", "Type_8hpp.html#a7ce645cf2e5d02fc9efa1e2b4ab80e3f", null ],
+    [ "t_headers", "Type_8hpp.html#abc3b8782e46be939c5c83bc20cb13e79", null ],
     [ "t_network_address", "Type_8hpp.html#ac8162be8b4dded2afa5008ab1b0b47f0", null ],
     [ "t_s_tok", "Type_8hpp.html#a8e6b488a941fa3882d18c51408337c31", null ],
     [ "t_token", "Type_8hpp.html#acd5342042674e725032d570044ed196c", null ],
@@ -60,5 +62,6 @@ var Type_8hpp =
       [ "POLL_CTL_ADD", "Type_8hpp.html#a4553e16fbc35d9fec8ffdee711aa7867a75697af9684cee7273bceddce06c76a6", null ],
       [ "POLL_CTL_MOD", "Type_8hpp.html#a4553e16fbc35d9fec8ffdee711aa7867a202a7ecd980dd6e9fe84a98ac8ecee76", null ],
       [ "POLL_CTL_DEL", "Type_8hpp.html#a4553e16fbc35d9fec8ffdee711aa7867a58bc92b3a5b31c63e6b64afc20fcf0d1", null ]
-    ] ]
+    ] ],
+    [ "operator<<", "Type_8hpp.html#a8f5aac7e5aa55203d21863d98dc5f8d1", null ]
 ];

@@ -5,7 +5,6 @@ var dir_09e761304027c904456130627fd4dcf5 =
     [ "Config.hpp", "Config_8hpp.html", "Config_8hpp" ],
     [ "Dechunker.hpp", "Dechunker_8hpp.html", "Dechunker_8hpp" ],
     [ "Directive.hpp", "Directive_8hpp.html", "Directive_8hpp" ],
-    [ "Errors.hpp", "Errors_8hpp.html", "Errors_8hpp" ],
     [ "IO.hpp", "IO_8hpp.html", "IO_8hpp" ],
     [ "Lexer.hpp", "Lexer_8hpp.html", "Lexer_8hpp" ],
     [ "Logger.hpp", "Logger_8hpp.html", "Logger_8hpp" ],

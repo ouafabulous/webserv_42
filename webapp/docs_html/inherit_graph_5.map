@@ -1,3 +1,13 @@
 <map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
-<area shape="rect" id="node1" href="$classErrors.html" title=" " alt="" coords="5,5,63,31"/>
+<area shape="rect" id="node1" href="$classIO.html" title=" " alt="" coords="5,104,44,129"/>
+<area shape="rect" id="node2" href="$classConnexion.html" title=" " alt="" coords="99,55,189,80"/>
+<area shape="rect" id="node3" href="$classListenSocket.html" title=" " alt="" coords="92,104,196,129"/>
+<area shape="rect" id="node4" href="$classRessource.html" title=" " alt="" coords="99,153,189,179"/>
+<area shape="rect" id="node5" href="$classCGI.html" title=" " alt="" coords="293,5,338,31"/>
+<area shape="rect" id="node6" href="$classDeleteStaticFile.html" title=" " alt="" coords="253,55,378,80"/>
+<area shape="rect" id="node7" href="$classGetDirectory.html" title=" " alt="" coords="263,104,368,129"/>
+<area shape="rect" id="node8" href="$classGetError.html" title=" " alt="" coords="277,153,353,179"/>
+<area shape="rect" id="node9" href="$classGetStaticFile.html" title=" " alt="" coords="263,203,368,228"/>
+<area shape="rect" id="node10" href="$classPostStaticFile.html" title=" " alt="" coords="260,252,371,277"/>
+<area shape="rect" id="node11" href="$classRedirectRessource.html" title=" " alt="" coords="244,301,387,327"/>
 </map>

@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['yellow_0',['YELLOW',['../Logger_8hpp.html#abf681265909adf3d3e8116c93c0ba179',1,'Logger.hpp']]]
+  ['white_0',['WHITE',['../Logger_8hpp.html#a87b537f5fa5c109d3c05c13d6b18f382',1,'Logger.hpp']]],
+  ['write_1',['WRITE',['../Ressource_8hpp.html#aa10f470e996d0f51210d24f442d25e1e',1,'Ressource.hpp']]]
 ];

@@ -101,60 +101,58 @@ $(document).ready(function(){initNavTree('Server_8hpp_source.html',''); initResi
 <div class="line"><a id="l00005" name="l00005"></a><span class="lineno">    5</span><span class="preprocessor">#include &lt;<a class="code" href="Router_8hpp.html">Router.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00006" name="l00006"></a><span class="lineno">    6</span><span class="preprocessor">#include &lt;<a class="code" href="Config_8hpp.html">Config.hpp</a>&gt;</span></div>
 <div class="line"><a id="l00007" name="l00007"></a><span class="lineno">    7</span><span class="preprocessor">#include &lt;<a class="code" href="Type_8hpp.html">Type.hpp</a>&gt;</span></div>
-<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;<a class="code" href="Errors_8hpp.html">Errors.hpp</a>&gt;</span></div>
-<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;<a class="code" href="IO_8hpp.html">IO.hpp</a>&gt;</span></div>
-<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;<a class="code" href="Socket_8hpp.html">Socket.hpp</a>&gt;</span></div>
-<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
-<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &lt;set&gt;</span></div>
-<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span><span class="preprocessor">#include &lt;poll.h&gt;</span></div>
-<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span> </div>
-<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">class </span><a class="code hl_class" href="classRouter.html">Router</a>;</div>
-<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span><span class="keyword">class </span><a class="code hl_class" href="classListenSocket.html">ListenSocket</a>;</div>
+<div class="line"><a id="l00008" name="l00008"></a><span class="lineno">    8</span><span class="preprocessor">#include &lt;<a class="code" href="IO_8hpp.html">IO.hpp</a>&gt;</span></div>
+<div class="line"><a id="l00009" name="l00009"></a><span class="lineno">    9</span><span class="preprocessor">#include &lt;<a class="code" href="Socket_8hpp.html">Socket.hpp</a>&gt;</span></div>
+<div class="line"><a id="l00010" name="l00010"></a><span class="lineno">   10</span><span class="preprocessor">#include &lt;unistd.h&gt;</span></div>
+<div class="line"><a id="l00011" name="l00011"></a><span class="lineno">   11</span><span class="preprocessor">#include &lt;set&gt;</span></div>
+<div class="line"><a id="l00012" name="l00012"></a><span class="lineno">   12</span><span class="preprocessor">#include &lt;poll.h&gt;</span></div>
+<div class="line"><a id="l00013" name="l00013"></a><span class="lineno">   13</span> </div>
+<div class="line"><a id="l00014" name="l00014"></a><span class="lineno">   14</span><span class="keyword">class </span><a class="code hl_class" href="classRouter.html">Router</a>;</div>
+<div class="line"><a id="l00015" name="l00015"></a><span class="lineno">   15</span><span class="keyword">class </span><a class="code hl_class" href="classListenSocket.html">ListenSocket</a>;</div>
+<div class="line"><a id="l00016" name="l00016"></a><span class="lineno">   16</span> </div>
 <div class="line"><a id="l00017" name="l00017"></a><span class="lineno">   17</span> </div>
-<div class="line"><a id="l00018" name="l00018"></a><span class="lineno">   18</span> </div>
-<div class="line"><a id="l00019" name="l00019"></a><span class="lineno"><a class="line" href="Server_8hpp.html#ac4db561f67b1b0d12d4ec507c46e5247">   19</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>pollfd   <a class="code hl_typedef" href="Server_8hpp.html#ac4db561f67b1b0d12d4ec507c46e5247">t_pollfd</a>;</div>
-<div class="line"><a id="l00020" name="l00020"></a><span class="lineno">   20</span> </div>
-<div class="line"><a id="l00021" name="l00021"></a><span class="lineno"><a class="line" href="classServer.html">   21</a></span><span class="keyword">class </span><a class="code hl_class" href="classServer.html">Server</a></div>
-<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span>{</div>
-<div class="line"><a id="l00023" name="l00023"></a><span class="lineno">   23</span><span class="keyword">public</span>:</div>
-<div class="line"><a id="l00028" name="l00028"></a><span class="lineno"><a class="line" href="classServer.html#a3d937d56372ed06528218d21e7c33322">   28</a></span>    <span class="keyword">typedef</span> std::map&lt;t_fd, IO*&gt;                         <a class="code hl_typedef" href="classServer.html#a3d937d56372ed06528218d21e7c33322">socket_map</a>;</div>
-<div class="line"><a id="l00029" name="l00029"></a><span class="lineno">   29</span> </div>
-<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">   34</a></span>    <span class="keyword">typedef</span> std::vector&lt;t_pollfd&gt;                       <a class="code hl_typedef" href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">t_pollfds_vec</a>;</div>
-<div class="line"><a id="l00035" name="l00035"></a><span class="lineno"><a class="line" href="classServer.html#a1dafaaab25990c23fee4be0f345f0926">   35</a></span>    <span class="keyword">typedef</span> t_pollfds_vec::iterator                     <a class="code hl_typedef" href="classServer.html#a1dafaaab25990c23fee4be0f345f0926">t_poll_it</a>;</div>
-<div class="line"><a id="l00036" name="l00036"></a><span class="lineno">   36</span> </div>
-<div class="line"><a id="l00042" name="l00042"></a><span class="lineno">   42</span>    <a class="code hl_class" href="classServer.html">Server</a>(<a class="code hl_class" href="classParser.html">Parser</a> <span class="keyword">const</span> &amp;confFile);</div>
-<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span>    <a class="code hl_function" href="classServer.html#a4b3aa2579cb1c8cd1d069582c14d0fa6">~Server</a>();</div>
-<div class="line"><a id="l00048" name="l00048"></a><span class="lineno">   48</span> </div>
-<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classServer.html#a9ef612929346f51e7cd73bc4ced717da">   49</a></span>    <span class="keyword">static</span> <a class="code hl_typedef" href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">t_pollfds_vec</a>                                <a class="code hl_variable" href="classServer.html#a9ef612929346f51e7cd73bc4ced717da">pollfds</a>;</div>
-<div class="line"><a id="l00050" name="l00050"></a><span class="lineno"><a class="line" href="classServer.html#a8e635a6f2d258c60a7a35df096d6f13c">   50</a></span>    <span class="keyword">static</span> <a class="code hl_typedef" href="classServer.html#a3d937d56372ed06528218d21e7c33322">socket_map</a>                                   <a class="code hl_variable" href="classServer.html#a8e635a6f2d258c60a7a35df096d6f13c">socks</a>;</div>
-<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span>    <span class="keywordtype">void</span>                                                <a class="code hl_function" href="classServer.html#aed5e1f6e449e4ef65cdcfcfbfdb2f537">routine</a>();</div>
-<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span> </div>
-<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span><span class="keyword">private</span>:</div>
-<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span> </div>
-<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">const</span> <a class="code hl_class" href="classRouter.html">Router</a>                    router;</div>
-<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>    <span class="keyword">typedef</span> std::vector&lt;t_network_address&gt;  listen_list;</div>
-<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span>};</div>
+<div class="line"><a id="l00018" name="l00018"></a><span class="lineno"><a class="line" href="Server_8hpp.html#ac4db561f67b1b0d12d4ec507c46e5247">   18</a></span><span class="keyword">typedef</span> <span class="keyword">struct </span>pollfd   <a class="code hl_typedef" href="Server_8hpp.html#ac4db561f67b1b0d12d4ec507c46e5247">t_pollfd</a>;</div>
+<div class="line"><a id="l00019" name="l00019"></a><span class="lineno">   19</span> </div>
+<div class="line"><a id="l00020" name="l00020"></a><span class="lineno"><a class="line" href="classServer.html">   20</a></span><span class="keyword">class </span><a class="code hl_class" href="classServer.html">Server</a></div>
+<div class="line"><a id="l00021" name="l00021"></a><span class="lineno">   21</span>{</div>
+<div class="line"><a id="l00022" name="l00022"></a><span class="lineno">   22</span><span class="keyword">public</span>:</div>
+<div class="line"><a id="l00027" name="l00027"></a><span class="lineno"><a class="line" href="classServer.html#a3d937d56372ed06528218d21e7c33322">   27</a></span>    <span class="keyword">typedef</span> std::map&lt;t_fd, IO*&gt;                         <a class="code hl_typedef" href="classServer.html#a3d937d56372ed06528218d21e7c33322">socket_map</a>;</div>
+<div class="line"><a id="l00028" name="l00028"></a><span class="lineno">   28</span> </div>
+<div class="line"><a id="l00033" name="l00033"></a><span class="lineno"><a class="line" href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">   33</a></span>    <span class="keyword">typedef</span> std::vector&lt;t_pollfd&gt;                       <a class="code hl_typedef" href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">t_pollfds_vec</a>;</div>
+<div class="line"><a id="l00034" name="l00034"></a><span class="lineno"><a class="line" href="classServer.html#a1dafaaab25990c23fee4be0f345f0926">   34</a></span>    <span class="keyword">typedef</span> t_pollfds_vec::iterator                     <a class="code hl_typedef" href="classServer.html#a1dafaaab25990c23fee4be0f345f0926">t_poll_it</a>;</div>
+<div class="line"><a id="l00035" name="l00035"></a><span class="lineno">   35</span> </div>
+<div class="line"><a id="l00041" name="l00041"></a><span class="lineno">   41</span>    <a class="code hl_class" href="classServer.html">Server</a>(<a class="code hl_class" href="classParser.html">Parser</a> <span class="keyword">const</span> &amp;confFile);</div>
+<div class="line"><a id="l00046" name="l00046"></a><span class="lineno">   46</span>    <a class="code hl_function" href="classServer.html#a4b3aa2579cb1c8cd1d069582c14d0fa6">~Server</a>();</div>
+<div class="line"><a id="l00047" name="l00047"></a><span class="lineno">   47</span> </div>
+<div class="line"><a id="l00048" name="l00048"></a><span class="lineno"><a class="line" href="classServer.html#a9ef612929346f51e7cd73bc4ced717da">   48</a></span>    <span class="keyword">static</span> <a class="code hl_typedef" href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">t_pollfds_vec</a>                                <a class="code hl_variable" href="classServer.html#a9ef612929346f51e7cd73bc4ced717da">pollfds</a>;</div>
+<div class="line"><a id="l00049" name="l00049"></a><span class="lineno"><a class="line" href="classServer.html#a8e635a6f2d258c60a7a35df096d6f13c">   49</a></span>    <span class="keyword">static</span> <a class="code hl_typedef" href="classServer.html#a3d937d56372ed06528218d21e7c33322">socket_map</a>                                   <a class="code hl_variable" href="classServer.html#a8e635a6f2d258c60a7a35df096d6f13c">socks</a>;</div>
+<div class="line"><a id="l00054" name="l00054"></a><span class="lineno">   54</span>    <span class="keywordtype">void</span>                                                <a class="code hl_function" href="classServer.html#aed5e1f6e449e4ef65cdcfcfbfdb2f537">routine</a>();</div>
+<div class="line"><a id="l00055" name="l00055"></a><span class="lineno">   55</span> </div>
+<div class="line"><a id="l00056" name="l00056"></a><span class="lineno">   56</span><span class="keyword">private</span>:</div>
+<div class="line"><a id="l00057" name="l00057"></a><span class="lineno">   57</span> </div>
+<div class="line"><a id="l00058" name="l00058"></a><span class="lineno">   58</span>    <span class="keyword">const</span> <a class="code hl_class" href="classRouter.html">Router</a>                    router;</div>
+<div class="line"><a id="l00059" name="l00059"></a><span class="lineno">   59</span>    <span class="keyword">typedef</span> std::vector&lt;t_network_address&gt;  listen_list;</div>
+<div class="line"><a id="l00060" name="l00060"></a><span class="lineno">   60</span>};</div>
+<div class="line"><a id="l00061" name="l00061"></a><span class="lineno">   61</span> </div>
 <div class="line"><a id="l00062" name="l00062"></a><span class="lineno">   62</span> </div>
-<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span> </div>
-<div class="line"><a id="l00064" name="l00064"></a><span class="lineno">   64</span><span class="preprocessor">#endif</span></div>
+<div class="line"><a id="l00063" name="l00063"></a><span class="lineno">   63</span><span class="preprocessor">#endif</span></div>
 <div class="ttc" id="aConfig_8hpp_html"><div class="ttname"><a href="Config_8hpp.html">Config.hpp</a></div></div>
-<div class="ttc" id="aErrors_8hpp_html"><div class="ttname"><a href="Errors_8hpp.html">Errors.hpp</a></div></div>
 <div class="ttc" id="aIO_8hpp_html"><div class="ttname"><a href="IO_8hpp.html">IO.hpp</a></div></div>
 <div class="ttc" id="aRoute_8hpp_html"><div class="ttname"><a href="Route_8hpp.html">Route.hpp</a></div></div>
 <div class="ttc" id="aRouter_8hpp_html"><div class="ttname"><a href="Router_8hpp.html">Router.hpp</a></div></div>
-<div class="ttc" id="aServer_8hpp_html_ac4db561f67b1b0d12d4ec507c46e5247"><div class="ttname"><a href="Server_8hpp.html#ac4db561f67b1b0d12d4ec507c46e5247">t_pollfd</a></div><div class="ttdeci">struct pollfd t_pollfd</div><div class="ttdef"><b>Definition:</b> Server.hpp:19</div></div>
+<div class="ttc" id="aServer_8hpp_html_ac4db561f67b1b0d12d4ec507c46e5247"><div class="ttname"><a href="Server_8hpp.html#ac4db561f67b1b0d12d4ec507c46e5247">t_pollfd</a></div><div class="ttdeci">struct pollfd t_pollfd</div><div class="ttdef"><b>Definition:</b> Server.hpp:18</div></div>
 <div class="ttc" id="aSocket_8hpp_html"><div class="ttname"><a href="Socket_8hpp.html">Socket.hpp</a></div></div>
 <div class="ttc" id="aType_8hpp_html"><div class="ttname"><a href="Type_8hpp.html">Type.hpp</a></div></div>
-<div class="ttc" id="aclassListenSocket_html"><div class="ttname"><a href="classListenSocket.html">ListenSocket</a></div><div class="ttdef"><b>Definition:</b> Socket.hpp:17</div></div>
+<div class="ttc" id="aclassListenSocket_html"><div class="ttname"><a href="classListenSocket.html">ListenSocket</a></div><div class="ttdef"><b>Definition:</b> Socket.hpp:16</div></div>
 <div class="ttc" id="aclassParser_html"><div class="ttname"><a href="classParser.html">Parser</a></div><div class="ttdef"><b>Definition:</b> Parser.hpp:15</div></div>
 <div class="ttc" id="aclassRouter_html"><div class="ttname"><a href="classRouter.html">Router</a></div><div class="ttdef"><b>Definition:</b> Router.hpp:36</div></div>
-<div class="ttc" id="aclassServer_html"><div class="ttname"><a href="classServer.html">Server</a></div><div class="ttdef"><b>Definition:</b> Server.hpp:22</div></div>
-<div class="ttc" id="aclassServer_html_a1dafaaab25990c23fee4be0f345f0926"><div class="ttname"><a href="classServer.html#a1dafaaab25990c23fee4be0f345f0926">Server::t_poll_it</a></div><div class="ttdeci">t_pollfds_vec::iterator t_poll_it</div><div class="ttdef"><b>Definition:</b> Server.hpp:35</div></div>
-<div class="ttc" id="aclassServer_html_a352135e35ec4c5cf5dfb36e77e1394e2"><div class="ttname"><a href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">Server::t_pollfds_vec</a></div><div class="ttdeci">std::vector&lt; t_pollfd &gt; t_pollfds_vec</div><div class="ttdoc">vector that contains all the fd used by poll()</div><div class="ttdef"><b>Definition:</b> Server.hpp:34</div></div>
-<div class="ttc" id="aclassServer_html_a3d937d56372ed06528218d21e7c33322"><div class="ttname"><a href="classServer.html#a3d937d56372ed06528218d21e7c33322">Server::socket_map</a></div><div class="ttdeci">std::map&lt; t_fd, IO * &gt; socket_map</div><div class="ttdoc">map that contains all the sockets, with their fd as key and IO* as value</div><div class="ttdef"><b>Definition:</b> Server.hpp:28</div></div>
+<div class="ttc" id="aclassServer_html"><div class="ttname"><a href="classServer.html">Server</a></div><div class="ttdef"><b>Definition:</b> Server.hpp:21</div></div>
+<div class="ttc" id="aclassServer_html_a1dafaaab25990c23fee4be0f345f0926"><div class="ttname"><a href="classServer.html#a1dafaaab25990c23fee4be0f345f0926">Server::t_poll_it</a></div><div class="ttdeci">t_pollfds_vec::iterator t_poll_it</div><div class="ttdef"><b>Definition:</b> Server.hpp:34</div></div>
+<div class="ttc" id="aclassServer_html_a352135e35ec4c5cf5dfb36e77e1394e2"><div class="ttname"><a href="classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2">Server::t_pollfds_vec</a></div><div class="ttdeci">std::vector&lt; t_pollfd &gt; t_pollfds_vec</div><div class="ttdoc">vector that contains all the fd used by poll()</div><div class="ttdef"><b>Definition:</b> Server.hpp:33</div></div>
+<div class="ttc" id="aclassServer_html_a3d937d56372ed06528218d21e7c33322"><div class="ttname"><a href="classServer.html#a3d937d56372ed06528218d21e7c33322">Server::socket_map</a></div><div class="ttdeci">std::map&lt; t_fd, IO * &gt; socket_map</div><div class="ttdoc">map that contains all the sockets, with their fd as key and IO* as value</div><div class="ttdef"><b>Definition:</b> Server.hpp:27</div></div>
 <div class="ttc" id="aclassServer_html_a4b3aa2579cb1c8cd1d069582c14d0fa6"><div class="ttname"><a href="classServer.html#a4b3aa2579cb1c8cd1d069582c14d0fa6">Server::~Server</a></div><div class="ttdeci">~Server()</div><div class="ttdoc">Destroy the Server object.</div><div class="ttdef"><b>Definition:</b> Server.cpp:23</div></div>
-<div class="ttc" id="aclassServer_html_a8e635a6f2d258c60a7a35df096d6f13c"><div class="ttname"><a href="classServer.html#a8e635a6f2d258c60a7a35df096d6f13c">Server::socks</a></div><div class="ttdeci">static socket_map socks</div><div class="ttdef"><b>Definition:</b> Server.hpp:50</div></div>
-<div class="ttc" id="aclassServer_html_a9ef612929346f51e7cd73bc4ced717da"><div class="ttname"><a href="classServer.html#a9ef612929346f51e7cd73bc4ced717da">Server::pollfds</a></div><div class="ttdeci">static t_pollfds_vec pollfds</div><div class="ttdef"><b>Definition:</b> Server.hpp:49</div></div>
+<div class="ttc" id="aclassServer_html_a8e635a6f2d258c60a7a35df096d6f13c"><div class="ttname"><a href="classServer.html#a8e635a6f2d258c60a7a35df096d6f13c">Server::socks</a></div><div class="ttdeci">static socket_map socks</div><div class="ttdef"><b>Definition:</b> Server.hpp:49</div></div>
+<div class="ttc" id="aclassServer_html_a9ef612929346f51e7cd73bc4ced717da"><div class="ttname"><a href="classServer.html#a9ef612929346f51e7cd73bc4ced717da">Server::pollfds</a></div><div class="ttdeci">static t_pollfds_vec pollfds</div><div class="ttdef"><b>Definition:</b> Server.hpp:48</div></div>
 <div class="ttc" id="aclassServer_html_aed5e1f6e449e4ef65cdcfcfbfdb2f537"><div class="ttname"><a href="classServer.html#aed5e1f6e449e4ef65cdcfcfbfdb2f537">Server::routine</a></div><div class="ttdeci">void routine()</div><div class="ttdoc">busy loop that will run the server, each loop take poll() returned value and call the right IO functi...</div><div class="ttdef"><b>Definition:</b> Server.cpp:31</div></div>
 </div><!-- fragment --></div><!-- contents -->
 </div><!-- doc-content -->

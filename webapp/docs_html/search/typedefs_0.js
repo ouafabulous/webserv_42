@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['errors_5fmap_0',['errors_map',['../Errors_8cpp.html#a69227e6dc0f093f6dfe47b5c7871247a',1,'Errors.cpp']]]
+  ['mimemap_0',['MimeMap',['../Type_8hpp.html#a47c612c8bbf1b6100b48c18acd41f064',1,'Type.hpp']]]
 ];

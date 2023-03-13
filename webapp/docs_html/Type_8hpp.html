@@ -95,7 +95,8 @@ $(document).ready(function(){initNavTree('Type_8hpp.html',''); initResizable(); 
 <a href="#nested-classes">Classes</a> &#124;
 <a href="#define-members">Macros</a> &#124;
 <a href="#typedef-members">Typedefs</a> &#124;
-<a href="#enum-members">Enumerations</a>  </div>
+<a href="#enum-members">Enumerations</a> &#124;
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">Type.hpp File Reference</div></div>
 </div><!--header-->
 <div class="contents">
@@ -103,7 +104,6 @@ $(document).ready(function(){initNavTree('Type_8hpp.html',''); initResizable(); 
 <code>#include &lt;string&gt;</code><br />
 <code>#include &lt;vector&gt;</code><br />
 <code>#include &lt;map&gt;</code><br />
-<code>#include &lt;<a class="el" href="Errors_8hpp_source.html">Errors.hpp</a>&gt;</code><br />
 <code>#include &lt;algorithm&gt;</code><br />
 <code>#include &lt;climits&gt;</code><br />
 <code>#include &lt;queue&gt;</code><br />
@@ -113,17 +113,15 @@ Include dependency graph for Type.hpp:</div>
 <div class="dyncontent">
 <div class="center"><img src="Type_8hpp__incl.png" border="0" usemap="#aincludes_2Type_8hpp" alt=""/></div>
 <map name="aincludes_2Type_8hpp" id="aincludes_2Type_8hpp">
-<area shape="rect" title=" " alt="" coords="328,5,455,31"/>
-<area shape="rect" title=" " alt="" coords="5,79,92,104"/>
-<area shape="rect" title=" " alt="" coords="116,79,171,104"/>
-<area shape="rect" title=" " alt="" coords="195,79,254,104"/>
-<area shape="rect" title=" " alt="" coords="279,79,325,104"/>
-<area shape="rect" href="Errors_8hpp.html" title=" " alt="" coords="350,79,433,104"/>
-<area shape="rect" title=" " alt="" coords="457,79,531,104"/>
-<area shape="rect" title=" " alt="" coords="556,79,616,104"/>
-<area shape="rect" title=" " alt="" coords="640,79,697,104"/>
-<area shape="rect" href="Config_8hpp.html" title=" " alt="" coords="722,79,807,104"/>
-<area shape="rect" title=" " alt="" coords="355,152,427,177"/>
+<area shape="rect" title=" " alt="" coords="297,5,436,31"/>
+<area shape="rect" title=" " alt="" coords="5,79,101,104"/>
+<area shape="rect" title=" " alt="" coords="125,79,184,104"/>
+<area shape="rect" title=" " alt="" coords="209,79,271,104"/>
+<area shape="rect" title=" " alt="" coords="296,79,347,104"/>
+<area shape="rect" title=" " alt="" coords="371,79,456,104"/>
+<area shape="rect" title=" " alt="" coords="480,79,547,104"/>
+<area shape="rect" title=" " alt="" coords="571,79,634,104"/>
+<area shape="rect" href="Config_8hpp.html" title=" " alt="" coords="659,79,749,104"/>
 </map>
 </div>
 </div><div class="textblock"><div class="dynheader">
@@ -131,40 +129,39 @@ This graph shows which files directly or indirectly include this file:</div>
 <div class="dyncontent">
 <div class="center"><img src="Type_8hpp__dep__incl.png" border="0" usemap="#aincludes_2Type_8hppdep" alt=""/></div>
 <map name="aincludes_2Type_8hppdep" id="aincludes_2Type_8hppdep">
-<area shape="rect" title=" " alt="" coords="846,5,973,31"/>
-<area shape="rect" href="Block_8hpp.html" title=" " alt="" coords="541,152,673,177"/>
-<area shape="rect" href="Parser_8hpp.html" title=" " alt="" coords="371,225,507,251"/>
-<area shape="rect" href="Route_8hpp.html" title=" " alt="" coords="1250,299,1385,324"/>
-<area shape="rect" href="Ressource_8hpp.html" title=" " alt="" coords="1097,372,1260,397"/>
-<area shape="rect" href="Route_8cpp.html" title=" " alt="" coords="427,445,581,471"/>
-<area shape="rect" href="Router_8hpp.html" title=" " alt="" coords="489,372,626,397"/>
-<area shape="rect" href="Server_8hpp.html" title=" " alt="" coords="1911,445,2047,471"/>
-<area shape="rect" href="main_8cpp.html" title=" " alt="" coords="55,519,159,544"/>
-<area shape="rect" href="Router_8cpp.html" title=" " alt="" coords="144,445,301,471"/>
-<area shape="rect" href="Parser_8cpp.html" title=" " alt="" coords="635,299,791,324"/>
-<area shape="rect" href="Dechunker_8hpp.html" title=" " alt="" coords="1483,152,1645,177"/>
-<area shape="rect" href="Directive_8hpp.html" title=" " alt="" coords="695,79,846,104"/>
-<area shape="rect" href="Errors_8hpp.html" title=" " alt="" coords="1965,152,2099,177"/>
-<area shape="rect" href="IO_8hpp.html" title=" " alt="" coords="1650,79,1763,104"/>
-<area shape="rect" href="Utils_8hpp.html" title=" " alt="" coords="1333,152,1459,177"/>
-<area shape="rect" href="Errors_8cpp.html" title=" " alt="" coords="2082,225,2193,251"/>
-<area shape="rect" href="Lexer_8hpp.html" title=" " alt="" coords="1060,152,1191,177"/>
-<area shape="rect" href="Block_8cpp.html" title=" " alt="" coords="531,225,683,251"/>
-<area shape="rect" href="ConfFile_8hpp.html" title=" " alt="" coords="371,299,519,324"/>
-<area shape="rect" href="Connexion_8cpp.html" title=" " alt="" coords="1653,445,1835,471"/>
-<area shape="rect" href="CGI_8cpp.html" title=" " alt="" coords="837,445,1003,471"/>
-<area shape="rect" href="Directory_8cpp.html" title=" " alt="" coords="1028,445,1223,471"/>
-<area shape="rect" href="File_8cpp.html" title=" " alt="" coords="1247,445,1411,471"/>
-<area shape="rect" href="Redirect_8cpp.html" title=" " alt="" coords="1436,445,1628,471"/>
-<area shape="rect" href="Ressource_8cpp.html" title=" " alt="" coords="606,445,813,471"/>
-<area shape="rect" href="Server_8cpp.html" title=" " alt="" coords="1006,519,1119,544"/>
-<area shape="rect" href="ListenSocket_8cpp.html" title=" " alt="" coords="1980,519,2177,544"/>
-<area shape="rect" href="Utils_8cpp.html" title=" " alt="" coords="1811,519,1946,544"/>
-<area shape="rect" href="Socket_8hpp.html" title=" " alt="" coords="1801,225,1941,251"/>
-<area shape="rect" href="Dechunker_8cpp.html" title=" " alt="" coords="1542,225,1725,251"/>
-<area shape="rect" href="Directive_8cpp.html" title=" " alt="" coords="917,225,1088,251"/>
-<area shape="rect" href="IOEvent_8cpp.html" title=" " alt="" coords="1669,152,1838,177"/>
-<area shape="rect" href="Lexer_8cpp.html" title=" " alt="" coords="1163,225,1314,251"/>
+<area shape="rect" title=" " alt="" coords="1781,5,1920,31"/>
+<area shape="rect" href="Block_8hpp.html" title=" " alt="" coords="2184,152,2328,177"/>
+<area shape="rect" href="Parser_8hpp.html" title=" " alt="" coords="2175,225,2321,251"/>
+<area shape="rect" href="Route_8hpp.html" title=" " alt="" coords="1540,299,1687,324"/>
+<area shape="rect" href="Ressource_8hpp.html" title=" " alt="" coords="818,372,993,397"/>
+<area shape="rect" href="Errors_8cpp.html" title=" " alt="" coords="5,445,123,471"/>
+<area shape="rect" href="Route_8cpp.html" title=" " alt="" coords="1745,445,1909,471"/>
+<area shape="rect" href="Router_8hpp.html" title=" " alt="" coords="1699,372,1850,397"/>
+<area shape="rect" href="Server_8hpp.html" title=" " alt="" coords="1520,445,1669,471"/>
+<area shape="rect" href="main_8cpp.html" title=" " alt="" coords="2251,519,2363,544"/>
+<area shape="rect" href="Router_8cpp.html" title=" " alt="" coords="2539,445,2707,471"/>
+<area shape="rect" href="Parser_8cpp.html" title=" " alt="" coords="2628,299,2793,324"/>
+<area shape="rect" href="Dechunker_8hpp.html" title=" " alt="" coords="940,152,1116,177"/>
+<area shape="rect" href="Directive_8hpp.html" title=" " alt="" coords="2181,79,2347,104"/>
+<area shape="rect" href="IO_8hpp.html" title=" " alt="" coords="1259,79,1381,104"/>
+<area shape="rect" href="Utils_8hpp.html" title=" " alt="" coords="1649,152,1788,177"/>
+<area shape="rect" href="Lexer_8hpp.html" title=" " alt="" coords="2599,152,2742,177"/>
+<area shape="rect" href="Block_8cpp.html" title=" " alt="" coords="2345,225,2508,251"/>
+<area shape="rect" href="ConfFile_8hpp.html" title=" " alt="" coords="2107,299,2269,324"/>
+<area shape="rect" href="Connexion_8cpp.html" title=" " alt="" coords="1296,445,1491,471"/>
+<area shape="rect" href="CGI_8cpp.html" title=" " alt="" coords="389,445,563,471"/>
+<area shape="rect" href="Directory_8cpp.html" title=" " alt="" coords="587,445,795,471"/>
+<area shape="rect" href="File_8cpp.html" title=" " alt="" coords="819,445,992,471"/>
+<area shape="rect" href="Redirect_8cpp.html" title=" " alt="" coords="1017,445,1221,471"/>
+<area shape="rect" href="Ressource_8cpp.html" title=" " alt="" coords="147,445,365,471"/>
+<area shape="rect" href="Server_8cpp.html" title=" " alt="" coords="1591,519,1711,544"/>
+<area shape="rect" href="ListenSocket_8cpp.html" title=" " alt="" coords="1232,519,1440,544"/>
+<area shape="rect" href="Utils_8cpp.html" title=" " alt="" coords="1821,519,1963,544"/>
+<area shape="rect" href="Socket_8hpp.html" title=" " alt="" coords="1161,225,1311,251"/>
+<area shape="rect" href="Dechunker_8cpp.html" title=" " alt="" coords="940,225,1135,251"/>
+<area shape="rect" href="Directive_8cpp.html" title=" " alt="" coords="1965,225,2150,251"/>
+<area shape="rect" href="IOEvent_8cpp.html" title=" " alt="" coords="1191,152,1369,177"/>
+<area shape="rect" href="Lexer_8cpp.html" title=" " alt="" coords="2532,225,2692,251"/>
 </map>
 </div>
 </div>
@@ -198,8 +195,12 @@ Typedefs</h2></td></tr>
 <tr class="separator:a7ce645cf2e5d02fc9efa1e2b4ab80e3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a47c612c8bbf1b6100b48c18acd41f064"><td class="memItemLeft" align="right" valign="top">typedef std::map&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Type_8hpp.html#a47c612c8bbf1b6100b48c18acd41f064">MimeMap</a></td></tr>
 <tr class="separator:a47c612c8bbf1b6100b48c18acd41f064"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abb2811293f21d388a7cace352adcc142"><td class="memItemLeft" align="right" valign="top">typedef std::map&lt; <a class="el" href="Type_8hpp.html#a91ad9478d81a7aaf2593e8d9c3d06a14">uint</a>, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Type_8hpp.html#abb2811293f21d388a7cace352adcc142">t_errors_map</a></td></tr>
+<tr class="separator:abb2811293f21d388a7cace352adcc142"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a991aa491538d579a234d5598f8f51497"><td class="memItemLeft" align="right" valign="top">typedef std::queue&lt; std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Type_8hpp.html#a991aa491538d579a234d5598f8f51497">t_body</a></td></tr>
 <tr class="separator:a991aa491538d579a234d5598f8f51497"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abc3b8782e46be939c5c83bc20cb13e79"><td class="memItemLeft" align="right" valign="top">typedef std::map&lt; std::string, std::string &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Type_8hpp.html#abc3b8782e46be939c5c83bc20cb13e79">t_headers</a></td></tr>
+<tr class="separator:abc3b8782e46be939c5c83bc20cb13e79"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac8162be8b4dded2afa5008ab1b0b47f0"><td class="memItemLeft" align="right" valign="top">typedef std::pair&lt; in_addr_t, in_port_t &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Type_8hpp.html#ac8162be8b4dded2afa5008ab1b0b47f0">t_network_address</a></td></tr>
 <tr class="separator:ac8162be8b4dded2afa5008ab1b0b47f0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac6b2b899e208c153b3958e5acdc5c859"><td class="memItemLeft" align="right" valign="top">typedef struct <a class="el" href="structs__attributes.html">s_attributes</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Type_8hpp.html#ac6b2b899e208c153b3958e5acdc5c859">t_attributes</a></td></tr>
@@ -268,6 +269,11 @@ Enumerations</h2></td></tr>
 , <a class="el" href="Type_8hpp.html#abb3a2f15cad9a2359a2532a109848739adc4e74592e7c87aba979d63a1e904ad9">BL_MAX</a>
  }</td></tr>
 <tr class="separator:abb3a2f15cad9a2359a2532a109848739"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a8f5aac7e5aa55203d21863d98dc5f8d1"><td class="memItemLeft" align="right" valign="top">std::ostream &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="Type_8hpp.html#a8f5aac7e5aa55203d21863d98dc5f8d1">operator&lt;&lt;</a> (std::ostream &amp;out, const <a class="el" href="Type_8hpp.html#abb2811293f21d388a7cace352adcc142">t_errors_map</a> &amp;errors)</td></tr>
+<tr class="separator:a8f5aac7e5aa55203d21863d98dc5f8d1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Macro Definition Documentation</h2>
 <a id="a6cb23a858b0a21bdaa644b9181dc415f" name="a6cb23a858b0a21bdaa644b9181dc415f"></a>
@@ -411,6 +417,20 @@ Enumerations</h2></td></tr>
 
 </div>
 </div>
+<a id="abb2811293f21d388a7cace352adcc142" name="abb2811293f21d388a7cace352adcc142"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abb2811293f21d388a7cace352adcc142">&#9670;&#160;</a></span>t_errors_map</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::map&lt;<a class="el" href="Type_8hpp.html#a91ad9478d81a7aaf2593e8d9c3d06a14">uint</a>, std::string&gt; <a class="el" href="Type_8hpp.html#abb2811293f21d388a7cace352adcc142">t_errors_map</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
 <a id="a7ce645cf2e5d02fc9efa1e2b4ab80e3f" name="a7ce645cf2e5d02fc9efa1e2b4ab80e3f"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a7ce645cf2e5d02fc9efa1e2b4ab80e3f">&#9670;&#160;</a></span>t_fd</h2>
 
@@ -419,6 +439,20 @@ Enumerations</h2></td></tr>
       <table class="memname">
         <tr>
           <td class="memname">typedef int <a class="el" href="Type_8hpp.html#a7ce645cf2e5d02fc9efa1e2b4ab80e3f">t_fd</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="abc3b8782e46be939c5c83bc20cb13e79" name="abc3b8782e46be939c5c83bc20cb13e79"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abc3b8782e46be939c5c83bc20cb13e79">&#9670;&#160;</a></span>t_headers</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">typedef std::map&lt;std::string, std::string&gt; <a class="el" href="Type_8hpp.html#abc3b8782e46be939c5c83bc20cb13e79">t_headers</a></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -618,6 +652,35 @@ Enumerations</h2></td></tr>
 <tr><td class="fieldname"><a id="a4553e16fbc35d9fec8ffdee711aa7867a202a7ecd980dd6e9fe84a98ac8ecee76" name="a4553e16fbc35d9fec8ffdee711aa7867a202a7ecd980dd6e9fe84a98ac8ecee76"></a>POLL_CTL_MOD&#160;</td><td class="fielddoc"></td></tr>
 <tr><td class="fieldname"><a id="a4553e16fbc35d9fec8ffdee711aa7867a58bc92b3a5b31c63e6b64afc20fcf0d1" name="a4553e16fbc35d9fec8ffdee711aa7867a58bc92b3a5b31c63e6b64afc20fcf0d1"></a>POLL_CTL_DEL&#160;</td><td class="fielddoc"></td></tr>
 </table>
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a8f5aac7e5aa55203d21863d98dc5f8d1" name="a8f5aac7e5aa55203d21863d98dc5f8d1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f5aac7e5aa55203d21863d98dc5f8d1">&#9670;&#160;</a></span>operator&lt;&lt;()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">std::ostream &amp; operator&lt;&lt; </td>
+          <td>(</td>
+          <td class="paramtype">std::ostream &amp;&#160;</td>
+          <td class="paramname"><em>out</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const <a class="el" href="Type_8hpp.html#abb2811293f21d388a7cace352adcc142">t_errors_map</a> &amp;&#160;</td>
+          <td class="paramname"><em>errors</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

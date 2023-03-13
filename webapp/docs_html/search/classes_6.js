@@ -1,6 +1,4 @@
 var searchData=
 [
-  ['lexer_0',['Lexer',['../classLexer.html',1,'']]],
-  ['listensocket_1',['ListenSocket',['../classListenSocket.html',1,'']]],
-  ['logger_2',['Logger',['../classLogger.html',1,'']]]
+  ['networkroute_0',['NetworkRoute',['../structNetworkRoute.html',1,'']]]
 ];

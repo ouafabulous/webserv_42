@@ -96,7 +96,8 @@ std::string findCgiExecPath(std::map<std::string, std::string> const &cgiPathMap
 	return (cgiMapIter->second);
 }
 
-IOEvent Route::setCGI(Connexion *conn, int cgi_index, const std::string script_path) const {
+IOEvent Route::setCGI(Connexion *conn, int cgi_index, const std::string script_path) const
+{
 	const std::string &execPath = findCgiExecPath(attributes.cgi_path, cgi_index);
 	if (checkPermissions(script_path, R_OK) && checkPermissions(execPath, X_OK))
 	{
@@ -121,7 +122,12 @@ IOEvent Route::setCGI(Connexion *conn, int cgi_index, const std::string script_p
 IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 {
 	t_request_line reqLine = req.request_line;
-	std::string completePath = attributes.root + reqLine.path;
+	std::string sub_path = reqLine.path.substr(attributes.location.size());
+	if (*attributes.location.rbegin() == '/')
+		sub_path += "/";
+	std::string completePath = attributes.root + sub_path;
+
+	// Logger::debug << completePath << std::endl;
 
 	// 1- redirect-handling
 	if (!attributes.redirect.empty())
@@ -190,6 +196,8 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	{
 		if (!(attributes.allowed_methods & POST))
 			return IOEvent(FAIL, conn, "", 405);
+		// if (directoryExists(reqLine.path.c_str()))
+		// 	return conn->setError("", 403);
 		std::string uploadFolderPath = attributes.root + attributes.uploadsFolder;
 		if (!directoryExists(uploadFolderPath.c_str()))
 		{
@@ -197,12 +205,12 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 			{
 				createFolder(uploadFolderPath);
 			}
-			catch (const IOExcept &e)
+			catch (const std::runtime_error &e)
 			{
-				return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
+				return conn->setError(e.what(), 500);
 			}
 		}
-		std::string completeUploadPath = uploadFolderPath + reqLine.path;
+		std::string completeUploadPath = uploadFolderPath + sub_path;
 		try
 		{
 			conn->setRessource(new PostStaticFile(conn, completeUploadPath));

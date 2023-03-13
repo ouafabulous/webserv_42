@@ -16,12 +16,11 @@ var searchData=
   ['portexists_13',['portExists',['../Parser_8cpp.html#a97ec875b603934e5943de5586b72d045',1,'Parser.cpp']]],
   ['post_14',['POST',['../Type_8hpp.html#ad2053c361c8f3e869644498c0bd562bfa368c5bc07109370b819193871352b926',1,'Type.hpp']]],
   ['poststaticfile_15',['PostStaticFile',['../classPostStaticFile.html',1,'PostStaticFile'],['../classPostStaticFile.html#a2b7f356ed21c2ddfea589d6e13754aaa',1,'PostStaticFile::PostStaticFile()']]],
-  ['print_5fenv_5fvariables_16',['print_env_variables',['../CGI_8cpp.html#a315fd1e80abb279cce5670e56f05c4eb',1,'CGI.cpp']]],
-  ['printattributes_17',['printAttributes',['../classRoute.html#a484068dc323c9a32d0e19637088af981',1,'Route']]],
-  ['printblock_18',['printBlock',['../classBlock.html#a40dd7e2a2b16366407b7e5c96a425f00',1,'Block']]],
-  ['printblocks_19',['printBlocks',['../classParser.html#aadc67f9291b169b08fe92c7e3166a3ca',1,'Parser']]],
-  ['printroutes_20',['printRoutes',['../classRouter.html#a3aad5828fd3b10ea59790742b5392bc3',1,'Router']]],
-  ['printtokens_21',['printTokens',['../classLexer.html#a4c5873b01e515aa83484054e641297fa',1,'Lexer']]],
-  ['printvector_22',['printVector',['../Parser_8cpp.html#a4688cd2c39860c105071513a368cd0a5',1,'Parser.cpp']]],
-  ['pushresponse_23',['pushResponse',['../classConnexion.html#a6afd074469a87f6ad7991ce4ce1f6777',1,'Connexion::pushResponse(const char *message, size_t n)'],['../classConnexion.html#a9a3a28775a683dcec817fe694566947f',1,'Connexion::pushResponse(std::string message)']]]
+  ['printattributes_16',['printAttributes',['../classRoute.html#a484068dc323c9a32d0e19637088af981',1,'Route']]],
+  ['printblock_17',['printBlock',['../classBlock.html#a40dd7e2a2b16366407b7e5c96a425f00',1,'Block']]],
+  ['printblocks_18',['printBlocks',['../classParser.html#aadc67f9291b169b08fe92c7e3166a3ca',1,'Parser']]],
+  ['printroutes_19',['printRoutes',['../classRouter.html#a3aad5828fd3b10ea59790742b5392bc3',1,'Router']]],
+  ['printtokens_20',['printTokens',['../classLexer.html#a4c5873b01e515aa83484054e641297fa',1,'Lexer']]],
+  ['printvector_21',['printVector',['../Parser_8cpp.html#a4688cd2c39860c105071513a368cd0a5',1,'Parser.cpp']]],
+  ['pushresponse_22',['pushResponse',['../classConnexion.html#a6afd074469a87f6ad7991ce4ce1f6777',1,'Connexion::pushResponse(const char *message, size_t n)'],['../classConnexion.html#a9a3a28775a683dcec817fe694566947f',1,'Connexion::pushResponse(std::string message)']]]
 ];

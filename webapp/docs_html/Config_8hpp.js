@@ -11,6 +11,7 @@ var Config_8hpp =
     [ "DEFAULT_AUTOINDEX", "Config_8hpp.html#aa13fb1b25a29830abb81189cc77cbe50", null ],
     [ "DEFAULT_INDEX", "Config_8hpp.html#aa82318edeaf1c294431689f17d3829c6", null ],
     [ "DEFAULT_MAXBODYSIZE", "Config_8hpp.html#a6db55c0129ed5b9e1eb9e5efccd94728", null ],
+    [ "DEFAULT_UPLOADS", "Config_8hpp.html#a333727b0fcbc718a57d5fb361f34f4f5", null ],
     [ "DIRECTIVE_NAME_LENGTH", "Config_8hpp.html#a91870bb4ba543b9eed4f733852db36cc", null ],
     [ "ERRORFILE", "Config_8hpp.html#ae45cec37aa269b5033e57b353a58f0d5", null ],
     [ "HTTP_VERSION", "Config_8hpp.html#a8bb9017f30ff8959b7916f558c82d306", null ],
@@ -20,5 +21,6 @@ var Config_8hpp =
     [ "MAXBODYSIZE", "Config_8hpp.html#a1578d9570deb9856f85cd412a6170e6c", null ],
     [ "REDIRECT", "Config_8hpp.html#afd0086f6d03b7b9d3dcf316957b6f52d", null ],
     [ "ROOT", "Config_8hpp.html#a77988da40e9a35da51ea0e8943ebbd4a", null ],
-    [ "SERVERNAMES", "Config_8hpp.html#af3609b968e3fea4c9bd7cc972e5f28dc", null ]
+    [ "SERVERNAMES", "Config_8hpp.html#af3609b968e3fea4c9bd7cc972e5f28dc", null ],
+    [ "UPLOADS", "Config_8hpp.html#a0bc61f927a30acaca7846c810cdca013", null ]
 ];

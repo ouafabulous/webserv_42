@@ -1,4 +1,21 @@
 var searchData=
 [
-  ['socket_5fmap_0',['socket_map',['../classServer.html#a3d937d56372ed06528218d21e7c33322',1,'Server']]]
+  ['t_5fattributes_0',['t_attributes',['../Type_8hpp.html#ac6b2b899e208c153b3958e5acdc5c859',1,'Type.hpp']]],
+  ['t_5fb_5ftok_1',['t_b_tok',['../Type_8hpp.html#aaf7e3442dcb4e5b5adc1a3d2ef321d71',1,'Type.hpp']]],
+  ['t_5fblock_5ftype_2',['t_block_type',['../Type_8hpp.html#a1901d4595116f7c10595cdfbc8a8547b',1,'Type.hpp']]],
+  ['t_5fbody_3',['t_body',['../Type_8hpp.html#a991aa491538d579a234d5598f8f51497',1,'Type.hpp']]],
+  ['t_5fcgiinfo_4',['t_cgiInfo',['../Type_8hpp.html#a23f846cbfb25cb2b9fa82617752c1691',1,'Type.hpp']]],
+  ['t_5fchr_5fclass_5',['t_chr_class',['../Type_8hpp.html#aabfeb2d178a1c9f1f501a998659695a6',1,'Type.hpp']]],
+  ['t_5ferrors_5fmap_6',['t_errors_map',['../Type_8hpp.html#abb2811293f21d388a7cace352adcc142',1,'Type.hpp']]],
+  ['t_5ffd_7',['t_fd',['../Type_8hpp.html#a7ce645cf2e5d02fc9efa1e2b4ab80e3f',1,'Type.hpp']]],
+  ['t_5fheaders_8',['t_headers',['../Type_8hpp.html#abc3b8782e46be939c5c83bc20cb13e79',1,'Type.hpp']]],
+  ['t_5fnetwork_5faddress_9',['t_network_address',['../Type_8hpp.html#ac8162be8b4dded2afa5008ab1b0b47f0',1,'Type.hpp']]],
+  ['t_5fpoll_5fit_10',['t_poll_it',['../classServer.html#a1dafaaab25990c23fee4be0f345f0926',1,'Server']]],
+  ['t_5fpollfd_11',['t_pollfd',['../Server_8hpp.html#ac4db561f67b1b0d12d4ec507c46e5247',1,'Server.hpp']]],
+  ['t_5fpollfds_5fvec_12',['t_pollfds_vec',['../classServer.html#a352135e35ec4c5cf5dfb36e77e1394e2',1,'Server']]],
+  ['t_5fs_5ftok_13',['t_s_tok',['../Type_8hpp.html#a8e6b488a941fa3882d18c51408337c31',1,'Type.hpp']]],
+  ['t_5ftoken_14',['t_token',['../Type_8hpp.html#acd5342042674e725032d570044ed196c',1,'Type.hpp']]],
+  ['t_5ftype_15',['t_type',['../Directive_8hpp.html#a346da7b9146a9e299f83267aeee1696c',1,'Directive.hpp']]],
+  ['t_5fvserver_16',['t_vserver',['../Router_8hpp.html#ad967c9c3952eb423b624ca075a45bce5',1,'Router.hpp']]],
+  ['tokenlist_17',['TokenList',['../Type_8hpp.html#a3e14d5acaafe2fae5b1b5b79221fb8b5',1,'Type.hpp']]]
 ];
