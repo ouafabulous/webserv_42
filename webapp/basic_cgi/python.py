@@ -28,37 +28,49 @@
 
 
 #!/usr/bin/env python3
+import os
 import cgi
 import http.cookies as cookies
+from datetime import datetime, timedelta
 
-c = cookies.SimpleCookie()
+c = cookies.SimpleCookie(os.environ.get("HTTP_COOKIE"))
 
 form = cgi.FieldStorage()
 
 
-if "myVariable" in form:
-    name = form["myVariable"].value
+if "name" in form:
+    name = form["name"].value
     c['myCookie'] = name
+    expires = datetime.utcnow() + timedelta(hours=10)
+    c['myCookie']['expires'] = expires.strftime('%a, %d-%b-%Y %H:%M:%S GMT')
 
 print("HTTP/1.1 200 OK")
 print("Content-Type: text/html")
-print(c.output())
+if "name" in form:
+    print(c.output())
+
+
+print()
 
 print("""
 <html>
   <head>
-    <title>My Form</title>
+    <title>My Python Form</title>
   </head>
   <body>
-    <form method="post">
-      <label for="myVariable">Enter your name:</label>
-      <input type="text" name="myVariable" id="myVariable">
+    """)
+if 'myCookie' in c:
+    print(f"<h1>Hello {c['myCookie'].value} from Python script</h1>")
+print("""<form method="post" action="php.php">
+      <label for="name">Enter your name:</label>
+      <input type="text" name="name" id="name">
       <input type="submit" value="Submit">
     </form>
     <br>
     <p>""")
-if "myVariable" in form:
-    print(f"Hello, {name}!")
+#if 'myCookie' in cookies.SimpleCookie(os.environ.get("HTTP_COOKIE")):
+#    print("Set-Cookie: myCookie=value")
+
 print("""    </p>
   </body>
 </html>
