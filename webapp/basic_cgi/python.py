@@ -1,5 +1,9 @@
 #print("HTTP/1.1 200 OK\r\nSet-Cookie: first_cookie=first_value\r\nContent-Type: text/plain\r\n Host: TestHost\r\n\r\nHello, World!\n")
 
+
+#########################################################################
+
+
 #import cgi
 #import http.cookies as cookies
 
@@ -19,21 +23,43 @@
 
 #print(response)
 
+
+########################################################################
+
+
 #!/usr/bin/env python3
 import cgi
 import http.cookies as cookies
 
 c = cookies.SimpleCookie()
-c['myCookie'] = "hello"
 
 form = cgi.FieldStorage()
 
-print("HTTP/1.1 200 OK")
-print("Content-Type: text/html")
-print('set-Cookie', c['myCookie'].OutputString())
-print()
 
 if "myVariable" in form:
     name = form["myVariable"].value
     c['myCookie'] = name
-print(f"<h1>Hello, {c['myCookie'].OutputString()}!</h1>")
+
+print("HTTP/1.1 200 OK")
+print("Content-Type: text/html")
+print(c.output())
+
+print("""
+<html>
+  <head>
+    <title>My Form</title>
+  </head>
+  <body>
+    <form method="post">
+      <label for="myVariable">Enter your name:</label>
+      <input type="text" name="myVariable" id="myVariable">
+      <input type="submit" value="Submit">
+    </form>
+    <br>
+    <p>""")
+if "myVariable" in form:
+    print(f"Hello, {name}!")
+print("""    </p>
+  </body>
+</html>
+""")
