@@ -4,18 +4,6 @@
 #include <Type.hpp>
 #include "Router.hpp"
 
-bool	portExists(std::vector<Route> vserverRoutes, uint currentPort)
-{
-	std::vector<Route>::iterator	itRoutes;
-
-	for (itRoutes = vserverRoutes.begin(); itRoutes != vserverRoutes.end(); itRoutes++)
-	{
-		if (currentPort == itRoutes->getAttributes().port)
-			return true;
-	}
-	return false;
-}
-
 // int i = 0;
 Router::Router(Parser const &confile)
 {
@@ -37,10 +25,10 @@ Router::Router(Parser const &confile)
 		{
 			attributes.location = it->getLocationValue();
 			fillAttributes(&attributes, it->getDirectives());
-			if (portExists(vserver._routes, attributes.port))
-				throw std::runtime_error("Servers should listen on different ports!\n");
 			vserver._routes.push_back(Route(attributes));
 		}
+		if (_network_map.find(t_network_address(INADDR_ANY, htons(attributes.port))) != _network_map.end())
+				throw std::runtime_error("Servers should listen on different ports!\n");
 		_network_map[t_network_address(INADDR_ANY, htons(attributes.port))].push_back(vserver);
 	}
 	printRoutes();
