@@ -28,6 +28,7 @@ public:
 
 private:
 	t_attributes attributes;
+	IOEvent				setCGI(Connexion *conn, int cgi_index, const std::string script_path) const;
 };
 
 #endif

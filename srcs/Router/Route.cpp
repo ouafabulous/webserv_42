@@ -96,6 +96,28 @@ std::string findCgiExecPath(std::map<std::string, std::string> const &cgiPathMap
 	return (cgiMapIter->second);
 }
 
+IOEvent Route::setCGI(Connexion *conn, int cgi_index, const std::string script_path) const {
+	const std::string &execPath = findCgiExecPath(attributes.cgi_path, cgi_index);
+	if (checkPermissions(script_path, R_OK) && checkPermissions(execPath, X_OK))
+	{
+		const t_cgiInfo cgiInfo(
+			extractBeforeChar(script_path, '?'),
+			extractAfterChar(script_path, '?'),
+			execPath);
+		try
+		{
+			conn->setRessource(new CGI(conn, cgiInfo));
+			return (IOEvent());
+		}
+		catch (const IOExcept &e)
+		{
+			return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
+		}
+	}
+	else
+		return conn->setError("", 404);
+}
+
 IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 {
 	t_request_line reqLine = req.request_line;
@@ -109,47 +131,24 @@ IOEvent Route::setRessource(const t_http_message &req, Connexion *conn) const
 	}
 
 	// 2- CGI handling
-	const int cgiIndex = isCGI(completePath);
+	int cgiIndex = isCGI(completePath);
 	if (cgiIndex >= 0)
-	{
-		const std::string &execPath = findCgiExecPath(attributes.cgi_path, cgiIndex);
-		if (checkPermissions(completePath, R_OK) && checkPermissions(execPath, X_OK))
-		{
-			const t_cgiInfo cgiInfo(
-				extractBeforeChar(completePath, '?'),
-				extractAfterChar(completePath, '?'),
-				execPath);
-			try
-			{
-				conn->setRessource(new CGI(conn, cgiInfo));
-				return (IOEvent());
-			}
-			catch (const IOExcept &e)
-			{
-				return conn->setError(e.IOwhat().log, e.IOwhat().http_error);
-			}
-		}
-		else
-			return conn->setError("", 404);
-	}
+		return setCGI(conn, cgiIndex, completePath);
 
 	// 3- Directory handling
 	if (directoryExists(completePath.c_str()))
 	{
+		const std::string indexPath = completePath + attributes.index;
+		if ((cgiIndex = isCGI(indexPath)) >= 0)
+			return (setCGI(conn, cgiIndex, indexPath));
 		if (reqLine.method == GET && (attributes.allowed_methods & GET))
 		{
-			const std::string indexPath = completePath + attributes.index;
 			if (fileExists(indexPath.c_str()))
 			{
 				if (checkPermissions(indexPath, R_OK))
 				{
 					if (!(attributes.allowed_methods & GET))
 						return IOEvent(FAIL, conn, "", 405);
-					if (isCGI(indexPath) >= 0)
-					{
-						reqLine.path = attributes.index;
-						return (setRessource(req, conn));
-					}
 					try
 					{
 						conn->setRessource(new GetStaticFile(conn, indexPath));

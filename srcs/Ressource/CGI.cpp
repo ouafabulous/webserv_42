@@ -12,21 +12,17 @@ void fill_env_variables(Connexion *conn, t_cgiInfo cgiInfo, std::vector<std::str
 		std::stringstream ss;
 		ss << conn->getRequest().content_length;
 		args_vector.push_back("CONTENT_LENGTH=" + ss.str());
-		Logger::error << args_vector.back() << std::endl;
 	}
 
-	// args_vector.push_back("CONTENT_TYPE=" + get_mime(cgiInfo._filePath));
 	std::string content_type = "text/plain";
 	it = conn->getRequest().header_fields.find("Content-Type");
 	if (it != conn->getRequest().header_fields.end())
 		content_type = it->second;
 	args_vector.push_back("CONTENT_TYPE=" + content_type);
-	Logger::error << args_vector.back() << std::endl;
 	args_vector.push_back("REDIRECT_STATUS=200");
 	args_vector.push_back("PATH_INFO=" + script_full_path);
 	args_vector.push_back("SCRIPT_NAME=" + script_full_path);
 	args_vector.push_back("SCRIPT_FILENAME=" + script_full_path);
-	Logger::error << args_vector.back() << std::endl;
 	args_vector.push_back("GATEWAY_INTERFACE=CGI/1.1");
 	args_vector.push_back("QUERY_STRING=" + cgiInfo._queryString);
 	args_vector.push_back("REMOTE_ADDR=" + conn->client_ip_addr);
