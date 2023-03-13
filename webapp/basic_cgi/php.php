@@ -1,29 +1,24 @@
 <?php
 header('HTTP/1.1 404 Not Found');
-$cookieValue = '';
 
-if (isset($_COOKIE['myCookie'])) {
-    $cookieValue = $_COOKIE['myCookie'];
-}
-
-if (isset($_POST['myVariable'])) {
+if (isset($_POST['name'])) {
     // Set a cookie with the value of the POST variable
-    setcookie('myCookie', $_POST['myVariable'], time() + 3600); // Expires in 1 hour
-    $cookieValue = $_POST['myVariable'];
+    setcookie('myCookie', $_POST['name'], time() + 3600); // Expires in 1 hour
 }
 ?>
 <!DOCTYPE html>
 <html>
 	<head>
+        <title>My Python Form</title>
 	</head>
 	<body>
 		<?php
-			if (isset($cookieValue)) { ?>
-			<h1>Bonjour <?php echo $cookieValue; ?></h1>
+			if (isset($_COOKIE['myCookie'])) { ?>
+			<h1>Hello <?php echo $_COOKIE['myCookie']; ?> from PHP Script</h1>
 		<?php } ?>
     <form method="POST" action="python.py">
-        <label for="myVariable">Enter a value:</label>
-        <input type="text" name="myVariable" id="myVariable">
+        <label for="name">Enter a value:</label>
+        <input type="text" name="name" id="name">
         <button type="submit">Submit</button>
     </form>
 </body>
