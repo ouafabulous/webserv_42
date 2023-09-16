@@ -110,3 +110,33 @@ server {
 ```
 
 Note that these are just examples, and you will need to adjust them to match the specific needs of your application.
+
+# Load-testing using [Vegeta](https://github.com/tsenart/vegeta)
+Run with **Vegeta** on a **Dell OptiPlex 7400 AIO Series** (RAM: 15GiB, CPU: 12th Gen Intel(R) Core(TM) i7-12700)
+
+## GET Hello World
+### Description
+getting a `index.html` file containing the following content:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+<title>Hello World HTML</title>
+</head>
+<body>
+<h1>Hello World</h1>
+</body>
+</html>
+```
+### Result
+```
+> echo "GET http://localhost:8080/index.html" | vegeta attack -duration=120s -rate 0 -max-workers 72 | tee results.bin | vegeta report
+
+Requests      [total, rate, throughput]         4633030, 38608.59, 38532.05
+Duration      [total, attack, wait]             2m0s, 2m0s, 207.308ms
+Latencies     [min, mean, 50, 90, 95, 99, max]  12.356µs, 1.845ms, 1.571ms, 2.004ms, 2.285ms, 2.916ms, 813.214ms
+Bytes In      [total, mean]                     528028962, 113.97
+Bytes Out     [total, mean]                     0, 0.00
+Success       [ratio]                           99.97%
+Status Codes  [code:count]                      0:1197  200:4631833
+```

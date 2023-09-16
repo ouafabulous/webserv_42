@@ -72,7 +72,7 @@ std::string checkConfigFile(int ac, char *av[])
 
 int main(int ac, char *av[])
 {
-	Logger::setLevel(DEBUG);
+	Logger::setLevel(MUTE);
 
 	// signal(SIGPIPE, handle_sigpipe);
 	signal(SIGINT, handle_sigint);
